@@ -1,5 +1,5 @@
 export const USERNAME_MIN_LENGTH = 2;
-export const USERNAME_MAX_LENGTH = 255;
+export const USERNAME_MAX_LENGTH = 50;
 
 export const EMAIL_MIN_LENGTH = 6;
 export const EMAIL_MAX_LENGTH = 255;
