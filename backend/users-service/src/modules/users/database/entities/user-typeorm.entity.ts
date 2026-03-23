@@ -12,7 +12,7 @@ import {
   EMAIL_MAX_LENGTH,
   PASSWORD_MAX_LENTH,
   USERNAME_MAX_LENGTH,
-} from '../../../domain/user.rules';
+} from '../../user.rules';
 import {
   CONSTRAINT_USERS_EMAIL_UQ,
   CONSTRAINT_USERS_USER_ID_PK,
@@ -60,7 +60,7 @@ export class UserTypeOrmEntity {
   @Column({
     name: 'date_of_birth',
     type: 'date',
-    nullable: true,
+    nullable: false,
   })
   dateOfBirth: string;
 

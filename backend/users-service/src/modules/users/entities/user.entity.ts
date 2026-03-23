@@ -1,52 +1,29 @@
+import { TCreateUser, TRestoreUser } from '../types/create-user.type';
 import {
   ABOUT_DEFAULT_VALUE,
+  DATE_OF_BIRTH_DEFAULT_VALUE,
   DATE_OF_BIRTH_REGEXP,
   EMAIL_MIN_LENGTH,
   PASSWORD_MIN_LENTH,
   USERNAME_MIN_LENGTH,
 } from '../user.rules';
 
-type TUserId = string;
-type TUsername = string;
-type TEmail = string;
-type TPassword = string;
-type TDateOfBirth = string;
-type TAbout = string;
-
 type UserProps = {
-  userId: TUserId;
-  username: TUsername;
-  email: TEmail;
-  password: TPassword;
-  dateOfBirth: TDateOfBirth | null;
-  about: TAbout;
-};
-
-type CreateUserProps = {
-  userId: TUserId;
-  username: TUsername;
-  email: TEmail;
-  password: TPassword;
-  dateOfBirth?: TDateOfBirth;
-  about?: TAbout;
-};
-
-type RestoreUserProps = {
-  userId: TUserId;
-  username: TUsername;
-  email: TEmail;
-  password: TPassword;
-  dateOfBirth: TDateOfBirth | null;
-  about: TAbout;
+  userId: string;
+  username: string;
+  email: string;
+  password: string;
+  about: string;
+  dateOfBirth: string;
 };
 
 export class User {
-  readonly userId: TUserId;
-  readonly username: TUsername;
-  readonly email: TEmail;
-  readonly password: TPassword;
-  readonly dateOfBirth: TDateOfBirth | null;
-  readonly about: TAbout;
+  readonly userId: string;
+  readonly username: string;
+  readonly email: string;
+  readonly password: string;
+  readonly about: string;
+  readonly dateOfBirth: string;
 
   private constructor(userProps: UserProps) {
     this.userId = userProps.userId;
@@ -57,7 +34,7 @@ export class User {
     this.about = userProps.about;
   }
 
-  private static validateDateOfBirth(value: TDateOfBirth) {
+  private static validateDateOfBirth(value: string) {
     const result = DATE_OF_BIRTH_REGEXP.test(value);
 
     if (!result) {
@@ -71,9 +48,11 @@ export class User {
     }
   }
 
-  static create(createProps: CreateUserProps) {
+  static create(createProps: TCreateUser) {
     if (createProps.dateOfBirth !== undefined) {
       this.validateDateOfBirth(createProps.dateOfBirth);
+    } else {
+      createProps.dateOfBirth = DATE_OF_BIRTH_DEFAULT_VALUE;
     }
 
     if (createProps.username.length < USERNAME_MIN_LENGTH) {
@@ -103,20 +82,17 @@ export class User {
       username: createProps.username,
       email: createProps.email,
       password: createProps.password,
-      dateOfBirth: createProps.dateOfBirth ?? null,
+      dateOfBirth: createProps.dateOfBirth,
       about: createProps.about ?? ABOUT_DEFAULT_VALUE,
     });
   }
 
-  static restore(restoreProps: RestoreUserProps) {
+  static restore(restoreProps: TRestoreUser) {
     return new User(restoreProps);
   }
 
-  getAge(currentDate: Date) {
-    if (this.dateOfBirth === null) {
-      return null;
-    }
-
+  getAge() {
+    const currentDate = new Date();
     const dateOfBirth = new Date(this.dateOfBirth);
 
     let age = currentDate.getFullYear() - dateOfBirth.getFullYear();

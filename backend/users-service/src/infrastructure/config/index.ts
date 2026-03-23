@@ -4,6 +4,7 @@ const appConfigSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']),
   APP_HOST: z.string().default('localhost'),
   APP_PORT: z.coerce.number().default(8080),
+  PASSWORD_SALT: z.coerce.number().default(10),
 });
 
 const databaseConfigSchema = z.object({
