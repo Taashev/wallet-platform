@@ -7,6 +7,13 @@ const appConfigSchema = z.object({
   PASSWORD_SALT: z.coerce.number().default(10),
 });
 
+const authConfigShema = z.object({
+  ACCESS_TOKEN_SECRET: z.string(),
+  REFRESH_TOKEN_SECRET: z.string(),
+  ACCESS_TOKEN_EXPIRE_IN: z.coerce.number(),
+  REFRESH_TOKEN_EXPIRE_IN: z.coerce.number(),
+});
+
 const databaseConfigSchema = z.object({
   POSTGRES_HOST: z.string().default('localhost'),
   POSTGRES_PORT: z.coerce.number().default(5432),
@@ -15,31 +22,34 @@ const databaseConfigSchema = z.object({
   POSTGRES_PASSWORD: z.string(),
 });
 
-export type AppConfigType = z.infer<typeof appConfigSchema>;
+const schemaList = [
+  { name: 'app', schema: appConfigSchema },
+  { name: 'auth', schema: authConfigShema },
+  { name: 'database', schema: databaseConfigSchema },
+];
 
+export type AppConfigType = z.infer<typeof appConfigSchema>;
+export type AuthConfigType = z.infer<typeof authConfigShema>;
 export type DatabaseConfigType = z.infer<typeof databaseConfigSchema>;
 
 export type ConfigType = {
   app: AppConfigType;
+  auth: AuthConfigType;
   database: DatabaseConfigType;
 };
 
 export function validateConfig(data: Record<string, any>): ConfigType {
-  const appConfig = appConfigSchema.safeParse(data);
-  const databaseConfig = databaseConfigSchema.safeParse(data);
+  const config = {} as ConfigType;
 
-  if (appConfig.error) {
-    console.error('Ошибка при загрузке параметров приложения');
-    throw appConfig.error;
+  for (const { schema, name } of schemaList) {
+    const parsed = schema.safeParse(data);
+
+    if (parsed.error) {
+      throw parsed.error;
+    }
+
+    config[name] = parsed.data;
   }
 
-  if (databaseConfig.error) {
-    console.error('Ошибка при загрузке параметров базы данных');
-    throw databaseConfig.error;
-  }
-
-  return {
-    app: appConfig.data,
-    database: databaseConfig.data,
-  };
+  return config;
 }

@@ -7,13 +7,15 @@ import { AppConfigType, ConfigType } from '../../infrastructure/config';
 
 @Injectable()
 export class PasswordService {
-  constructor(private config: ConfigService<ConfigType>) {}
+  salt: number;
 
-  async hash(password: string) {
+  constructor(private config: ConfigService<ConfigType>) {
     const appConfig = this.config.getOrThrow<AppConfigType>('app');
 
-    const salt = appConfig.PASSWORD_SALT;
+    this.salt = appConfig.PASSWORD_SALT;
+  }
 
-    return await bcrypt.hash(password, salt);
+  async hash(password: string) {
+    return await bcrypt.hash(password, this.salt);
   }
 }
