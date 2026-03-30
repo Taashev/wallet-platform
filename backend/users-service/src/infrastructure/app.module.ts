@@ -8,6 +8,7 @@ import { UsersModule } from '../modules/users/users.module';
 
 import { configModuleOptions } from './config/config-options';
 import { typeOrmModuleOptions } from './database/typeorm-options';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { typeOrmModuleOptions } from './database/typeorm-options';
     UsersModule,
     SessionsModule,
     AuthModule,
+    TransactionModule,
   ],
   controllers: [],
   providers: [],

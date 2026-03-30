@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 
-import { Repository } from 'typeorm';
-
+import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import { User } from '../entities/user.entity';
 import { UsersRepository } from '../interfaces/repository.interface';
 import { CreateUser } from '../types/user.type';
@@ -11,15 +9,15 @@ import { UserTypeOrmEntity } from './entities/user-typeorm.entity';
 
 @Injectable()
 export class UsersTypeOrmRepository implements UsersRepository {
-  constructor(
-    @InjectRepository(UserTypeOrmEntity)
-    private usersRepository: Repository<UserTypeOrmEntity>,
-  ) {}
+  constructor(private transactionService: TransactionService) {}
 
   async create(createUser: CreateUser) {
+    const repo =
+      this.transactionService.manager.getRepository(UserTypeOrmEntity);
+
     const user = User.create(createUser);
 
-    const userTypeOrmEntity = this.usersRepository.create({
+    const userTypeOrmEntity = repo.create({
       userId: user.userId,
       username: user.username,
       email: user.email,
@@ -28,7 +26,7 @@ export class UsersTypeOrmRepository implements UsersRepository {
       about: user.about,
     });
 
-    await this.usersRepository.insert(userTypeOrmEntity);
+    await repo.insert(userTypeOrmEntity);
 
     return user;
   }

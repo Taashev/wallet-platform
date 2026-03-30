@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
+import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import { SessionsService } from '../../sessions/sessions.service';
 import type { UsersRepository } from '../../users/interfaces/repository.interface';
 import { USERS_REPOSITORY } from '../../users/users.keys';
@@ -14,6 +15,7 @@ export class SignupUseCase {
     private sessionsService: SessionsService,
     private tokenService: TokenService,
     private passwordService: PasswordService,
+    private transactionServie: TransactionService,
   ) {}
 
   async execute(createUserDto: CreateUserDto, userAgent: string | undefined) {
@@ -30,22 +32,24 @@ export class SignupUseCase {
       sessionId,
     });
 
-    const user = await this.usersRepository.create({
-      userId,
-      username: createUserDto.username,
-      email: createUserDto.email,
-      password: passwordHash,
-      about: createUserDto.about,
-      dateOfBirth: createUserDto.dateOfBirth,
-    });
+    return await this.transactionServie.run(async () => {
+      const user = await this.usersRepository.create({
+        userId,
+        username: createUserDto.username,
+        email: createUserDto.email,
+        password: passwordHash,
+        about: createUserDto.about,
+        dateOfBirth: createUserDto.dateOfBirth,
+      });
 
-    await this.sessionsService.create({
-      sessionId,
-      refreshToken,
-      userId: user.userId,
-      userAgent,
-    });
+      await this.sessionsService.create({
+        sessionId,
+        refreshToken,
+        userId: user.userId,
+        userAgent,
+      });
 
-    return { user, accessToken, refreshToken };
+      return { user, accessToken, refreshToken };
+    });
   }
 }

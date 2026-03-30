@@ -29,8 +29,8 @@ export class SessionsService {
     return crypto.randomUUID();
   }
 
-  createExpirationDate(timeInSeconds: number) {
-    return new Date(Date.now() + timeInSeconds * 1000 * 60 * 60);
+  createExpirationDate(ttlMs: number) {
+    return new Date(Date.now() + ttlMs);
   }
 
   async create(sessionData: {
@@ -41,7 +41,9 @@ export class SessionsService {
   }) {
     const authConfig = this.config.getOrThrow<AuthConfigType>('auth');
 
-    const expiresAt = this.createExpirationDate(authConfig.SESSION_EXPIRES_IN);
+    const SESSION_TTL_MS = authConfig.SESSION_TTL_SECONDS * 1000;
+
+    const expiresAt = this.createExpirationDate(SESSION_TTL_MS);
 
     const refreshTokenHash = this.hash(sessionData.refreshToken);
 

@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 
-import { EntityManager, Repository } from 'typeorm';
-
+import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import { Session } from '../entities/session.entity';
 import { SessionsRepository } from '../interfaces/sessions-repository.interface';
 import { CreateSession } from '../types/session.type';
@@ -11,22 +9,15 @@ import { SessionTypeOrmEntity } from './entities/session-typeorm.entity';
 
 @Injectable()
 export class SessionsTypeOrmRepository implements SessionsRepository {
-  constructor(
-    @InjectRepository(SessionTypeOrmEntity)
-    private sessionsRepository: Repository<SessionTypeOrmEntity>,
-  ) {}
+  constructor(private transactionService: TransactionService) {}
 
-  async create(
-    sessionData: CreateSession,
-    manager?: EntityManager,
-  ): Promise<Session> {
-    const repository = manager
-      ? manager.getRepository(SessionTypeOrmEntity)
-      : this.sessionsRepository;
+  async create(sessionData: CreateSession): Promise<Session> {
+    const repo =
+      this.transactionService.manager.getRepository(SessionTypeOrmEntity);
 
     const session = Session.create(sessionData);
 
-    const sessionTypeOrmEntity = repository.create({
+    const sessionTypeOrmEntity = repo.create({
       sessionId: session.sessionId,
       expiresAt: session.expiresAt,
       revokedAt: session.revokedAt,
@@ -35,7 +26,7 @@ export class SessionsTypeOrmRepository implements SessionsRepository {
       userAgent: session.userAgent,
     });
 
-    await repository.insert(sessionTypeOrmEntity);
+    await repo.insert(sessionTypeOrmEntity);
 
     return session;
   }
