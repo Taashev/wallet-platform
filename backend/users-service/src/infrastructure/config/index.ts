@@ -10,8 +10,9 @@ const appConfigSchema = z.object({
 const authConfigShema = z.object({
   ACCESS_TOKEN_SECRET: z.string(),
   REFRESH_TOKEN_SECRET: z.string(),
-  ACCESS_TOKEN_EXPIRE_IN: z.coerce.number(),
-  REFRESH_TOKEN_EXPIRE_IN: z.coerce.number(),
+  ACCESS_TOKEN_EXPIRES_IN: z.coerce.number().positive(),
+  REFRESH_TOKEN_EXPIRES_IN: z.coerce.number().positive(),
+  SESSION_EXPIRES_IN: z.coerce.number().positive(),
 });
 
 const databaseConfigSchema = z.object({

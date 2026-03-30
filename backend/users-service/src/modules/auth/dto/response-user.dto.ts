@@ -1,17 +1,24 @@
 import { Expose } from 'class-transformer';
 
+import type {
+  About,
+  Email,
+  UserId,
+  Username,
+} from '../../users/types/user.type';
+
 export class ResponseUserDto {
   @Expose()
-  userId: string;
+  userId: UserId;
 
   @Expose()
-  username: string;
+  username: Username;
 
   @Expose()
-  email: string;
+  email: Email;
 
   @Expose()
-  about: string;
+  about: About;
 
   @Expose()
   age: number;

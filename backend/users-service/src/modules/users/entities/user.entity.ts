@@ -1,4 +1,13 @@
-import { TCreateUser, TRestoreUser } from '../types/create-user.type';
+import {
+  About,
+  CreateUser,
+  DateOfBirth,
+  Email,
+  Password,
+  RestoreUser,
+  UserId,
+  Username,
+} from '../types/user.type';
 import {
   ABOUT_DEFAULT_VALUE,
   DATE_OF_BIRTH_DEFAULT_VALUE,
@@ -9,21 +18,21 @@ import {
 } from '../user.rules';
 
 type UserProps = {
-  userId: string;
-  username: string;
-  email: string;
-  password: string;
-  about: string;
-  dateOfBirth: string;
+  userId: UserId;
+  username: Username;
+  email: Email;
+  password: Password;
+  dateOfBirth: DateOfBirth;
+  about: About;
 };
 
 export class User {
-  readonly userId: string;
-  readonly username: string;
-  readonly email: string;
-  readonly password: string;
-  readonly about: string;
-  readonly dateOfBirth: string;
+  readonly userId: UserId;
+  readonly username: Username;
+  readonly email: Email;
+  readonly password: Password;
+  readonly about: About;
+  readonly dateOfBirth: DateOfBirth;
 
   private constructor(userProps: UserProps) {
     this.userId = userProps.userId;
@@ -48,7 +57,7 @@ export class User {
     }
   }
 
-  static create(createProps: TCreateUser) {
+  static create(createProps: CreateUser) {
     if (createProps.dateOfBirth !== undefined) {
       this.validateDateOfBirth(createProps.dateOfBirth);
     } else {
@@ -87,11 +96,11 @@ export class User {
     });
   }
 
-  static restore(restoreProps: TRestoreUser) {
+  static restore(restoreProps: RestoreUser) {
     return new User(restoreProps);
   }
 
-  getAge() {
+  get age() {
     const currentDate = new Date();
     const dateOfBirth = new Date(this.dateOfBirth);
 

@@ -1,6 +1,6 @@
 import { User } from '../entities/user.entity';
-import { TCreateUser } from '../types/create-user.type';
+import { CreateUser } from '../types/user.type';
 
-export interface IUsersRepository {
-  create(createUserProps: TCreateUser): Promise<User>;
+export interface UsersRepository {
+  create(createUserProps: CreateUser): Promise<User>;
 }

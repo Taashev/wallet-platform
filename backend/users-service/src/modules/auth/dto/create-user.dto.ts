@@ -9,6 +9,13 @@ import {
 
 import { Trim } from '../../../shared/decorators/transformers';
 import { IsISODateString } from '../../../shared/decorators/validator';
+import type {
+  About,
+  DateOfBirth,
+  Email,
+  Password,
+  Username,
+} from '../../users/types/user.type';
 import {
   ABOUT_MAX_LENTH,
   EMAIL_MAX_LENGTH,
@@ -24,30 +31,30 @@ export class CreateUserDto {
   @Trim()
   @MaxLength(USERNAME_MAX_LENGTH)
   @MinLength(USERNAME_MIN_LENGTH)
-  username: string;
+  username: Username;
 
   @Expose()
   @IsEmail()
   @Trim()
   @MaxLength(EMAIL_MAX_LENGTH)
-  email: string;
+  email: Email;
 
   @Expose()
   @IsString()
   @Trim()
   @MaxLength(PASSWORD_MAX_LENTH)
   @MinLength(PASSWORD_MIN_LENTH)
-  password: string;
+  password: Password;
 
   @Expose()
   @IsOptional()
   @Trim()
   @IsISODateString()
-  dateOfBirth?: string;
+  dateOfBirth?: DateOfBirth;
 
   @Expose()
   @IsOptional()
   @Trim()
   @MaxLength(ABOUT_MAX_LENTH)
-  about?: string;
+  about?: About;
 }

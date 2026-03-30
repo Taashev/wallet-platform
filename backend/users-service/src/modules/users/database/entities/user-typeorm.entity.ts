@@ -14,19 +14,19 @@ import {
   USERNAME_MAX_LENGTH,
 } from '../../user.rules';
 import {
-  CONSTRAINT_USERS_EMAIL_UQ,
-  CONSTRAINT_USERS_USER_ID_PK,
-  CONSTRAINT_USERS_USERNAME_UQ,
+  USERS_CONSTRAINT_EMAIL_UQ,
+  USERS_CONSTRAINT_USER_ID_PK,
+  USERS_CONSTRAINT_USERNAME_UQ,
 } from '../constants';
 
 @Entity({ name: 'users' })
-@Unique(CONSTRAINT_USERS_EMAIL_UQ, ['email'])
-@Unique(CONSTRAINT_USERS_USERNAME_UQ, ['username'])
+@Unique(USERS_CONSTRAINT_EMAIL_UQ, ['email'])
+@Unique(USERS_CONSTRAINT_USERNAME_UQ, ['username'])
 export class UserTypeOrmEntity {
   @PrimaryColumn({
     name: 'user_id',
     type: 'uuid',
-    primaryKeyConstraintName: CONSTRAINT_USERS_USER_ID_PK,
+    primaryKeyConstraintName: USERS_CONSTRAINT_USER_ID_PK,
   })
   userId: string;
 

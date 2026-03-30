@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateTableUsers1774277910951 implements MigrationInterface {
-  name = 'CreateTableUsers1774277910951';
+export class CreateTableUsers1774516019479 implements MigrationInterface {
+  name = 'CreateTableUsers1774516019479';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -15,9 +15,9 @@ export class CreateTableUsers1774277910951 implements MigrationInterface {
         "date_of_birth" date NOT NULL,
         "about" character varying(1000) NOT NULL,
 
-        CONSTRAINT "CONSTRAINT_USERS_USERNAME_UQ" UNIQUE ("username"),
-        CONSTRAINT "CONSTRAINT_USERS_EMAIL_UQ" UNIQUE ("email"),
-        CONSTRAINT "CONSTRAINT_USERS_USER_ID_PK" PRIMARY KEY ("user_id")
+        CONSTRAINT "USERS_CONSTRAINT_USERNAME_UQ" UNIQUE ("username"),
+        CONSTRAINT "USERS_CONSTRAINT_EMAIL_UQ" UNIQUE ("email"),
+        CONSTRAINT "USERS_CONSTRAINT_USER_ID_PK" PRIMARY KEY ("user_id")
       )`,
     );
   }

@@ -1,26 +1,31 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Headers, Post } from '@nestjs/common';
+
+import { plainToInstance } from 'class-transformer';
 
 import { CreateUserDto } from './dto/create-user.dto';
-import { TokenService } from './token.service';
-import { CreateUserUseCase } from './usecases/create-user.usecase';
+import { ResponseUserDto } from './dto/response-user.dto';
+import { SignupUseCase } from './usecases/signup.usecase';
 
 @Controller({ version: '1', path: 'auth' })
 export class AuthController {
-  constructor(
-    private createUserUseCase: CreateUserUseCase,
-    private tokenService: TokenService,
-  ) {}
+  constructor(private signupUseCase: SignupUseCase) {}
 
   @Post('/signup')
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    const user = await this.createUserUseCase.execute(createUserDto);
+  async createUser(
+    @Headers('User-Agent') userAgent: string | undefined,
+    @Body() createUserDto: CreateUserDto,
+  ) {
+    const { user, accessToken, refreshToken } =
+      await this.signupUseCase.execute(createUserDto, userAgent);
 
-    const accessToken = this.tokenService.createAccessToken({
-      userId: user.userId,
-    });
+    const sanitazedUser = plainToInstance(
+      ResponseUserDto,
+      { ...user, age: user.age },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
 
-    const refreshToken = this.tokenService.createRefreshToken();
-
-    return { accessToken, refreshToken, user };
+    return { user: sanitazedUser, accessToken, refreshToken };
   }
 }
