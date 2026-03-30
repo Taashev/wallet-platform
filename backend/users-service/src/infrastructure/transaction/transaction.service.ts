@@ -24,7 +24,7 @@ export class TransactionService {
       return callback();
     }
 
-    const manager = this.dataSource.createEntityManager();
+    const manager = this.dataSource.manager;
 
     return manager.transaction(isolationLevel, async (manager) => {
       return this.transactionStore.run(manager, callback);
