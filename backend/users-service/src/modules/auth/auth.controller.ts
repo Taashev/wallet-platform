@@ -2,13 +2,18 @@ import { Body, Controller, Headers, Post } from '@nestjs/common';
 
 import { plainToInstance } from 'class-transformer';
 
+import { AuthLocalDto } from './dto/authLocal.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ResponseUserDto } from './dto/response-user.dto';
+import { SigninUseCase } from './usecases/signin.usecase';
 import { SignupUseCase } from './usecases/signup.usecase';
 
 @Controller({ version: '1', path: 'auth' })
 export class AuthController {
-  constructor(private signupUseCase: SignupUseCase) {}
+  constructor(
+    private signupUseCase: SignupUseCase,
+    private signinUseCase: SigninUseCase,
+  ) {}
 
   @Post('/signup')
   async createUser(
@@ -27,5 +32,18 @@ export class AuthController {
     );
 
     return { user: sanitazedUser, accessToken, refreshToken };
+  }
+
+  @Post('/signin')
+  async authLocal(
+    @Headers('User-Agent') userAgent: string | undefined,
+    @Body() authLocalDto: AuthLocalDto,
+  ) {
+    const { accessToken, refreshToken } = await this.signinUseCase.execute(
+      authLocalDto,
+      userAgent,
+    );
+
+    return { accessToken, refreshToken };
   }
 }

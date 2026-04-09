@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import { User } from '../entities/user.entity';
 import { UsersRepository } from '../interfaces/repository.interface';
-import { CreateUser } from '../types/user.type';
+import { CreateUser, Username } from '../types/user.type';
 
 import { UserTypeOrmEntity } from './entities/user-typeorm.entity';
 
@@ -27,6 +27,18 @@ export class UsersTypeOrmRepository implements UsersRepository {
     });
 
     await repo.insert(userTypeOrmEntity);
+
+    return user;
+  }
+
+  async findOneByUsername(username: Username): Promise<User | null> {
+    const repository = this.transactionService.manager;
+
+    const userTypeOrmEntity = await repository.findOneBy(UserTypeOrmEntity, {
+      username,
+    });
+
+    const user = userTypeOrmEntity ? User.restore(userTypeOrmEntity) : null;
 
     return user;
   }

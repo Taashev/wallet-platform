@@ -27,25 +27,25 @@ export class SessionTypeOrmEntity {
     type: 'uuid',
     primaryKeyConstraintName: SESSIONS_CONSTRAINT_SESSION_ID_PK,
   })
-  sessionId: SessionId;
+  sessionId!: SessionId;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @Column({ name: 'expires_at', type: 'timestamptz', nullable: false })
-  expiresAt: SessionExpiresAt;
+  expiresAt!: SessionExpiresAt;
 
   @Column({ name: 'revoked_at', type: 'timestamptz', nullable: true })
-  revokedAt: SessionRevokedAt;
+  revokedAt!: SessionRevokedAt;
 
   @Column({ name: 'refresh_token_hash', type: 'text', nullable: false })
-  refreshTokenHash: SessionRefreshTokenHash;
+  refreshTokenHash!: SessionRefreshTokenHash;
 
   @Column({ name: 'user_id', type: 'uuid', nullable: false })
-  userId: string;
+  userId!: string;
 
   @Column({ name: 'user_agent', type: 'text', nullable: false })
-  userAgent: SessionUserAgent;
+  userAgent!: SessionUserAgent;
 
   @ManyToOne(() => UserTypeOrmEntity, {
     onDelete: 'CASCADE',

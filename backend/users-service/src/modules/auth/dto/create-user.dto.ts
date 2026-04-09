@@ -31,20 +31,20 @@ export class CreateUserDto {
   @Trim()
   @MaxLength(USERNAME_MAX_LENGTH)
   @MinLength(USERNAME_MIN_LENGTH)
-  username: Username;
+  username!: Username;
 
   @Expose()
   @IsEmail()
   @Trim()
   @MaxLength(EMAIL_MAX_LENGTH)
-  email: Email;
+  email!: Email;
 
   @Expose()
   @IsString()
   @Trim()
   @MaxLength(PASSWORD_MAX_LENTH)
   @MinLength(PASSWORD_MIN_LENTH)
-  password: Password;
+  password!: Password;
 
   @Expose()
   @IsOptional()
