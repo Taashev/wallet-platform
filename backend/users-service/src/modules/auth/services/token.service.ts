@@ -42,7 +42,6 @@ export class TokenService {
   createAuthTokens(payload: AccessTokenPayload & RefreshTokenPayload) {
     const accessToken = this.createAccessToken({
       userId: payload.userId,
-      sessionId: payload.sessionId,
     });
 
     const refreshToken = this.createRefreshToken({
