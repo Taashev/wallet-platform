@@ -3,7 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import { Session } from '../entities/session.entity';
 import { SessionsRepository } from '../interfaces/sessions-repository.interface';
-import { CreateSession } from '../types/session.type';
+import {
+  CreateSession,
+  SessionId,
+  SessionRefreshTokenHash,
+} from '../types/session.type';
 
 import { SessionTypeOrmEntity } from './entities/session-typeorm.entity';
 
@@ -12,12 +16,12 @@ export class SessionsTypeOrmRepository implements SessionsRepository {
   constructor(private transactionService: TransactionService) {}
 
   async create(sessionData: CreateSession): Promise<Session> {
-    const repo =
+    const repository =
       this.transactionService.manager.getRepository(SessionTypeOrmEntity);
 
     const session = Session.create(sessionData);
 
-    const sessionTypeOrmEntity = repo.create({
+    const sessionTypeOrmEntity = repository.create({
       sessionId: session.sessionId,
       expiresAt: session.expiresAt,
       revokedAt: session.revokedAt,
@@ -26,7 +30,80 @@ export class SessionsTypeOrmRepository implements SessionsRepository {
       userAgent: session.userAgent,
     });
 
-    await repo.insert(sessionTypeOrmEntity);
+    await repository.insert(sessionTypeOrmEntity);
+
+    return session;
+  }
+
+  async rotateRefreshToken(
+    sessionId: SessionId,
+    currentRefreshTokenHash: SessionRefreshTokenHash,
+    nextRefreshTokenHash: SessionRefreshTokenHash,
+  ): Promise<boolean> {
+    const repository =
+      this.transactionService.manager.getRepository(SessionTypeOrmEntity);
+
+    const updateQueryBuilder = repository
+      .createQueryBuilder()
+      .update(SessionTypeOrmEntity);
+
+    updateQueryBuilder.set({ refreshTokenHash: nextRefreshTokenHash });
+
+    updateQueryBuilder.where('session_id = :sessionId', { sessionId });
+
+    updateQueryBuilder.andWhere(
+      'refresh_token_hash = :currentRefreshTokenHash',
+      { currentRefreshTokenHash },
+    );
+
+    updateQueryBuilder.andWhere('expires_at > NOW()');
+
+    updateQueryBuilder.andWhere('revoked_at IS NULL');
+
+    const result = await updateQueryBuilder.execute();
+
+    return result.affected === 1 ? true : false;
+  }
+
+  async revokeBySessionId(
+    sessionId: SessionId,
+    refreshTokenHash: SessionRefreshTokenHash,
+  ): Promise<boolean> {
+    const repository =
+      this.transactionService.manager.getRepository(SessionTypeOrmEntity);
+
+    const updateQueryBuilder = repository
+      .createQueryBuilder()
+      .update(SessionTypeOrmEntity);
+
+    updateQueryBuilder.set({ revokedAt: new Date() });
+
+    updateQueryBuilder.where('session_id = :sessionId', { sessionId });
+
+    updateQueryBuilder.andWhere('refresh_token_hash = :refreshTokenHash', {
+      refreshTokenHash,
+    });
+
+    updateQueryBuilder.andWhere('expires_at > NOW()');
+
+    updateQueryBuilder.andWhere('revoked_at IS NULL');
+
+    const result = await updateQueryBuilder.execute();
+
+    return result.affected === 1 ? true : false;
+  }
+
+  async findOneBySessionId(sessionId: SessionId): Promise<Session | null> {
+    const repository =
+      this.transactionService.manager.getRepository(SessionTypeOrmEntity);
+
+    const sessionTypeOrmEntity = await repository.findOneBy({
+      sessionId,
+    });
+
+    const session = sessionTypeOrmEntity
+      ? Session.restore(sessionTypeOrmEntity)
+      : null;
 
     return session;
   }

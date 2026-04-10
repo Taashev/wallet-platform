@@ -9,17 +9,17 @@ import type {
 
 export class ResponseUserDto {
   @Expose()
-  userId: UserId;
+  userId!: UserId;
 
   @Expose()
-  username: Username;
+  username!: Username;
 
   @Expose()
-  email: Email;
+  email!: Email;
 
   @Expose()
-  about: About;
+  about!: About;
 
   @Expose()
-  age: number;
+  age!: number;
 }

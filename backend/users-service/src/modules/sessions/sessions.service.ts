@@ -21,16 +21,16 @@ export class SessionsService {
     private sessionsRepository: SessionsRepository,
   ) {}
 
-  hash(token: string) {
+  private hash(token: string) {
     return createHash('sha256').update(token).digest('hex');
+  }
+
+  private createExpirationDate(ttlMs: number) {
+    return new Date(Date.now() + ttlMs);
   }
 
   generateSessionId() {
     return crypto.randomUUID();
-  }
-
-  createExpirationDate(ttlMs: number) {
-    return new Date(Date.now() + ttlMs);
   }
 
   async create(sessionData: {
@@ -58,9 +58,37 @@ export class SessionsService {
     return session;
   }
 
-  update() {}
+  async getOneBySessionIdOrFail(sessionId: SessionId) {
+    const session = await this.sessionsRepository.findOneBySessionId(sessionId);
 
-  revoke() {}
+    if (!session) {
+      throw new Error('Сессия не найдена');
+    }
 
-  validate() {}
+    return session;
+  }
+
+  async rotateRefreshToken(
+    sessionId: SessionId,
+    currentRefreshToken: SessionRefreshTokenHash,
+    nextRefreshToken: SessionRefreshTokenHash,
+  ) {
+    const currentRefreshTokenHash = this.hash(currentRefreshToken);
+    const nextRefreshTokenHash = this.hash(nextRefreshToken);
+
+    return await this.sessionsRepository.rotateRefreshToken(
+      sessionId,
+      currentRefreshTokenHash,
+      nextRefreshTokenHash,
+    );
+  }
+
+  async revoke(sessionId: SessionId, refreshToken: SessionRefreshTokenHash) {
+    const refreshTokenHash = this.hash(refreshToken);
+
+    return await this.sessionsRepository.revokeBySessionId(
+      sessionId,
+      refreshTokenHash,
+    );
+  }
 }

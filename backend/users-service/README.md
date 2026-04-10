@@ -1,98 +1,290 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+Wallet Platform — платформа пользовательских профилей, цифровых активов и realtime-уведомлений
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Wallet Platform — это backend-платформа, в которой пользователь управляет своим аккаунтом, профилем, аватарами и внутренним балансом, а все важные действия в системе сопровождаются мгновенными уведомлениями в реальном времени.
+Продукт сочетает в себе классический пользовательский сервис, файловое хранилище, денежные операции, кэширование, очереди и событийную микросервисную архитектуру.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+По сути, это учебно-практический прототип реальной backend-системы, близкой к тому, что встречается в продакшене: с авторизацией, безопасной работой с данными, хранением файлов, асинхронной обработкой задач и обменом событиями между сервисами.
 
-## Description
+⸻
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+В чём идея продукта
 
-## Project setup
+Продукт решает сразу несколько типовых задач, которые часто существуют вместе в реальных системах:
+	•	управление пользовательскими аккаунтами;
+	•	хранение и выдача профилей;
+	•	загрузка и управление медиафайлами пользователя;
+	•	выполнение финансовых операций между пользователями;
+	•	доставка уведомлений без постоянного опроса сервера;
+	•	масштабируемая передача событий между сервисами;
+	•	сохранение истории уведомлений.
 
-```bash
-$ npm install
-```
+То есть это не просто “сервис пользователей”, а единая цифровая платформа, где пользователь:
+	1.	регистрируется и входит в систему;
+	2.	настраивает свой профиль;
+	3.	загружает и удаляет аватары;
+	4.	взаимодействует с другими пользователями через переводы;
+	5.	моментально получает уведомления о важных изменениях;
+	6.	а система при этом остаётся архитектурно разделённой и готовой к росту.
 
-## Compile and run the project
+⸻
 
-```bash
-# development
-$ npm run start
+Как продукт выглядит с точки зрения бизнеса
 
-# watch mode
-$ npm run start:dev
+Это можно представить как основу для:
+	•	внутренней корпоративной платформы сотрудников;
+	•	личного кабинета в SaaS-сервисе;
+	•	базы для маркетплейса или социальной платформы;
+	•	кошелька с пользовательскими профилями;
+	•	административной системы с балансами, медиа и уведомлениями.
 
-# production mode
-$ npm run start:prod
-```
+Иными словами, Wallet Platform — это фундамент для любой системы, где есть пользователи, их контент, внутренние балансы и события, которые надо доставлять мгновенно.
 
-## Run tests
+⸻
 
-```bash
-# unit tests
-$ npm run test
+Ключевая функциональность продукта
 
-# e2e tests
-$ npm run test:e2e
+1. Пользовательский аккаунт и авторизация
 
-# test coverage
-$ npm run test:cov
-```
+Пользователь может:
+	•	зарегистрироваться;
+	•	войти по логину и паролю;
+	•	получить access token и refresh token;
+	•	обновить токены без повторного ввода пароля;
+	•	просматривать и редактировать свой профиль;
+	•	мягко удалять свой аккаунт;
+	•	получать список других пользователей с пагинацией и поиском.
 
-## Deployment
+Это формирует базовый слой продукта: идентификация, безопасность и управление профилем.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+⸻
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+2. Профиль и аватары
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+У каждого пользователя есть расширенный профиль:
+	•	логин;
+	•	email;
+	•	возраст;
+	•	описание о себе;
+	•	набор аватаров.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Пользователь может загружать свои изображения, при этом:
+	•	поддерживаются только допустимые форматы;
+	•	ограничивается размер файла;
+	•	файлы сохраняются в объектное хранилище;
+	•	в БД хранится не полный путь, а имя файла;
+	•	активных аватаров может быть не больше пяти;
+	•	удаление аватара выполняется мягко, без физической потери записи.
 
-## Resources
+Это делает профиль не просто записью в таблице, а живой пользовательской сущностью с медиа-контентом.
 
-Check out a few resources that may come in handy when working with NestJS:
+⸻
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+3. Внутренний баланс и переводы
 
-## Support
+В платформе у пользователя есть денежный баланс.
+Система позволяет переводить средства между аккаунтами с учётом базовых финансовых ограничений:
+	•	баланс хранится с точностью до двух знаков после запятой;
+	•	запрещён уход в минус;
+	•	перевод выполняется атомарно;
+	•	при ошибке ни одна часть операции не должна зафиксироваться отдельно.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Это уже не “демо-CRUD”, а настоящий бизнес-сценарий с транзакционной логикой.
 
-## Stay in touch
+⸻
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+4. Realtime-уведомления
 
-## License
+После успешного перевода система мгновенно уведомляет участников операции:
+	•	отправителя;
+	•	получателя.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Уведомления приходят по WebSocket, а не через периодический опрос API.
+Это даёт поведение, близкое к реальным приложениям: действие произошло — клиент сразу увидел результат.
+
+⸻
+
+5. История уведомлений
+
+Каждое уведомление не только отправляется онлайн, но и сохраняется в отдельное хранилище.
+Это позволяет:
+	•	хранить историю событий;
+	•	в будущем строить ленту уведомлений;
+	•	отделить модель транзакционных данных от модели событийных данных.
+
+Для этого используется MongoDB как удобное хранилище для событийных записей со свободной схемой.
+
+⸻
+
+6. Производительность и устойчивость
+
+Чтобы система не деградировала под нагрузкой, в продукт заложены инфраструктурные механизмы:
+	•	кэширование часто читаемых ручек через Redis;
+	•	очереди и job-задачи для фоновых операций;
+	•	периодические операции по расписанию;
+	•	брокер сообщений для связи между сервисами;
+	•	мягкое удаление вместо агрессивного удаления данных;
+	•	индексация и продуманная работа с выборками.
+
+То есть продукт изначально строится не как “контроллер + сервис + таблица”, а как система с учётом реальных эксплуатационных рисков.
+
+⸻
+
+Архитектурная идея продукта
+
+В конечном виде продукт состоит из нескольких логических блоков.
+
+Основные сервисы
+
+1. User Service
+
+Главный бизнес-сервис.
+
+Отвечает за:
+	•	регистрацию и вход;
+	•	JWT-аутентификацию;
+	•	профили пользователей;
+	•	поиск и выдачу списков пользователей;
+	•	аватары;
+	•	балансы;
+	•	переводы;
+	•	кэширование пользовательских данных;
+	•	постановку фоновых задач.
+
+2. Notification Service
+
+Сервис уведомлений.
+
+Отвечает за:
+	•	WebSocket-подключения клиентов;
+	•	проверку JWT при подключении;
+	•	группировку соединений пользователя в room;
+	•	отправку событий в реальном времени;
+	•	сохранение уведомлений в MongoDB.
+
+3. Kafka
+
+Прослойка событий между сервисами.
+
+Нужна, чтобы User Service не был жёстко связан с Notification Service напрямую.
+После перевода денег один сервис публикует событие, другой его обрабатывает.
+
+⸻
+
+Схема продукта
+
+Общая схема взаимодействия
+
+Client
+ ├── HTTP ─────────────────────────────► User Service
+ │                                        ├── PostgreSQL
+ │                                        ├── Redis
+ │                                        ├── MinIO
+ │                                        └── Bull
+ │
+ └── WebSocket ────────────────────────► Notification Service
+                                          └── MongoDB
+
+User Service ── Kafka event ───────────► Notification Service
+
+⸻
+
+Сценарий ключевого бизнес-процесса: перевод денег
+
+1. Пользователь A отправляет HTTP-запрос на перевод денег
+2. User Service:
+   - валидирует запрос
+   - проверяет баланс
+   - выполняет транзакцию
+   - списывает деньги у A
+   - зачисляет деньги B
+3. После успешного коммита публикуется событие в Kafka
+4. Notification Service получает событие
+5. Notification Service:
+   - отправляет уведомление A
+   - отправляет уведомление B
+   - сохраняет событие в MongoDB
+6. Оба клиента получают realtime-уведомление
+
+
+⸻
+
+Схема данных на высоком уровне
+
+User
+- userId
+- username
+- email
+- passwordHash
+- age
+- description
+- balance
+- createdAt
+- updatedAt
+- deletedAt
+
+Avatar
+- id
+- userId
+- filename
+- isActive
+- uploadedAt
+- deletedAt
+
+Notification
+- id
+- fromUserId
+- toUserId
+- amount
+- createdAt
+- type
+
+
+⸻
+
+Что это за продукт по сути
+
+Если сформулировать совсем точно, то это:
+
+платформа пользовательских аккаунтов с финансовыми операциями и событийной доставкой уведомлений в реальном времени.
+
+Не “CRUD на NestJS”, не “домашка по токенам”, не “проект про аватарки”, а именно единый продукт, где есть:
+	•	пользовательская модель;
+	•	авторизация;
+	•	файловая подсистема;
+	•	транзакционные операции;
+	•	кэш;
+	•	асинхронные задачи;
+	•	микросервисы;
+	•	брокер сообщений;
+	•	realtime-канал;
+	•	отдельное хранилище событий.
+
+⸻
+
+Почему такая идея выглядит зрелой
+
+Потому что здесь сочетаются сразу несколько реальных backend-задач:
+
+1. Разделение ответственности
+
+Пользовательская логика и логика уведомлений вынесены в разные сервисы.
+
+2. Событийный подход
+
+Уведомления не вшиты напрямую в бизнес-операцию перевода, а приходят через брокер.
+
+3. Правильный выбор хранилищ
+	•	PostgreSQL — для транзакционных данных;
+	•	Redis — для кэша и очередей;
+	•	MinIO — для файлов;
+	•	MongoDB — для истории уведомлений.
+
+4. Продакшн-мышление
+
+Есть soft delete, ограничения по данным, пагинация, поиск, валидация файлов, защита соединений, фоновая обработка, кэширование и room-модель для нескольких устройств пользователя.
+
+⸻
+
+Короткая версия идеи для команды
+
+Wallet Platform — это backend-платформа для работы с пользовательскими аккаунтами, профилями, аватарами и внутренними переводами между пользователями. Система поддерживает JWT-аутентификацию, загрузку файлов в MinIO, кэширование через Redis, транзакционные переводы, фоновую обработку задач и доставку realtime-уведомлений через отдельный Notification Service по WebSocket. Архитектура построена как монорепозиторий NestJS с разделением на User Service и Notification Service, а обмен событиями между ними реализован через Kafka. История уведомлений сохраняется в MongoDB.
