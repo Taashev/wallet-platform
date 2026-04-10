@@ -46,6 +46,7 @@ export class TokenService {
 
     const refreshToken = this.createRefreshToken({
       sessionId: payload.sessionId,
+      userId: payload.userId,
     });
 
     return { accessToken, refreshToken } as const;

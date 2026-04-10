@@ -3,7 +3,7 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { SessionsService } from '../../sessions/sessions.service';
 import type { UsersRepository } from '../../users/interfaces/repository.interface';
 import { USERS_REPOSITORY } from '../../users/users.keys';
-import { AuthLocalDto } from '../dto/authLocal.dto';
+import { AuthLocalDto } from '../dto/auth-local.dto';
 import { PasswordService } from '../services/password.service';
 import { TokenService } from '../services/token.service';
 
@@ -12,7 +12,7 @@ export class SigninUseCase {
   constructor(
     @Inject(USERS_REPOSITORY) private usersRepository: UsersRepository,
     private passwordService: PasswordService,
-    private tokensService: TokenService,
+    private tokenService: TokenService,
     private sessionsService: SessionsService,
   ) {}
 
@@ -36,7 +36,7 @@ export class SigninUseCase {
 
     const sessionId = this.sessionsService.generateSessionId();
 
-    const { accessToken, refreshToken } = this.tokensService.createAuthTokens({
+    const { accessToken, refreshToken } = this.tokenService.createAuthTokens({
       userId: user.userId,
       sessionId,
     });

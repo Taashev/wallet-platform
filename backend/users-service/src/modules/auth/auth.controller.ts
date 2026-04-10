@@ -1,11 +1,21 @@
-import { Body, Controller, Headers, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 
 import { plainToInstance } from 'class-transformer';
 
-import { AuthLocalDto } from './dto/authLocal.dto';
+import { AuthLocalDto } from './dto/auth-local.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ResponseUserDto } from './dto/response-user.dto';
+import { RefreshTokenUseCase } from './usecases/refresh-token.usecase';
 import { SigninUseCase } from './usecases/signin.usecase';
+import { SignoutUseCase } from './usecases/signout.usecase';
 import { SignupUseCase } from './usecases/signup.usecase';
 
 @Controller({ version: '1', path: 'auth' })
@@ -13,6 +23,8 @@ export class AuthController {
   constructor(
     private signupUseCase: SignupUseCase,
     private signinUseCase: SigninUseCase,
+    private refreshTokenUseCase: RefreshTokenUseCase,
+    private signoutUseCase: SignoutUseCase,
   ) {}
 
   @Post('/signup')
@@ -45,5 +57,17 @@ export class AuthController {
     );
 
     return { accessToken, refreshToken };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('/refresh')
+  async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    return await this.refreshTokenUseCase.execute(refreshTokenDto);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('/signout')
+  async signout(@Body() refreshTokenDto: RefreshTokenDto) {
+    return await this.signoutUseCase.execute(refreshTokenDto);
   }
 }

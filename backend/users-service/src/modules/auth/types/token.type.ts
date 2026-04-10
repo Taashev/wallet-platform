@@ -4,4 +4,5 @@ export type AccessTokenPayload = {
 
 export type RefreshTokenPayload = {
   sessionId: string;
+  userId: string;
 };

@@ -1,6 +1,23 @@
 import { Session } from '../entities/session.entity';
-import { CreateSession } from '../types/session.type';
+import {
+  CreateSession,
+  SessionId,
+  SessionRefreshTokenHash,
+} from '../types/session.type';
 
 export interface SessionsRepository {
   create(sessionData: CreateSession): Promise<Session>;
+
+  rotateRefreshToken(
+    sessionId: SessionId,
+    currentRefreshTokenHash: SessionRefreshTokenHash,
+    nextRefreshTokenHash: SessionRefreshTokenHash,
+  ): Promise<boolean>;
+
+  revokeBySessionId(
+    sessionId: SessionId,
+    refreshTokenHash: SessionRefreshTokenHash,
+  ): Promise<boolean>;
+
+  findOneBySessionId(sessionId: SessionId): Promise<Session | null>;
 }
