@@ -49,7 +49,7 @@ export class SignupUseCase {
         userAgent,
       });
 
-      return { user, accessToken, refreshToken };
+      return { accessToken, refreshToken };
     });
   }
 }
