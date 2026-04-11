@@ -3,8 +3,9 @@ import { ConfigService } from '@nestjs/config';
 
 import jsonwebtoken from 'jsonwebtoken';
 
-import { AuthConfigType, ConfigType } from '../../../infrastructure/config';
-import { AccessTokenPayload, RefreshTokenPayload } from '../types/token.type';
+import { AuthConfigType, ConfigType } from '../../infrastructure/config';
+
+import { AccessTokenPayload, RefreshTokenPayload } from './types/token.type';
 
 @Injectable()
 export class TokenService {

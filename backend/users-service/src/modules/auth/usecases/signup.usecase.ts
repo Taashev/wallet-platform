@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
+import { PasswordService } from '../../security/password.service';
+import { TokenService } from '../../security/token.service';
 import { SessionsService } from '../../sessions/sessions.service';
 import type { UsersRepository } from '../../users/interfaces/repository.interface';
 import { USERS_REPOSITORY } from '../../users/users.keys';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { PasswordService } from '../services/password.service';
-import { TokenService } from '../services/token.service';
 
 @Injectable()
 export class SignupUseCase {

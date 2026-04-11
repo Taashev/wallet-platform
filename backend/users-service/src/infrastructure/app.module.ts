@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../modules/auth/auth.module';
+import { SecurityModule } from '../modules/security/security.module';
 import { SessionsModule } from '../modules/sessions/sessions.module';
 import { UsersModule } from '../modules/users/users.module';
 
@@ -14,6 +15,7 @@ import { TransactionModule } from './transaction/transaction.module';
   imports: [
     ConfigModule.forRoot(configModuleOptions),
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
+    SecurityModule,
     UsersModule,
     SessionsModule,
     AuthModule,

@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 
 import { ERROR_MESSAGES } from '../../../shared/constants/messages.error';
 import { UnauthorizedError } from '../../../shared/errors';
+import { TokenService } from '../../security/token.service';
 import { SessionsService } from '../../sessions/sessions.service';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
-import { TokenService } from '../services/token.service';
 
 @Injectable()
 export class SignoutUseCase {
