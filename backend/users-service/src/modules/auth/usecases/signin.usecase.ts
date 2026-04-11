@@ -1,5 +1,7 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
+import { ERROR_MESSAGES } from '../../../shared/constants/messages.error';
+import { UnauthorizedError } from '../../../shared/errors';
 import { SessionsService } from '../../sessions/sessions.service';
 import type { UsersRepository } from '../../users/interfaces/repository.interface';
 import { USERS_REPOSITORY } from '../../users/users.keys';
@@ -22,7 +24,11 @@ export class SigninUseCase {
     const user = await this.usersRepository.findOneByUsername(username);
 
     if (!user) {
-      throw new UnauthorizedException('Невалидное имя пользователя или пароль');
+      throw new UnauthorizedError({
+        message: 'Пользователь с указанным username не найден при входе',
+        safeMessage: ERROR_MESSAGES.INVALID_CREDENTIALS,
+        expose: true,
+      });
     }
 
     const isValidPassword = await this.passwordService.compare(
@@ -31,7 +37,11 @@ export class SigninUseCase {
     );
 
     if (!isValidPassword) {
-      throw new UnauthorizedException('Невалидное имя пользователя или пароль');
+      throw new UnauthorizedError({
+        message: 'Пароль не прошел проверку при входе',
+        safeMessage: ERROR_MESSAGES.INVALID_CREDENTIALS,
+        expose: true,
+      });
     }
 
     const sessionId = this.sessionsService.generateSessionId();
