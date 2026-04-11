@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
 import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
+import { MapPostgresErrorToAppError } from '../../../shared/decorators/map-postgres-error-to-app-error';
 import { Session } from '../entities/session.entity';
 import { SessionsRepository } from '../interfaces/sessions-repository.interface';
-import {
+import type {
   CreateSession,
   SessionId,
   SessionRefreshTokenHash,
@@ -12,6 +13,7 @@ import {
 import { SessionTypeOrmEntity } from './entities/session-typeorm.entity';
 
 @Injectable()
+@MapPostgresErrorToAppError()
 export class SessionsTypeOrmRepository implements SessionsRepository {
   constructor(private transactionService: TransactionService) {}
 

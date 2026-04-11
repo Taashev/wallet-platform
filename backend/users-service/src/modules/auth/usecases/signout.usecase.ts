@@ -1,5 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
+import { ERROR_MESSAGES } from '../../../shared/constants/messages.error';
+import { UnauthorizedError } from '../../../shared/errors';
 import { SessionsService } from '../../sessions/sessions.service';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { TokenService } from '../services/token.service';
@@ -21,7 +23,11 @@ export class SignoutUseCase {
 
       sessionId = jwtPayload.sessionId;
     } catch {
-      throw new UnauthorizedException('Невалидный refresh токен');
+      throw new UnauthorizedError({
+        message: 'Refresh токен не прошел валидацию при выходе',
+        safeMessage: ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
+        expose: true,
+      });
     }
 
     const isRevoked = await this.sessionsService.revoke(
@@ -30,7 +36,11 @@ export class SignoutUseCase {
     );
 
     if (!isRevoked) {
-      throw new UnauthorizedException('Невалидный refresh токен');
+      throw new UnauthorizedError({
+        message: 'Отзыв сессии был отклонен хранилищем сессий',
+        safeMessage: ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
+        expose: true,
+      });
     }
   }
 }

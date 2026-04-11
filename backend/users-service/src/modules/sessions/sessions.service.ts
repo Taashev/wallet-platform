@@ -4,6 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { createHash } from 'node:crypto';
 
 import { AuthConfigType, ConfigType } from '../../infrastructure/config';
+import { ERROR_MESSAGES } from '../../shared/constants/messages.error';
+import { NotFoundError } from '../../shared/errors';
 
 import type { SessionsRepository } from './interfaces/sessions-repository.interface';
 import { SESSION_REPOSITORY } from './sessions.keys';
@@ -62,7 +64,11 @@ export class SessionsService {
     const session = await this.sessionsRepository.findOneBySessionId(sessionId);
 
     if (!session) {
-      throw new Error('Сессия не найдена');
+      throw new NotFoundError({
+        message: 'Сессия не найдена по sessionId',
+        safeMessage: ERROR_MESSAGES.SESSION_NOT_FOUND,
+        expose: true,
+      });
     }
 
     return session;

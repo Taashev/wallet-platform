@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 import { AppConfigType, ConfigType } from './config';
+import { AppExceptionFilter } from './http/filters/app-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +13,7 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
+  app.useGlobalFilters(new AppExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   const configService = app.get<ConfigService<ConfigType>>(ConfigService);
@@ -26,4 +28,4 @@ async function bootstrap() {
     });
   });
 }
-bootstrap();
+void bootstrap();
