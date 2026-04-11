@@ -14,7 +14,13 @@ async function bootstrap() {
   });
 
   app.useGlobalFilters(new AppExceptionFilter());
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      transformOptions: { exposeDefaultValues: true },
+    }),
+  );
 
   const configService = app.get<ConfigService<ConfigType>>(ConfigService);
 

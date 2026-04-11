@@ -2,12 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { ERROR_MESSAGES } from '../../../shared/constants/messages.error';
 import { UnauthorizedError } from '../../../shared/errors';
+import { PasswordService } from '../../security/password.service';
+import { TokenService } from '../../security/token.service';
 import { SessionsService } from '../../sessions/sessions.service';
 import type { UsersRepository } from '../../users/interfaces/repository.interface';
 import { USERS_REPOSITORY } from '../../users/users.keys';
 import { AuthLocalDto } from '../dto/auth-local.dto';
-import { PasswordService } from '../services/password.service';
-import { TokenService } from '../services/token.service';
 
 @Injectable()
 export class SigninUseCase {

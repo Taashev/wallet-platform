@@ -28,42 +28,42 @@ export class UserTypeOrmEntity {
     type: 'uuid',
     primaryKeyConstraintName: USERS_CONSTRAINT_USER_ID_PK,
   })
-  userId: string;
+  userId!: string;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @Column({
     type: 'varchar',
     length: USERNAME_MAX_LENGTH,
     nullable: false,
   })
-  username: string;
+  username!: string;
 
   @Column({
     type: 'varchar',
     length: EMAIL_MAX_LENGTH,
     nullable: false,
   })
-  email: string;
+  email!: string;
 
   @Column({
     type: 'varchar',
     length: PASSWORD_MAX_LENTH,
     nullable: false,
   })
-  password: string;
+  password!: string;
 
   @Column({
     name: 'date_of_birth',
     type: 'date',
     nullable: false,
   })
-  dateOfBirth: string;
+  dateOfBirth!: string;
 
   @Column({ type: 'varchar', length: ABOUT_MAX_LENTH, nullable: false })
-  about: string;
+  about!: string;
 }

@@ -3,6 +3,8 @@ export const ERROR_MESSAGES = {
 
   INVALID_REFRESH_TOKEN: 'Невалидный refresh токен',
 
+  INVALID_ACCESS_TOKEN: 'Невалидный токен авторизации',
+
   INVALID_CREDENTIALS: 'Невалидное имя пользователя или пароль',
 
   SESSION_NOT_FOUND: 'Сессия не найдена',
@@ -26,4 +28,6 @@ export const ERROR_MESSAGES = {
   USERNAME_ALREADY_TAKEN: 'Пользователь с таким username уже существует',
 
   EMAIL_ALREADY_TAKEN: 'Пользователь с таким email уже существует',
+
+  USER_NOT_FOUND: 'Пользователь не найден',
 } as const;

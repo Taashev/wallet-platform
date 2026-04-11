@@ -8,7 +8,8 @@ import {
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 
-import { TokenService } from '../services/token.service';
+import { ERROR_MESSAGES } from '../../../shared/constants/messages.error';
+import { TokenService } from '../../security/token.service';
 
 @Injectable()
 export class JwtAccessGuard implements CanActivate {
@@ -34,7 +35,7 @@ export class JwtAccessGuard implements CanActivate {
     }
 
     if (token === undefined) {
-      throw new UnauthorizedException('Невалидный токен авторизации');
+      throw new UnauthorizedException(ERROR_MESSAGES.INVALID_ACCESS_TOKEN);
     }
 
     try {
@@ -44,7 +45,7 @@ export class JwtAccessGuard implements CanActivate {
 
       return true;
     } catch {
-      throw new UnauthorizedException('Невалидный токен авторизации');
+      throw new UnauthorizedException(ERROR_MESSAGES.INVALID_ACCESS_TOKEN);
     }
   }
 }
