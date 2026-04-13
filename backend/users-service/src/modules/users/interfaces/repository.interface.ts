@@ -1,10 +1,16 @@
+import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
 import { User } from '../entities/user.entity';
-import { CreateUser, UserId, Username } from '../types/user.type';
+import { CreateUser, UserFilter, UserId, Username } from '../types/user.type';
 
 export interface UsersRepository {
   create(createUserProps: CreateUser): Promise<User>;
 
   findOneByUsername(username: Username): Promise<User | null>;
 
-  findByIds(userIds: UserId[]): Promise<{ users: User[]; count: number }>;
+  findOneByUserId(userId: UserId): Promise<User | null>;
+
+  findManyByFilter(
+    filter: UserFilter,
+    pagination: OffsetPagination,
+  ): Promise<{ users: User[]; count: number }>;
 }

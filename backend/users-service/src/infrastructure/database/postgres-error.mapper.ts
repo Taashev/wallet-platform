@@ -99,7 +99,7 @@ function mapEntityNotFoundError(exception: Error): AppError | null {
 
   return new NotFoundError({
     message: exception.message,
-    safeMessage: ERROR_MESSAGES.RECORD_NOT_FOUND,
+    safeMessage: ERROR_MESSAGES.RESOURCE_NOT_FOUND,
     expose: true,
   });
 }

@@ -16,3 +16,11 @@ export type CreateUser = {
 };
 
 export type RestoreUser = Required<CreateUser>;
+
+export type FindOneUserCriteria =
+  | { userId: UserId; username?: never }
+  | { username: Username; userId?: never };
+
+export type UserFilter = {
+  username?: Username;
+};
