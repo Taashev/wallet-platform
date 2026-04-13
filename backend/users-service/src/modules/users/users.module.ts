@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SecurityModule } from '../security/security.module';
 
 import { UserTypeOrmEntity } from './database/entities/user-typeorm.entity';
+import { GetCurrentUserUseCase } from './usecases/get-current-user.usecase';
 import { GetUsersUseCase } from './usecases/get-users.usecase';
 import { UsersController } from './users.controller';
 import { USERS_REPOSITORY } from './users.keys';
@@ -12,7 +13,7 @@ import { usersReposirotyProvider } from './users.provider';
 @Module({
   imports: [TypeOrmModule.forFeature([UserTypeOrmEntity]), SecurityModule],
   controllers: [UsersController],
-  providers: [usersReposirotyProvider, GetUsersUseCase],
+  providers: [usersReposirotyProvider, GetCurrentUserUseCase, GetUsersUseCase],
   exports: [USERS_REPOSITORY],
 })
 export class UsersModule {}

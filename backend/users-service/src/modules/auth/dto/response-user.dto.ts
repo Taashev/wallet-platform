@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 
 import type {
   About,
@@ -8,18 +8,21 @@ import type {
 } from '../../users/types/user.type';
 
 export class ResponseUserDto {
-  @Expose()
+  @Expose({ groups: ['public', 'private'] })
   userId!: UserId;
 
-  @Expose()
+  @Expose({ groups: ['public', 'private'] })
   username!: Username;
 
-  @Expose()
+  @Expose({ groups: ['private'] })
   email!: Email;
 
-  @Expose()
+  @Exclude()
+  password!: string;
+
+  @Expose({ groups: ['public', 'private'] })
   about!: About;
 
-  @Expose()
+  @Expose({ groups: ['public', 'private'] })
   age!: number;
 }

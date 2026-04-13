@@ -2,9 +2,16 @@ import { Injectable } from '@nestjs/common';
 
 import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import { MapPostgresErrorToAppError } from '../../../shared/decorators/map-postgres-error-to-app-error';
+import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
 import { User } from '../entities/user.entity';
 import { UsersRepository } from '../interfaces/repository.interface';
-import type { CreateUser, UserId, Username } from '../types/user.type';
+import type {
+  CreateUser,
+  FindOneUserCriteria,
+  UserFilter,
+  UserId,
+  Username,
+} from '../types/user.type';
 
 import { userPostgresErrorMap } from './constants';
 import { UserTypeOrmEntity } from './entities/user-typeorm.entity';
@@ -34,33 +41,48 @@ export class UsersTypeOrmRepository implements UsersRepository {
     return user;
   }
 
-  async findOneByUsername(username: Username): Promise<User | null> {
+  async findManyByFilter(filter: UserFilter, pagination: OffsetPagination) {
     const repository =
       this.transactionService.manager.getRepository(UserTypeOrmEntity);
 
-    const userTypeOrmEntity = await repository.findOneBy({
-      username,
-    });
+    const queryBuilder = repository.createQueryBuilder('user');
 
-    const user = userTypeOrmEntity ? User.restore(userTypeOrmEntity) : null;
+    if (filter.username) {
+      queryBuilder.andWhere('user.username LIKE :username', {
+        username: filter.username + '%',
+      });
+    }
 
-    return user;
-  }
+    queryBuilder.orderBy('user_id', 'ASC');
 
-  async findByIds(
-    userIds: UserId[],
-  ): Promise<{ users: User[]; count: number }> {
-    const repository =
-      this.transactionService.manager.getRepository(UserTypeOrmEntity);
+    queryBuilder.skip(pagination.offset);
+    queryBuilder.take(pagination.limit);
 
-    const [userTypeOrmEntities, count] = await repository.findAndCount({
-      where: userIds.map((userId) => ({ userId })),
-    });
+    const [userTypeOrmEntities, count] = await queryBuilder.getManyAndCount();
 
     const users = userTypeOrmEntities.map((userTypeormEntity) =>
       User.restore(userTypeormEntity),
     );
 
     return { users, count };
+  }
+
+  private async findOneBy(
+    criterial: FindOneUserCriteria,
+  ): Promise<User | null> {
+    const repository =
+      this.transactionService.manager.getRepository(UserTypeOrmEntity);
+
+    const userTypeOrmEntity = await repository.findOneBy(criterial);
+
+    return userTypeOrmEntity ? User.restore(userTypeOrmEntity) : null;
+  }
+
+  async findOneByUserId(userId: UserId): Promise<User | null> {
+    return await this.findOneBy({ userId });
+  }
+
+  async findOneByUsername(username: Username): Promise<User | null> {
+    return await this.findOneBy({ username });
   }
 }

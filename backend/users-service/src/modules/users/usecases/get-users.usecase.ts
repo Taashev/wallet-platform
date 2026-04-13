@@ -1,7 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 
+import { PAGINATION_LIMIT_DEFAULT } from '../../../shared/pagination/constants';
+import { normalizeOffsetPagination } from '../../../shared/pagination/notmalize-offset-pagination';
+import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
 import type { UsersRepository } from '../interfaces/repository.interface';
-import { UserId } from '../types/user.type';
+import { UserFilter } from '../types/user.type';
 import { USERS_REPOSITORY } from '../users.keys';
 
 @Injectable()
@@ -10,8 +13,15 @@ export class GetUsersUseCase {
     @Inject(USERS_REPOSITORY) private usersRepository: UsersRepository,
   ) {}
 
-  async execute(userIds: UserId[]) {
-    const { users, count } = await this.usersRepository.findByIds(userIds);
+  async execute(filter: UserFilter, pagination?: OffsetPagination) {
+    pagination = normalizeOffsetPagination(
+      pagination ?? { limit: PAGINATION_LIMIT_DEFAULT, offset: 0 },
+    );
+
+    const { users, count } = await this.usersRepository.findManyByFilter(
+      filter,
+      pagination,
+    );
 
     return { users, count };
   }
