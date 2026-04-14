@@ -16,5 +16,7 @@ export interface SessionsRepository {
 
   revokeBySessionId(sessionId: SessionId): Promise<boolean>;
 
+  revokeAllByUserId(userId: string): Promise<number>;
+
   findOneBySessionId(sessionId: SessionId): Promise<Session | null>;
 }

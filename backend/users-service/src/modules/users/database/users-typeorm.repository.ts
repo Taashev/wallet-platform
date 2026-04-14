@@ -85,4 +85,13 @@ export class UsersTypeOrmRepository implements UsersRepository {
   async findOneByUsername(username: Username): Promise<User | null> {
     return await this.findOneBy({ username });
   }
+
+  async softDelete(userId: UserId): Promise<boolean> {
+    const repository =
+      this.transactionService.manager.getRepository(UserTypeOrmEntity);
+
+    const result = await repository.softDelete({ userId });
+
+    return result.affected === 1 ? true : false;
+  }
 }

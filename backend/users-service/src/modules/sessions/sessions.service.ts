@@ -92,4 +92,8 @@ export class SessionsService {
   async revokeBySessionId(sessionId: SessionId) {
     return await this.sessionsRepository.revokeBySessionId(sessionId);
   }
+
+  async revokeAllByUserId(userId: string) {
+    return await this.sessionsRepository.revokeAllByUserId(userId);
+  }
 }
