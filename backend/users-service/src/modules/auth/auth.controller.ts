@@ -5,11 +5,16 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+
+import { CurrentUser } from '../../shared/decorators/current-user';
+import type { CurrentUserType } from '../users/types/user.type';
 
 import { AuthLocalDto } from './dto/auth-local.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { JwtAccessGuard } from './guards/jwt-access.guard';
 import { RefreshTokenUseCase } from './usecases/refresh-token.usecase';
 import { SigninUseCase } from './usecases/signin.usecase';
 import { SignoutUseCase } from './usecases/signout.usecase';
@@ -57,8 +62,9 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAccessGuard)
   @Post('/signout')
-  async signout(@Body() refreshTokenDto: RefreshTokenDto) {
-    return await this.signoutUseCase.execute(refreshTokenDto);
+  async signout(@CurrentUser() currentUser: CurrentUserType) {
+    return await this.signoutUseCase.execute(currentUser);
   }
 }

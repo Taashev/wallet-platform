@@ -67,10 +67,7 @@ export class SessionsTypeOrmRepository implements SessionsRepository {
     return result.affected === 1 ? true : false;
   }
 
-  async revokeBySessionId(
-    sessionId: SessionId,
-    refreshTokenHash: SessionRefreshTokenHash,
-  ): Promise<boolean> {
+  async revokeBySessionId(sessionId: SessionId): Promise<boolean> {
     const repository =
       this.transactionService.manager.getRepository(SessionTypeOrmEntity);
 
@@ -78,13 +75,9 @@ export class SessionsTypeOrmRepository implements SessionsRepository {
       .createQueryBuilder()
       .update(SessionTypeOrmEntity);
 
-    updateQueryBuilder.set({ revokedAt: new Date() });
+    updateQueryBuilder.set({ revokedAt: () => 'NOW()' });
 
     updateQueryBuilder.where('session_id = :sessionId', { sessionId });
-
-    updateQueryBuilder.andWhere('refresh_token_hash = :refreshTokenHash', {
-      refreshTokenHash,
-    });
 
     updateQueryBuilder.andWhere('expires_at > NOW()');
 
@@ -103,10 +96,6 @@ export class SessionsTypeOrmRepository implements SessionsRepository {
       sessionId,
     });
 
-    const session = sessionTypeOrmEntity
-      ? Session.restore(sessionTypeOrmEntity)
-      : null;
-
-    return session;
+    return sessionTypeOrmEntity ? Session.restore(sessionTypeOrmEntity) : null;
   }
 }
