@@ -24,3 +24,5 @@ export type FindOneUserCriteria =
 export type UserFilter = {
   username?: Username;
 };
+
+export type CurrentUserType = { sessionId: string; userId: UserId };

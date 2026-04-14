@@ -1,6 +1,6 @@
 import {
-  Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -17,6 +17,8 @@ import { ResponseUserDto } from '../auth/dto/response-user.dto';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 
 import { UserFilterDto } from './dto/get-users-query.dto';
+import type { CurrentUserType } from './types/user.type';
+import { DeleteCurrentUserUseCase } from './usecases/delete-current-user.usecase';
 import { GetCurrentUserUseCase } from './usecases/get-current-user.usecase';
 import { GetUsersUseCase } from './usecases/get-users.usecase';
 
@@ -25,12 +27,13 @@ export class UsersController {
   constructor(
     private getCurrentUserUseCase: GetCurrentUserUseCase,
     private getUsersUseCase: GetUsersUseCase,
+    private deleteCurrentUserUseCase: DeleteCurrentUserUseCase,
   ) {}
 
   @UseGuards(JwtAccessGuard)
   @Get('/me')
-  async getCurrentUser(@CurrentUser() userId: string) {
-    const user = await this.getCurrentUserUseCase.execute(userId);
+  async getCurrentUser(@CurrentUser() currentUser: CurrentUserType) {
+    const user = await this.getCurrentUserUseCase.execute(currentUser.userId);
 
     const sanitazedUser = plainToInstance(ResponseUserDto, user, {
       groups: ['private'],
@@ -58,5 +61,12 @@ export class UsersController {
     });
 
     return { users: sanitaziedUsers, total: count };
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAccessGuard)
+  @Delete('/me')
+  async softDeleteUser(@CurrentUser() currentUser: CurrentUserType) {
+    await this.deleteCurrentUserUseCase.execute(currentUser);
   }
 }

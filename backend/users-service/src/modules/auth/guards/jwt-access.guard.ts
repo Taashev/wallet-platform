@@ -39,9 +39,13 @@ export class JwtAccessGuard implements CanActivate {
     }
 
     try {
-      const { userId } = this.tokenService.validateAccessToken(token);
+      const { sessionId, userId } =
+        this.tokenService.validateAccessToken(token);
 
-      request.userId = userId;
+      request.user = {
+        sessionId,
+        userId,
+      };
 
       return true;
     } catch {

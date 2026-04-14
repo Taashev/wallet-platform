@@ -89,12 +89,11 @@ export class SessionsService {
     );
   }
 
-  async revoke(sessionId: SessionId, refreshToken: SessionRefreshTokenHash) {
-    const refreshTokenHash = this.hash(refreshToken);
+  async revokeBySessionId(sessionId: SessionId) {
+    return await this.sessionsRepository.revokeBySessionId(sessionId);
+  }
 
-    return await this.sessionsRepository.revokeBySessionId(
-      sessionId,
-      refreshTokenHash,
-    );
+  async revokeAllByUserId(userId: string) {
+    return await this.sessionsRepository.revokeAllByUserId(userId);
   }
 }

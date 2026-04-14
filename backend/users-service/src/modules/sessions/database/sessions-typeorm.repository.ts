@@ -67,10 +67,7 @@ export class SessionsTypeOrmRepository implements SessionsRepository {
     return result.affected === 1 ? true : false;
   }
 
-  async revokeBySessionId(
-    sessionId: SessionId,
-    refreshTokenHash: SessionRefreshTokenHash,
-  ): Promise<boolean> {
+  async revokeBySessionId(sessionId: SessionId): Promise<boolean> {
     const repository =
       this.transactionService.manager.getRepository(SessionTypeOrmEntity);
 
@@ -78,13 +75,9 @@ export class SessionsTypeOrmRepository implements SessionsRepository {
       .createQueryBuilder()
       .update(SessionTypeOrmEntity);
 
-    updateQueryBuilder.set({ revokedAt: new Date() });
+    updateQueryBuilder.set({ revokedAt: () => 'NOW()' });
 
     updateQueryBuilder.where('session_id = :sessionId', { sessionId });
-
-    updateQueryBuilder.andWhere('refresh_token_hash = :refreshTokenHash', {
-      refreshTokenHash,
-    });
 
     updateQueryBuilder.andWhere('expires_at > NOW()');
 
@@ -95,6 +88,25 @@ export class SessionsTypeOrmRepository implements SessionsRepository {
     return result.affected === 1 ? true : false;
   }
 
+  async revokeAllByUserId(userId: string) {
+    const repository =
+      this.transactionService.manager.getRepository(SessionTypeOrmEntity);
+
+    const updateQueryBuilder = repository
+      .createQueryBuilder()
+      .update(SessionTypeOrmEntity);
+
+    updateQueryBuilder.set({ revokedAt: () => 'NOW()' });
+
+    updateQueryBuilder.where('user_id = :userId', { userId });
+
+    updateQueryBuilder.andWhere('revoked_at IS NULL');
+
+    const result = await updateQueryBuilder.execute();
+
+    return result.affected ?? 0;
+  }
+
   async findOneBySessionId(sessionId: SessionId): Promise<Session | null> {
     const repository =
       this.transactionService.manager.getRepository(SessionTypeOrmEntity);
@@ -103,10 +115,6 @@ export class SessionsTypeOrmRepository implements SessionsRepository {
       sessionId,
     });
 
-    const session = sessionTypeOrmEntity
-      ? Session.restore(sessionTypeOrmEntity)
-      : null;
-
-    return session;
+    return sessionTypeOrmEntity ? Session.restore(sessionTypeOrmEntity) : null;
   }
 }

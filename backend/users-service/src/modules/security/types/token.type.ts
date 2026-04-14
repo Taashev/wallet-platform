@@ -1,4 +1,5 @@
 export type AccessTokenPayload = {
+  sessionId: string;
   userId: string;
 };
 

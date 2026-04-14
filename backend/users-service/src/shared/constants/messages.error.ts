@@ -6,10 +6,7 @@ export const ERROR_MESSAGES = {
 
   VALIDATION_ERROR: 'Данные запроса заполнены некорректно',
   INVALID_INPUT: 'Переданы некорректные данные',
-  INVALID_QUERY_PARAMS: 'Параметры запроса заполнены некорректно',
-  INVALID_REQUEST_BODY: 'Тело запроса заполнено некорректно',
   INVALID_UUID: 'Передан некорректный идентификатор',
-  INVALID_PAGINATION: 'Параметры пагинации заполнены некорректно',
   REQUIRED_FIELD_MISSING: 'Не заполнены обязательные поля',
 
   UNAUTHORIZED: 'Требуется авторизация',
@@ -17,7 +14,7 @@ export const ERROR_MESSAGES = {
   ACCESS_DENIED: 'Недостаточно прав для выполнения операции',
   INVALID_ACCESS_TOKEN: 'Невалидный токен авторизации',
   INVALID_REFRESH_TOKEN: 'Невалидный refresh токен',
-  SESSION_EXPIRED: 'Сессия истекла',
+  INVALID_SESSION: 'Текущая сессия недействительна',
   SESSION_NOT_FOUND: 'Сессия не найдена',
   FORBIDDEN: 'Доступ запрещен',
 

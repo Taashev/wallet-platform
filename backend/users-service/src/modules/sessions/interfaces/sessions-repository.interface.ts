@@ -14,10 +14,9 @@ export interface SessionsRepository {
     nextRefreshTokenHash: SessionRefreshTokenHash,
   ): Promise<boolean>;
 
-  revokeBySessionId(
-    sessionId: SessionId,
-    refreshTokenHash: SessionRefreshTokenHash,
-  ): Promise<boolean>;
+  revokeBySessionId(sessionId: SessionId): Promise<boolean>;
+
+  revokeAllByUserId(userId: string): Promise<number>;
 
   findOneBySessionId(sessionId: SessionId): Promise<Session | null>;
 }

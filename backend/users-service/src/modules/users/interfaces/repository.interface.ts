@@ -13,4 +13,6 @@ export interface UsersRepository {
     filter: UserFilter,
     pagination: OffsetPagination,
   ): Promise<{ users: User[]; count: number }>;
+
+  softDelete(userId: UserId): Promise<boolean>;
 }
