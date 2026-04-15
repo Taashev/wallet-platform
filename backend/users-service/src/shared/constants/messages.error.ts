@@ -15,6 +15,7 @@ export const ERROR_MESSAGES = {
   INVALID_ACCESS_TOKEN: 'Невалидный токен авторизации',
   INVALID_REFRESH_TOKEN: 'Невалидный refresh токен',
   INVALID_SESSION: 'Текущая сессия недействительна',
+  INVALID_UPDATE_DATA: 'Неудалось обновить данные',
   SESSION_NOT_FOUND: 'Сессия не найдена',
   FORBIDDEN: 'Доступ запрещен',
 

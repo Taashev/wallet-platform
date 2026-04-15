@@ -8,6 +8,7 @@ import { UsersRepository } from '../interfaces/repository.interface';
 import type {
   CreateUser,
   FindOneUserCriteria,
+  UpdateUser,
   UserFilter,
   UserId,
   Username,
@@ -93,5 +94,23 @@ export class UsersTypeOrmRepository implements UsersRepository {
     const result = await repository.softDelete({ userId });
 
     return result.affected === 1 ? true : false;
+  }
+
+  async updateUser(
+    userId: UserId,
+    updatedUser: UpdateUser & { passwordHash: string },
+  ): Promise<boolean> {
+    const repository =
+      this.transactionService.manager.getRepository(UserTypeOrmEntity);
+
+    const result = await repository.update(userId, {
+      username: updatedUser.username,
+      email: updatedUser.email,
+      password: updatedUser.passwordHash,
+      dateOfBirth: updatedUser.dateOfBirth,
+      about: updatedUser.about,
+    });
+
+    return result.affected === 0 ? false : true;
   }
 }

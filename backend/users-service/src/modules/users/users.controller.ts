@@ -1,9 +1,11 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -16,11 +18,15 @@ import { OffsetPaginationDto } from '../../shared/pagination/offset-pagination.d
 import { ResponseUserDto } from '../auth/dto/response-user.dto';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { UserFilterDto } from './dto/get-users-query.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import type { CurrentUserType } from './types/user.type';
+import { ChangePasswordUseCase } from './usecases/change-password.usecase';
 import { DeleteCurrentUserUseCase } from './usecases/delete-current-user.usecase';
 import { GetCurrentUserUseCase } from './usecases/get-current-user.usecase';
 import { GetUsersUseCase } from './usecases/get-users.usecase';
+import { UpdateCurrentUserUseCase } from './usecases/update-current-user.usecase';
 
 @Controller({ version: '1', path: 'users' })
 export class UsersController {
@@ -28,6 +34,8 @@ export class UsersController {
     private getCurrentUserUseCase: GetCurrentUserUseCase,
     private getUsersUseCase: GetUsersUseCase,
     private deleteCurrentUserUseCase: DeleteCurrentUserUseCase,
+    private updateCurrentUserUseCase: UpdateCurrentUserUseCase,
+    private changePasswordUseCase: ChangePasswordUseCase,
   ) {}
 
   @UseGuards(JwtAccessGuard)
@@ -68,5 +76,38 @@ export class UsersController {
   @Delete('/me')
   async softDeleteUser(@CurrentUser() currentUser: CurrentUserType) {
     await this.deleteCurrentUserUseCase.execute(currentUser);
+  }
+
+  @UseGuards(JwtAccessGuard)
+  @Patch('/me')
+  async changeCurrentUser(
+    @CurrentUser() currentUser: CurrentUserType,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const user = await this.updateCurrentUserUseCase.execute(
+      currentUser.userId,
+      updateUserDto,
+    );
+
+    const sanitazedUser = plainToInstance(ResponseUserDto, user, {
+      groups: ['private'],
+      excludeExtraneousValues: true,
+    });
+
+    return sanitazedUser;
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAccessGuard)
+  @Patch('/me/password')
+  async changePassword(
+    @CurrentUser() currentUser: CurrentUserType,
+    @Body() passwordDto: ChangePasswordDto,
+  ) {
+    await this.changePasswordUseCase.execute(
+      currentUser,
+      passwordDto.oldPassword,
+      passwordDto.newPassword,
+    );
   }
 }

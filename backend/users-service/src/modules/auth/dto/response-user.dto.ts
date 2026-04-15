@@ -23,6 +23,9 @@ export class ResponseUserDto {
   @Expose({ groups: ['public', 'private'] })
   about!: About;
 
+  @Expose({ groups: ['private'] })
+  dateOfBirth!: string;
+
   @Expose({ groups: ['public', 'private'] })
   age!: number;
 }
