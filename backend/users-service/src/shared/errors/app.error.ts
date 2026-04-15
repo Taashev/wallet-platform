@@ -73,8 +73,11 @@ export class AppError extends Error {
 
   constructor(options: AppErrorOptions) {
     super(options.message);
+
     this.name = AppError.name;
+
     Object.setPrototypeOf(this, AppError.prototype);
+
     this.type = options.type;
     this.message = options.message;
     this.safeMessage = options.safeMessage ?? options.message;

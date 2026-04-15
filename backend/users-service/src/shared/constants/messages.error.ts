@@ -1,6 +1,5 @@
 export const ERROR_MESSAGES = {
   INTERNAL_SERVER_ERROR: 'Внутренняя ошибка сервера',
-  SERVICE_UNAVAILABLE: 'Сервис временно недоступен',
 
   VALIDATION_ERROR: 'Данные запроса заполнены некорректно',
 
