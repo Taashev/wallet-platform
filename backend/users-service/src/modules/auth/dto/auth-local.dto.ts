@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 import { Expose } from 'class-transformer';
 import { IsString, MaxLength, MinLength } from 'class-validator';
 
@@ -11,6 +13,11 @@ import {
 } from '../../users/user.rules';
 
 export class AuthLocalDto {
+  @ApiProperty({
+    minLength: USERNAME_MIN_LENGTH,
+    maxLength: USERNAME_MAX_LENGTH,
+    example: 'user',
+  })
   @Expose()
   @IsString()
   @Trim()
@@ -18,6 +25,11 @@ export class AuthLocalDto {
   @MinLength(USERNAME_MIN_LENGTH)
   username!: Username;
 
+  @ApiProperty({
+    minLength: PASSWORD_MIN_LENTH,
+    maxLength: PASSWORD_MAX_LENTH,
+    example: 'StrongPass123',
+  })
   @Expose()
   @IsString()
   @Trim()

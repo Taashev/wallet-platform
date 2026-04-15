@@ -1,3 +1,5 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 import { Expose } from 'class-transformer';
 import {
   IsEmail,
@@ -26,6 +28,11 @@ import {
 } from '../../users/user.rules';
 
 export class CreateUserDto {
+  @ApiProperty({
+    minLength: USERNAME_MIN_LENGTH,
+    maxLength: USERNAME_MAX_LENGTH,
+    example: 'user',
+  })
   @Expose()
   @IsString()
   @Trim()
@@ -33,12 +40,21 @@ export class CreateUserDto {
   @MinLength(USERNAME_MIN_LENGTH)
   username!: Username;
 
+  @ApiProperty({
+    maxLength: EMAIL_MAX_LENGTH,
+    example: 'user@example.com',
+  })
   @Expose()
   @IsEmail()
   @Trim()
   @MaxLength(EMAIL_MAX_LENGTH)
   email!: Email;
 
+  @ApiProperty({
+    minLength: PASSWORD_MIN_LENTH,
+    maxLength: PASSWORD_MAX_LENTH,
+    example: 'StrongPass123',
+  })
   @Expose()
   @IsString()
   @Trim()
@@ -46,12 +62,20 @@ export class CreateUserDto {
   @MinLength(PASSWORD_MIN_LENTH)
   password!: Password;
 
+  @ApiPropertyOptional({
+    format: 'date',
+    example: '1999-12-31',
+  })
   @Expose()
   @IsOptional()
   @Trim()
   @IsISODateString()
   dateOfBirth?: DateOfBirth;
 
+  @ApiPropertyOptional({
+    maxLength: ABOUT_MAX_LENTH,
+    example: 'Backend engineer',
+  })
   @Expose()
   @IsOptional()
   @Trim()

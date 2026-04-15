@@ -1,3 +1,4 @@
+import { ValidationError } from '../../../shared/errors';
 import { UserId } from '../../users/types/user.type';
 import { SESSION_USER_AGENT_DEFAULT_VALUE } from '../sessions.rules';
 import {
@@ -38,15 +39,24 @@ export class Session {
 
   static create(createProps: CreateSession) {
     if (!createProps.sessionId.trim().length) {
-      throw new Error('ID сессии не может быть пустой строкой');
+      throw new ValidationError({
+        message: 'ID сессии не может быть пустой строкой',
+        expose: true,
+      });
     }
 
     if (!createProps.refreshTokenHash.trim().length) {
-      throw new Error('refreshTokenHash не может быть пустой строкой');
+      throw new ValidationError({
+        message: 'refreshToken не может быть пустой строкой',
+        expose: true,
+      });
     }
 
     if (!createProps.userId.trim().length) {
-      throw new Error('userId не может быть пустой строкой');
+      throw new ValidationError({
+        message: 'userId не может быть пустой строкой',
+        expose: true,
+      });
     }
 
     return new Session({

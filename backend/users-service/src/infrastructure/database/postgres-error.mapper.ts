@@ -50,6 +50,26 @@ export function mapPostgresErrorToAppError(
   );
 }
 
+function mapAppError(exception: Error): AppError | null {
+  if (exception instanceof AppError) {
+    return exception;
+  }
+
+  return null;
+}
+
+function mapEntityNotFoundError(exception: Error): AppError | null {
+  if (!(exception instanceof EntityNotFoundError)) {
+    return null;
+  }
+
+  return new NotFoundError({
+    message: exception.message,
+    safeMessage: ERROR_MESSAGES.RESOURCE_NOT_FOUND,
+    expose: true,
+  });
+}
+
 /**
  * Мапит QueryFailedError в AppError по коду Postgres
  * @param exception Ошибка выполнения SQL-запроса
@@ -82,26 +102,6 @@ function mapQueryFailedError(
   }
 
   return createQueryFailedError(exception, errorCode, details);
-}
-
-function mapAppError(exception: Error): AppError | null {
-  if (exception instanceof AppError) {
-    return exception;
-  }
-
-  return null;
-}
-
-function mapEntityNotFoundError(exception: Error): AppError | null {
-  if (!(exception instanceof EntityNotFoundError)) {
-    return null;
-  }
-
-  return new NotFoundError({
-    message: exception.message,
-    safeMessage: ERROR_MESSAGES.RESOURCE_NOT_FOUND,
-    expose: true,
-  });
 }
 
 function mapTypeOrmUnavailableError(exception: Error): AppError | null {

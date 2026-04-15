@@ -1,3 +1,5 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
+
 import { Expose } from 'class-transformer';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
@@ -6,6 +8,10 @@ import type { Username } from '../types/user.type';
 import { USERNAME_MAX_LENGTH } from '../user.rules';
 
 export class UserFilterDto {
+  @ApiPropertyOptional({
+    maxLength: USERNAME_MAX_LENGTH,
+    example: 'user',
+  })
   @Expose()
   @IsOptional()
   @Trim()
