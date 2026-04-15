@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Transform } from 'class-transformer';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
 
@@ -9,6 +10,11 @@ import {
 } from './constants';
 
 export class OffsetPaginationDto {
+  @ApiPropertyOptional({
+    minimum: PAGINATION_OFFSET_MIN,
+    default: PAGINATION_OFFSET_MIN,
+    example: 0,
+  })
   @Expose()
   @IsOptional()
   @Transform(({ value }) => Number(value))
@@ -16,6 +22,12 @@ export class OffsetPaginationDto {
   @Min(PAGINATION_OFFSET_MIN)
   offset: number = PAGINATION_OFFSET_MIN;
 
+  @ApiPropertyOptional({
+    minimum: PAGINATION_LIMIT_MIN,
+    maximum: PAGINATION_LIMIT_MAX,
+    default: PAGINATION_LIMIT_DEFAULT,
+    example: PAGINATION_LIMIT_DEFAULT,
+  })
   @Expose()
   @IsOptional()
   @Transform(({ value }) => Number(value))

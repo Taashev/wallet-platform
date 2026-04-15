@@ -10,14 +10,12 @@ export const USERS_CONSTRAINT_EMAIL_UQ = 'USERS_CONSTRAINT_EMAIL_UQ';
 export const userPostgresErrorMap = {
   [USERS_CONSTRAINT_USERNAME_UQ]: () =>
     new ConflictError({
-      message: 'Пользователь с таким username уже существует',
-      safeMessage: ERROR_MESSAGES.USERNAME_ALREADY_TAKEN,
+      message: ERROR_MESSAGES.USERNAME_ALREADY_TAKEN,
       expose: true,
     }),
   [USERS_CONSTRAINT_EMAIL_UQ]: () =>
     new ConflictError({
-      message: 'Пользователь с таким email уже существует',
-      safeMessage: ERROR_MESSAGES.EMAIL_ALREADY_TAKEN,
+      message: ERROR_MESSAGES.EMAIL_ALREADY_TAKEN,
       expose: true,
     }),
 };

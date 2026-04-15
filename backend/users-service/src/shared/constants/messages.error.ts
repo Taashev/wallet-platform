@@ -1,23 +1,15 @@
 export const ERROR_MESSAGES = {
   INTERNAL_SERVER_ERROR: 'Внутренняя ошибка сервера',
-  SERVICE_UNAVAILABLE: 'Сервис временно недоступен',
-  REQUEST_TIMEOUT: 'Время ожидания запроса истекло',
-  TOO_MANY_REQUESTS: 'Слишком много запросов, попробуйте позже',
 
   VALIDATION_ERROR: 'Данные запроса заполнены некорректно',
-  INVALID_INPUT: 'Переданы некорректные данные',
-  INVALID_UUID: 'Передан некорректный идентификатор',
-  REQUIRED_FIELD_MISSING: 'Не заполнены обязательные поля',
 
   UNAUTHORIZED: 'Требуется авторизация',
   INVALID_CREDENTIALS: 'Невалидное имя пользователя или пароль',
-  ACCESS_DENIED: 'Недостаточно прав для выполнения операции',
-  INVALID_ACCESS_TOKEN: 'Невалидный токен авторизации',
+  INVALID_ACCESS_TOKEN: 'Токен доступа отсутствует или недействителен',
   INVALID_REFRESH_TOKEN: 'Невалидный refresh токен',
   INVALID_SESSION: 'Текущая сессия недействительна',
   INVALID_UPDATE_DATA: 'Неудалось обновить данные',
   SESSION_NOT_FOUND: 'Сессия не найдена',
-  FORBIDDEN: 'Доступ запрещен',
 
   RESOURCE_NOT_FOUND: 'Запрошенный ресурс не найден',
   USER_NOT_FOUND: 'Пользователь не найден',
@@ -26,10 +18,6 @@ export const ERROR_MESSAGES = {
   USERNAME_ALREADY_TAKEN: 'Пользователь с таким username уже существует',
   EMAIL_ALREADY_TAKEN: 'Пользователь с таким email уже существует',
 
-  LIMIT_EXCEEDED: 'Превышено допустимое ограничение',
-
-  CONFLICT: 'Конфликт данных',
-  DATABASE_ERROR: 'Ошибка при работе с данными',
   DATABASE_UNIQUE_VIOLATION: 'Нарушено ограничение уникальности',
   DATABASE_FOREIGN_KEY_VIOLATION: 'Нарушено ограничение ссылочной целостности',
   DATABASE_NOT_NULL_VIOLATION: 'Обязательное поле не заполнено',

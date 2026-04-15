@@ -16,9 +16,7 @@ export class AppExceptionFilter implements ExceptionFilter<AppError> {
   catch(exception: AppError, host: ArgumentsHost) {
     const response = host.switchToHttp().getResponse<Response>();
 
-    const statusCode = exception.expose
-      ? this.getStatusCode(exception)
-      : HttpStatus.INTERNAL_SERVER_ERROR;
+    const statusCode = this.getStatusCode(exception);
 
     const clientMessage = exception.expose
       ? exception.safeMessage

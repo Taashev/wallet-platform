@@ -1,5 +1,7 @@
-import type { PostgresConstraintErrorMap } from '../../infrastructure/database/postgres-error.mapper';
-import { mapPostgresErrorToAppError } from '../../infrastructure/database/postgres-error.mapper';
+import {
+  mapPostgresErrorToAppError,
+  PostgresConstraintErrorMap,
+} from '../../infrastructure/database/postgres-error-mapper';
 import { InternalError } from '../errors';
 
 type AsyncMethod = (...args: unknown[]) => unknown;

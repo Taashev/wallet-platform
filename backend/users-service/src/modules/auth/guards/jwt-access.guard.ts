@@ -1,14 +1,10 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 
 import { ERROR_MESSAGES } from '../../../shared/constants/messages.error';
+import { UnauthorizedError } from '../../../shared/errors';
 import { TokenService } from '../../security/token.service';
 
 @Injectable()
@@ -25,17 +21,26 @@ export class JwtAccessGuard implements CanActivate {
     const authHeader = request.headers['authorization'];
 
     if (!authHeader) {
-      throw new UnauthorizedException('Отсутствует заголовок Authorization');
+      throw new UnauthorizedError({
+        message: 'Отсутствует заголовок Authorization',
+        expose: true,
+      });
     }
 
     const [type, token] = authHeader.split(' ');
 
     if (type !== 'Bearer') {
-      throw new UnauthorizedException('Невалидный тип авторизации');
+      throw new UnauthorizedError({
+        message: 'Невалидный тип авторизации',
+        expose: true,
+      });
     }
 
     if (token === undefined) {
-      throw new UnauthorizedException(ERROR_MESSAGES.INVALID_ACCESS_TOKEN);
+      throw new UnauthorizedError({
+        message: ERROR_MESSAGES.INVALID_ACCESS_TOKEN,
+        expose: true,
+      });
     }
 
     try {
@@ -49,7 +54,10 @@ export class JwtAccessGuard implements CanActivate {
 
       return true;
     } catch {
-      throw new UnauthorizedException(ERROR_MESSAGES.INVALID_ACCESS_TOKEN);
+      throw new UnauthorizedError({
+        message: ERROR_MESSAGES.INVALID_ACCESS_TOKEN,
+        expose: true,
+      });
     }
   }
 }
