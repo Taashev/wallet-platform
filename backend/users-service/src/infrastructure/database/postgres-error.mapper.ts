@@ -204,7 +204,7 @@ function buildDatabaseDetails(driverError?: PostgresDriverError | null) {
     column: driverError.column,
     field,
     // schema: driverError.schema,
-    detail: driverError.detail,
+    // detail: driverError.detail,
   };
 }
 

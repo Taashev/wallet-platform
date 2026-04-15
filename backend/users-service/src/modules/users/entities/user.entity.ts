@@ -1,3 +1,4 @@
+import { ValidationError } from '../../../shared/errors';
 import {
   About,
   CreateUser,
@@ -5,6 +6,7 @@ import {
   Email,
   Password,
   RestoreUser,
+  UpdateUser,
   UserId,
   Username,
 } from '../types/user.type';
@@ -28,32 +30,108 @@ type UserProps = {
 
 export class User {
   readonly userId: UserId;
-  readonly username: Username;
-  readonly email: Email;
-  readonly password: Password;
-  readonly about: About;
-  readonly dateOfBirth: DateOfBirth;
+  private _username: Username;
+  private _email: Email;
+  private _password: Password;
+  private _about: About;
+  private _dateOfBirth: DateOfBirth;
+
+  get username() {
+    return this._username;
+  }
+
+  get email() {
+    return this._email;
+  }
+
+  get password() {
+    return this._password;
+  }
+
+  get about() {
+    return this._about;
+  }
+
+  get dateOfBirth() {
+    return this._dateOfBirth;
+  }
 
   private constructor(userProps: UserProps) {
     this.userId = userProps.userId;
-    this.username = userProps.username;
-    this.email = userProps.email;
-    this.password = userProps.password;
-    this.dateOfBirth = userProps.dateOfBirth;
-    this.about = userProps.about;
+    this._username = userProps.username;
+    this._email = userProps.email;
+    this._password = userProps.password;
+    this._dateOfBirth = userProps.dateOfBirth;
+    this._about = userProps.about;
   }
 
-  private static validateDateOfBirth(value: string) {
+  static validateDateOfBirth(value: string) {
     const result = DATE_OF_BIRTH_REGEXP.test(value);
 
     if (!result) {
-      throw new Error('Дата рождения должна быть в формате YYYY-MM-DD');
+      throw new ValidationError({
+        message: 'Дата должна быть в формате YYYY-MM-DD',
+        safeMessage: 'Дата должна быть в формате YYYY-MM-DD',
+        expose: true,
+      });
     }
 
-    const date = new Date(value);
+    const [yearString, monthString, dayString] = value.split('-');
+    const year = Number(yearString);
+    const month = Number(monthString);
+    const day = Number(dayString);
+    const date = new Date(Date.UTC(year, month - 1, day));
 
-    if (isNaN(date.getTime())) {
-      throw new Error('Невалидная дата');
+    const isInvalidDate =
+      isNaN(date.getTime()) ||
+      date.getUTCFullYear() !== year ||
+      date.getUTCMonth() + 1 !== month ||
+      date.getUTCDate() !== day;
+
+    if (isInvalidDate) {
+      throw new ValidationError({
+        message: 'Невалидная дата',
+        safeMessage: 'Невалидная дата',
+        expose: true,
+      });
+    }
+  }
+
+  static validateUsername(username: Username) {
+    if (username.length < USERNAME_MIN_LENGTH) {
+      throw new ValidationError({
+        message: `Имя пользователя не может быть короче ${USERNAME_MIN_LENGTH} символов`,
+        safeMessage: `Имя пользователя не может быть короче ${USERNAME_MIN_LENGTH} символов`,
+        expose: true,
+      });
+    }
+  }
+
+  static validateEmail(email: Email) {
+    if (!email.includes('@')) {
+      throw new ValidationError({
+        message: 'Email должен содержать @',
+        safeMessage: 'Email должен содержать @',
+        expose: true,
+      });
+    }
+
+    if (email.length < EMAIL_MIN_LENGTH) {
+      throw new ValidationError({
+        message: `Email не может быть короче ${EMAIL_MIN_LENGTH} символов`,
+        safeMessage: `Email не может быть короче ${EMAIL_MIN_LENGTH} символов`,
+        expose: true,
+      });
+    }
+  }
+
+  static validatePassword(password: string) {
+    if (password.length < PASSWORD_MIN_LENTH) {
+      throw new ValidationError({
+        message: `Пароль не может быть короче ${PASSWORD_MIN_LENTH} символов`,
+        safeMessage: `Пароль не может быть короче ${PASSWORD_MIN_LENTH} символов`,
+        expose: true,
+      });
     }
   }
 
@@ -64,27 +142,9 @@ export class User {
       createProps.dateOfBirth = DATE_OF_BIRTH_DEFAULT_VALUE;
     }
 
-    if (createProps.username.length < USERNAME_MIN_LENGTH) {
-      throw new Error(
-        `Имя пользователя не может быть короче ${USERNAME_MIN_LENGTH} символов`,
-      );
-    }
-
-    if (!createProps.email.includes('@')) {
-      throw new Error('Email должен содержать @');
-    }
-
-    if (createProps.email.length < EMAIL_MIN_LENGTH) {
-      throw new Error(
-        `Email не может быть короче ${EMAIL_MIN_LENGTH} символов`,
-      );
-    }
-
-    if (createProps.password.length < PASSWORD_MIN_LENTH) {
-      throw new Error(
-        `Пароль не может быть короче ${PASSWORD_MIN_LENTH} символов`,
-      );
-    }
+    this.validateUsername(createProps.username);
+    this.validateEmail(createProps.email);
+    this.validatePassword(createProps.password);
 
     return new User({
       userId: createProps.userId,
@@ -92,7 +152,9 @@ export class User {
       email: createProps.email,
       password: createProps.password,
       dateOfBirth: createProps.dateOfBirth,
-      about: createProps.about ?? ABOUT_DEFAULT_VALUE,
+      about: createProps.about?.length
+        ? createProps.about
+        : ABOUT_DEFAULT_VALUE,
     });
   }
 
@@ -100,9 +162,36 @@ export class User {
     return new User(restoreProps);
   }
 
+  changeProfile(updateProps: UpdateUser) {
+    if (updateProps.dateOfBirth !== undefined) {
+      User.validateDateOfBirth(updateProps.dateOfBirth);
+      this._dateOfBirth = updateProps.dateOfBirth;
+    }
+
+    if (updateProps.username !== undefined) {
+      User.validateUsername(updateProps.username);
+      this._username = updateProps.username;
+    }
+
+    if (updateProps.email !== undefined) {
+      User.validateEmail(updateProps.email);
+      this._email = updateProps.email;
+    }
+
+    if (updateProps.about !== undefined) {
+      this._about = updateProps.about;
+    }
+  }
+
+  changePassword(password: Password) {
+    User.validatePassword(password);
+
+    this._password = password;
+  }
+
   get age() {
     const currentDate = new Date();
-    const dateOfBirth = new Date(this.dateOfBirth);
+    const dateOfBirth = new Date(this._dateOfBirth);
 
     let age = currentDate.getFullYear() - dateOfBirth.getFullYear();
 

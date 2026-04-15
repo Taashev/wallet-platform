@@ -17,6 +17,10 @@ export type CreateUser = {
 
 export type RestoreUser = Required<CreateUser>;
 
+export type UpdateUser = Partial<
+  Pick<CreateUser, 'username' | 'email' | 'dateOfBirth' | 'about'>
+>;
+
 export type FindOneUserCriteria =
   | { userId: UserId; username?: never }
   | { username: Username; userId?: never };

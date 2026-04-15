@@ -1,4 +1,8 @@
-import { registerDecorator, ValidationOptions } from 'class-validator';
+import {
+  registerDecorator,
+  ValidateIf,
+  ValidationOptions,
+} from 'class-validator';
 
 import { DATE_OF_BIRTH_REGEXP } from '../../modules/users/user.rules';
 
@@ -19,12 +23,6 @@ export const IsISODateString = (validationOptions?: ValidationOptions) => {
             return false;
           }
 
-          const date = new Date(value);
-
-          if (isNaN(date.getTime())) {
-            return false;
-          }
-
           return true;
         },
 
@@ -34,4 +32,8 @@ export const IsISODateString = (validationOptions?: ValidationOptions) => {
       },
     });
   };
+};
+
+export const IsOptionalButNotNull = () => {
+  return ValidateIf((_, value) => value !== undefined);
 };

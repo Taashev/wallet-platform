@@ -1,6 +1,13 @@
 import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
 import { User } from '../entities/user.entity';
-import { CreateUser, UserFilter, UserId, Username } from '../types/user.type';
+import {
+  CreateUser,
+  Password,
+  UpdateUser,
+  UserFilter,
+  UserId,
+  Username,
+} from '../types/user.type';
 
 export interface UsersRepository {
   create(createUserProps: CreateUser): Promise<User>;
@@ -15,4 +22,9 @@ export interface UsersRepository {
   ): Promise<{ users: User[]; count: number }>;
 
   softDelete(userId: UserId): Promise<boolean>;
+
+  updateUser(
+    userId: UserId,
+    updatedUser: UpdateUser & { passwordHash?: Password },
+  ): Promise<boolean>;
 }
