@@ -25,7 +25,7 @@ export class SigninUseCase {
 
     if (!user) {
       throw new UnauthorizedError({
-        message: 'Пользователь с указанным username не найден при входе',
+        message: 'Пользователь с указанным username не найден',
         safeMessage: ERROR_MESSAGES.INVALID_CREDENTIALS,
         expose: true,
       });

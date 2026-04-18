@@ -1,0 +1,13 @@
+export const accessTokenMock: string =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSWQiOiIzMTM3M2M3MS0yNGE4LTQ2NjAtOTg2NC1lZGE4MDU2OGQ3MjciLCJ1c2VySWQiOiJhMTY4ZDVhNi02NDcxLTRmMjktYjNkMC03MjAwN2FlYTMxOWMiLCJpYXQiOjE3NzYyNDM0ODgsImV4cCI6MTc3NjI0NDM4OH0.GJT39Qk6EEIgwEzUuj-EaJ5-62bPHvG0rJSpQPzV7yI';
+
+export const refreshTokenMock: string =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSWQiOiIzMTM3M2M3MS0yNGE4LTQ2NjAtOTg2NC1lZGE4MDU2OGQ3MjciLCJ1c2VySWQiOiJhMTY4ZDVhNi02NDcxLTRmMjktYjNkMC03MjAwN2FlYTMxOWMiLCJpYXQiOjE3NzYyNDM0ODgsImV4cCI6MTc3Njg0ODI4OH0.PLhdZr_G3LpF5Fl2i9c8zkoazKxxR-66yQZJosI-0Nc';
+
+export const refreshTokenHashMock =
+  '16f2d482acfbd6a8d5d48eb00286175d926ec188cf581d1b3c681cf9dc4e1b51';
+
+export const authTokensMock = {
+  accessToken: accessTokenMock,
+  refreshToken: refreshTokenMock,
+};

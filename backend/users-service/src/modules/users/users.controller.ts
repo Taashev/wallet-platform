@@ -13,7 +13,6 @@ import {
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
-  ApiHeader,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -46,11 +45,6 @@ import { UpdateCurrentUserUseCase } from './usecases/update-current-user.usecase
 @ApiBearerAuth('bearer')
 @ApiUnauthorizedResponse({
   description: ERROR_MESSAGES.INVALID_ACCESS_TOKEN,
-})
-@ApiHeader({
-  name: 'Authorization',
-  required: true,
-  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh.payload.signature',
 })
 @Controller({ version: '1', path: 'users' })
 export class UsersController {

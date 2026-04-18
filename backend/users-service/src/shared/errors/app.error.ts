@@ -74,9 +74,9 @@ export class AppError extends Error {
   constructor(options: AppErrorOptions) {
     super(options.message);
 
-    this.name = AppError.name;
+    Object.setPrototypeOf(this, new.target.prototype);
 
-    Object.setPrototypeOf(this, AppError.prototype);
+    this.name = new.target.name;
 
     this.type = options.type;
     this.message = options.message;
