@@ -8,7 +8,7 @@ export function getDataSourceOptions(
 ): DataSourceOptions {
   return {
     type: 'postgres',
-    url: `postgres://${options.POSTGRES_USER}:${options.POSTGRES_PASSWORD}@${options.POSTGRES_HOST}:${options.POSTGRES_PORT}/${options.POSTGRES_DB}`,
+    url: `postgres://${options.username}:${options.password}@${options.host}:${options.port}/${options.name}`,
     synchronize: false,
     migrationsRun: false,
     entities: [join(__dirname, '../../**/*.entity.{ts,js}')],

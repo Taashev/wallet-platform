@@ -3,16 +3,17 @@ import { ConfigService } from '@nestjs/config';
 
 import * as bcrypt from 'bcrypt';
 
-import { AppConfigType, ConfigType } from '../../infrastructure/config';
+import { ConfigType, SecurityConfigType } from '../../infrastructure/config';
 
 @Injectable()
 export class PasswordService {
   private salt: number;
 
   constructor(private config: ConfigService<ConfigType>) {
-    const appConfig = this.config.getOrThrow<AppConfigType>('app');
+    const securityConfig =
+      this.config.getOrThrow<SecurityConfigType>('security');
 
-    this.salt = appConfig.PASSWORD_SALT;
+    this.salt = securityConfig.passwordSaltRounds;
   }
 
   async hash(password: string) {
