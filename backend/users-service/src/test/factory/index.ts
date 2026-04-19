@@ -8,3 +8,5 @@ export type * from './token.factory';
 export * from './token.factory';
 export type * from './transaction.factory';
 export * from './transaction.factory';
+export type * from './config.factory';
+export * from './config.factory';

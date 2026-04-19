@@ -5,7 +5,7 @@ export const refreshTokenMock: string =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSWQiOiIzMTM3M2M3MS0yNGE4LTQ2NjAtOTg2NC1lZGE4MDU2OGQ3MjciLCJ1c2VySWQiOiJhMTY4ZDVhNi02NDcxLTRmMjktYjNkMC03MjAwN2FlYTMxOWMiLCJpYXQiOjE3NzYyNDM0ODgsImV4cCI6MTc3Njg0ODI4OH0.PLhdZr_G3LpF5Fl2i9c8zkoazKxxR-66yQZJosI-0Nc';
 
 export const refreshTokenHashMock =
-  '16f2d482acfbd6a8d5d48eb00286175d926ec188cf581d1b3c681cf9dc4e1b51';
+  '565f62e7c421590789436c63e598e887f942ac2390d57076350a9475f9d29237';
 
 export const authTokensMock = {
   accessToken: accessTokenMock,
