@@ -28,14 +28,14 @@ async function bootstrap() {
 
   const appConfig = configService.getOrThrow<AppConfigType>('app');
 
-  const baseUrl = `http://${appConfig.APP_HOST}:${appConfig.APP_PORT}`;
+  const baseUrl = `http://${appConfig.host}:${appConfig.port}`;
 
   const urlSwaggerV1 = buildSwagger(baseUrl, 'v1', app);
 
-  await app.listen(appConfig.APP_PORT, appConfig.APP_HOST, () => {
+  await app.listen(appConfig.port, appConfig.host, () => {
     console.table({
-      host: appConfig.APP_HOST,
-      port: appConfig.APP_PORT,
+      host: appConfig.host,
+      port: appConfig.port,
       docsV1: urlSwaggerV1,
       pid: process.pid,
     });

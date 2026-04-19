@@ -43,9 +43,9 @@ export class SessionsService {
   }) {
     const authConfig = this.config.getOrThrow<AuthConfigType>('auth');
 
-    const SESSION_TTL_MS = authConfig.SESSION_TTL_SECONDS * 1000;
+    const sessionTtlMs = authConfig.session.ttlSeconds * 1000;
 
-    const expiresAt = this.createExpirationDate(SESSION_TTL_MS);
+    const expiresAt = this.createExpirationDate(sessionTtlMs);
 
     const refreshTokenHash = this.hash(sessionData.refreshToken);
 

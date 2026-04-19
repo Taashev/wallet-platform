@@ -17,11 +17,11 @@ export class TokenService {
   constructor(private config: ConfigService<ConfigType>) {
     const authConfig = this.config.getOrThrow<AuthConfigType>('auth');
 
-    this.accessTokenSecret = authConfig.ACCESS_TOKEN_SECRET;
-    this.accessTokenExpireIn = authConfig.ACCESS_TOKEN_TTL_SECONDS;
+    this.accessTokenSecret = authConfig.accessToken.secret;
+    this.accessTokenExpireIn = authConfig.accessToken.ttlSeconds;
 
-    this.refreshTokenSecret = authConfig.REFRESH_TOKEN_SECRET;
-    this.refreshTokenExpireIn = authConfig.REFRESH_TOKEN_TTL_SECONDS;
+    this.refreshTokenSecret = authConfig.refreshToken.secret;
+    this.refreshTokenExpireIn = authConfig.refreshToken.ttlSeconds;
   }
 
   private createAccessToken(payload: AccessTokenPayload) {
