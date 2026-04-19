@@ -1,0 +1,176 @@
+:root {
+  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #f5f7fb;
+  background:
+    radial-gradient(circle at top left, rgba(107, 154, 255, 0.24), transparent 36%),
+    radial-gradient(circle at top right, rgba(16, 185, 129, 0.18), transparent 32%),
+    linear-gradient(180deg, #0f172a 0%, #111827 48%, #020617 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+.app-shell {
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 56px 0 72px;
+}
+
+.hero-panel {
+  position: relative;
+  overflow: hidden;
+  padding: 32px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 28px;
+  background: linear-gradient(160deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.76));
+  box-shadow: 0 30px 70px rgba(2, 6, 23, 0.3);
+}
+
+.hero-panel::after {
+  content: '';
+  position: absolute;
+  inset: auto -8% -35% auto;
+  width: 240px;
+  height: 240px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.12);
+  filter: blur(8px);
+}
+
+.hero-eyebrow {
+  margin: 0 0 12px;
+  color: #93c5fd;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero-panel h1 {
+  margin: 0;
+  max-width: 12ch;
+  font-size: clamp(2.5rem, 4vw, 4.5rem);
+  line-height: 0.95;
+}
+
+.hero-description {
+  margin: 20px 0 0;
+  max-width: 56ch;
+  color: rgba(226, 232, 240, 0.92);
+  font-size: 1.05rem;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.foundation-card {
+  padding: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 24px;
+  background: rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(12px);
+}
+
+.foundation-card h2 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.foundation-card p {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.82);
+}
+
+.status-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.status-panel > div {
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: rgba(2, 6, 23, 0.58);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.status-panel strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1rem;
+}
+
+.status-label {
+  color: #7dd3fc;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(125, 211, 252, 0.85);
+  outline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .hero-grid,
+  .status-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    width: min(100% - 24px, 1100px);
+    padding: 24px 0 40px;
+  }
+
+  .hero-panel {
+    padding: 24px;
+    border-radius: 24px;
+  }
+
+  .hero-grid,
+  .status-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-panel h1 {
+    max-width: none;
+  }
+}
