@@ -57,3 +57,17 @@
 **Заметки для следующей итерации:**
 - Probe использует публичный путь `docs/v1` и `no-cors` fetch только как reachability-check до появления полноценного API-клиента
 - Валидный URL нормализуется централизованно, а невалидный превращается в явную config-ошибку до загрузки маршрутов
+
+## Итерация 4 — 2026-04-20
+**Фича:** TASK-004 — единый HTTP-клиент для users-service
+**Статус:** Завершено
+**Что сделано:**
+- Добавлен общий HTTP-клиент в `shared/api` с поддержкой base URL, query params, общих заголовков и JSON body
+- Вынесен отдельный `users-service` client wrapper с extension points под auth headers, retry и `401`-обработку
+- HTTP-клиент поднят в `app/providers` через context/provider, чтобы страницы не создавали сетевой слой локально
+- `UsersServiceConnectionCard` переведена с прямого `fetch` на единый HTTP-клиент как первый consumer
+**Следующие шаги:**
+- Перейти к `TASK-005` и выделить contract layer для auth, profile и users list поверх нового клиента
+**Заметки для следующей итерации:**
+- Прямых `fetch` в страницах и фичах больше нет; сетевой доступ централизован в `shared/api/http-client.ts`
+- Реальный backend на `127.0.0.1:8080` в этой сессии не был поднят, поэтому live users-service запрос проверить не удалось; сам клиент отдельно проверен через mocked `fetch` на base URL, headers и retry

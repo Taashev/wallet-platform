@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAppConfig } from '@/app/providers/use-app-config';
+import { useUsersServiceHttpClient } from '@/app/providers/use-users-service-http-client';
+import { HttpClientError } from '@/shared/api/http-client';
 import { resolveUsersServiceUrl } from '@/shared/config/app-config';
 import { SurfaceCard } from '@/shared/ui/surface-card';
 
@@ -12,6 +14,7 @@ const USERS_SERVICE_PROBE_PATH = 'docs/v1';
 
 export function UsersServiceConnectionCard() {
   const { usersService } = useAppConfig();
+  const usersServiceHttpClient = useUsersServiceHttpClient();
   const [probeAttempt, setProbeAttempt] = useState(0);
   const [probeState, setProbeState] = useState<ProbeState>({
     status: 'loading',
@@ -33,10 +36,11 @@ export function UsersServiceConnectionCard() {
       });
 
       try {
-        await fetch(probeUrl, {
-          method: 'GET',
-          mode: 'no-cors',
+        await usersServiceHttpClient.get<void>(USERS_SERVICE_PROBE_PATH, {
           cache: 'no-store',
+          isResponseSuccessful: (response) => response.ok || response.type === 'opaque',
+          mode: 'no-cors',
+          parseAs: 'none',
           signal: abortController.signal,
         });
 
@@ -50,7 +54,9 @@ export function UsersServiceConnectionCard() {
         }
 
         const fallbackMessage =
-          error instanceof Error && error.message
+          error instanceof HttpClientError
+            ? `${error.message} (${error.method} ${error.url})`
+            : error instanceof Error && error.message
             ? error.message
             : 'Network access to the configured users-service URL failed.';
 
@@ -66,7 +72,7 @@ export function UsersServiceConnectionCard() {
     return () => {
       abortController.abort();
     };
-  }, [probeAttempt, probeUrl]);
+  }, [probeAttempt, probeUrl, usersServiceHttpClient]);
 
   return (
     <SurfaceCard
@@ -79,9 +85,13 @@ export function UsersServiceConnectionCard() {
           <span className="connection-card__label">Configured base URL</span>
           <code>{usersService.apiBaseUrl}</code>
         </div>
+      <div className="connection-card__row">
+        <span className="connection-card__label">Resolved probe URL</span>
+        <code>{probeUrl}</code>
+      </div>
         <div className="connection-card__row">
-          <span className="connection-card__label">Resolved probe URL</span>
-          <code>{probeUrl}</code>
+          <span className="connection-card__label">Client layer</span>
+          <code>shared/api/users-service-http-client.ts</code>
         </div>
         <div className="connection-card__row">
           <span className="connection-card__label">Env source</span>
