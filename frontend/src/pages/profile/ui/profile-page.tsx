@@ -1,4 +1,5 @@
 import { ROUTE_PATHS } from '@/app/router/route-paths';
+import { ProtectedSessionProbeCard } from '@/features/auth/ui/protected-session-probe-card';
 import {
   normalizeCurrentUserDto,
   type CurrentUserResponseDto,
@@ -63,6 +64,7 @@ export function ProfilePage() {
         rawPayload={PROFILE_DTO_EXAMPLE}
         title="Current user payload is normalized into a safe profile model"
       />
+      <ProtectedSessionProbeCard />
     </div>
   );
 }

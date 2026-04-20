@@ -16,7 +16,7 @@ type HeaderResolverContext = {
   path: string;
 };
 
-type RetryContext = {
+export type RetryContext = {
   attempt: number;
   method: HttpMethod;
   path: string;

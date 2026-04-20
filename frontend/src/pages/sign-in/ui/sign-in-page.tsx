@@ -1,5 +1,6 @@
 import { AuthSessionPreviewCard } from '@/entities/auth/ui/auth-session-preview-card';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
+import { AuthApiPreviewCard } from '@/features/auth/ui/auth-api-preview-card';
 import {
   normalizeAuthTokensDto,
   type AuthTokensDto,
@@ -62,6 +63,7 @@ export function SignInPage() {
         title="Auth tokens DTO is normalized before feature usage"
       />
       <AuthSessionPreviewCard previewSession={normalizedAuthTokens} />
+      <AuthApiPreviewCard />
       <UsersServiceConnectionCard />
     </div>
   );

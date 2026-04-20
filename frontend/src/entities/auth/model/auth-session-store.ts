@@ -30,6 +30,7 @@ export function createAuthSessionStore({
   storageKey = AUTH_SESSION_STORAGE_KEY,
 }: AuthSessionStoreOptions = {}): AuthSessionStore {
   let session = readAuthSessionFromStorage(storage, storageKey);
+  let snapshot = createAuthSessionSnapshot(session, storageKind);
   const listeners = new Set<AuthSessionStoreListener>();
 
   function emitChange() {
@@ -38,11 +39,7 @@ export function createAuthSessionStore({
 
   return {
     getSnapshot() {
-      return {
-        session,
-        isAuthenticated: session !== null,
-        storageKind,
-      };
+      return snapshot;
     },
     getSession() {
       return session;
@@ -50,11 +47,13 @@ export function createAuthSessionStore({
     saveSession(nextSession) {
       const normalizedSession = normalizeAuthSession(nextSession);
       session = normalizedSession;
+      snapshot = createAuthSessionSnapshot(session, storageKind);
       persistAuthSession(storage, storageKey, normalizedSession);
       emitChange();
     },
     clearSession() {
       session = null;
+      snapshot = createAuthSessionSnapshot(session, storageKind);
       clearPersistedAuthSession(storage, storageKey);
       emitChange();
     },
@@ -65,6 +64,17 @@ export function createAuthSessionStore({
         listeners.delete(listener);
       };
     },
+  };
+}
+
+function createAuthSessionSnapshot(
+  session: AuthSession | null,
+  storageKind: AuthSessionStorageKind,
+): AuthSessionSnapshot {
+  return {
+    session,
+    isAuthenticated: session !== null,
+    storageKind,
   };
 }
 

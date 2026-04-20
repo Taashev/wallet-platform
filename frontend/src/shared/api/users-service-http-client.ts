@@ -13,6 +13,7 @@ type UsersServiceHttpClientOptions = {
   resolveAuthHeaders?: () => HeadersInit | Promise<HeadersInit>;
   shouldRetry?: Parameters<typeof createHttpClient>[0]['shouldRetry'];
   onUnauthorized?: Parameters<typeof createHttpClient>[0]['onUnauthorized'];
+  defaultRetries?: number;
   fetchFn?: typeof fetch;
 };
 
@@ -21,6 +22,7 @@ export function createUsersServiceHttpClient({
   resolveAuthHeaders,
   shouldRetry,
   onUnauthorized,
+  defaultRetries = 0,
   fetchFn,
 }: UsersServiceHttpClientOptions) {
   const httpClient = createHttpClient({
@@ -37,7 +39,7 @@ export function createUsersServiceHttpClient({
     fetchFn,
   });
 
-  return wrapUsersServiceHttpClient(httpClient);
+  return wrapUsersServiceHttpClient(httpClient, defaultRetries);
 }
 
 async function runWithUsersServiceError<T>(operation: () => Promise<T>) {
@@ -48,22 +50,48 @@ async function runWithUsersServiceError<T>(operation: () => Promise<T>) {
   }
 }
 
-function wrapUsersServiceHttpClient(httpClient: HttpClient): UsersServiceHttpClient {
+function withDefaultRetries(
+  defaultRetries: number,
+  options?: Omit<HttpRequestOptions, 'method' | 'path'>,
+) {
+  return {
+    ...options,
+    retries: options?.retries ?? defaultRetries,
+  };
+}
+
+function wrapUsersServiceHttpClient(
+  httpClient: HttpClient,
+  defaultRetries: number,
+): UsersServiceHttpClient {
   return {
     request<T>(options: HttpRequestOptions) {
-      return runWithUsersServiceError(() => httpClient.request<T>(options));
+      return runWithUsersServiceError(() =>
+        httpClient.request<T>({
+          ...options,
+          retries: options.retries ?? defaultRetries,
+        }),
+      );
     },
     get<T>(path: string, options?: Omit<HttpRequestOptions, 'method' | 'path'>) {
-      return runWithUsersServiceError(() => httpClient.get<T>(path, options));
+      return runWithUsersServiceError(() =>
+        httpClient.get<T>(path, withDefaultRetries(defaultRetries, options)),
+      );
     },
     post<T>(path: string, options?: Omit<HttpRequestOptions, 'method' | 'path'>) {
-      return runWithUsersServiceError(() => httpClient.post<T>(path, options));
+      return runWithUsersServiceError(() =>
+        httpClient.post<T>(path, withDefaultRetries(defaultRetries, options)),
+      );
     },
     patch<T>(path: string, options?: Omit<HttpRequestOptions, 'method' | 'path'>) {
-      return runWithUsersServiceError(() => httpClient.patch<T>(path, options));
+      return runWithUsersServiceError(() =>
+        httpClient.patch<T>(path, withDefaultRetries(defaultRetries, options)),
+      );
     },
     delete<T>(path: string, options?: Omit<HttpRequestOptions, 'method' | 'path'>) {
-      return runWithUsersServiceError(() => httpClient.delete<T>(path, options));
+      return runWithUsersServiceError(() =>
+        httpClient.delete<T>(path, withDefaultRetries(defaultRetries, options)),
+      );
     },
     normalizeError(error: unknown) {
       return normalizeUsersServiceError(error);

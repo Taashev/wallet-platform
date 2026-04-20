@@ -113,3 +113,31 @@
 **Заметки для следующей итерации:**
 - Изолированный прогон store подтвердил сценарий `save -> recreate store -> restore session` через одно и то же хранилище
 - Прямые вызовы `sessionStorage` остались только в `entities/auth/model/auth-session-store.ts`, а не в страницах или формах
+
+## Итерация 8 — 2026-04-20
+**Фича:** TASK-008 — auth API module для signup, signin, refresh и signout
+**Статус:** Завершено
+**Что сделано:**
+- Добавлен отдельный auth integration-слой с методами `signup`, `signin`, `refresh`, `signout`, построенный поверх единого `users-service` client и contract layer
+- Добавлен `useAuthApi`, чтобы экранные модули работали с auth abstraction, а не с raw HTTP-запросами
+- На `sign-in` подключена preview-card, использующая auth API для `refresh` и `signout` и показывающая, что экранный слой не знает деталей запросов
+- Прямые обращения к `/v1/auth/*` теперь сосредоточены только в одном auth module
+**Следующие шаги:**
+- Перейти к `TASK-009` и собрать refresh orchestration с single-flight и fail-closed logout поверх уже готового auth API module
+**Заметки для следующей итерации:**
+- Локальная проверка against `http://127.0.0.1:8080` подтвердила реальный проход `signup -> signin -> refresh -> signout` через новый auth module
+- Для доступа к localhost из этой среды потребовался escalated local execution; сам frontend-код после этого не менялся
+
+## Итерация 9 — 2026-04-20
+**Фича:** TASK-009 — refresh orchestration с single-flight и fail-closed logout
+**Статус:** Завершено
+**Что сделано:**
+- Добавлен `refresh-session-orchestrator`, который централизованно обрабатывает `401`, запускает refresh только один раз на волну запросов и отдаёт результат в retry-логику общего HTTP-клиента
+- `users-service` client получил `defaultRetries`, а `AppProviders` теперь поднимают два слоя: auth API client для refresh/signout и общий protected client с auto-refresh orchestration
+- На `Profile` добавлена protected session probe card, которая вызывает `GET /v1/users/me` через общий client и позволяет увидеть automatic refresh/retry на защищённом маршруте
+- При неуспешном refresh локальная сессия очищается через session store, что даёт fail-closed поведение без размазывания logout-логики по экранам
+**Следующие шаги:**
+- Перейти к `TASK-010` и собрать bootstrap auth-state и guard-логику для публичных и защищённых маршрутов
+**Заметки для следующей итерации:**
+- Локальный прогон against `http://127.0.0.1:8080` подтвердил single-flight: две конкурентные protected `401`-запроса дали ровно один `refresh`
+- Отдельный сценарий с невалидным `refreshToken` подтвердил очистку локальной сессии и итоговый `401 unauthorized`
