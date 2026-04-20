@@ -29,3 +29,17 @@
 **Заметки для следующей итерации:**
 - Базовый alias `@/*` уже настроен, можно сразу раскладывать app shell по модульной структуре
 - Dev server успешно стартует локально, build и lint проходят без ошибок
+
+## Итерация 2 — 2026-04-20
+**Фича:** TASK-002 — app shell с router и layout-слоями
+**Статус:** Завершено
+**Что сделано:**
+- Подключён `react-router-dom` и собран route tree для публичных и защищённых маршрутов MVP
+- Вынесены отдельные `PublicLayout` и `ProtectedLayout` с разными shell-обвязками и навигацией
+- Добавлены placeholder-страницы для `sign-in`, `sign-up`, `profile`, `profile/edit`, `profile/password`, `users`, `profile/delete`
+- Router встроен через `AppProviders`, а переходы внутри приложения переведены на `Link` и `NavLink`
+**Следующие шаги:**
+- Перейти к `TASK-003` и добавить env-конфигурацию frontend для `users-service`
+**Заметки для следующей итерации:**
+- Guard-логика авторизации сознательно не добавлялась: она выделена в `TASK-010`
+- `npm run check` проходит, dev server поднимался, `/sign-in` и `/profile` успешно отвечали через router shell
