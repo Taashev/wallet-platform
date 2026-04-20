@@ -5,7 +5,6 @@ import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useAuthSession } from '@/app/providers/use-auth-session';
 import { useAuthApi } from '@/features/auth/api/use-auth-api';
 import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
-import { ButtonLink } from '@/shared/ui/button-link';
 import { FormFeedback } from '@/shared/ui/form-feedback';
 import { FormField } from '@/shared/ui/form-field';
 import { FormSubmitButton } from '@/shared/ui/form-submit-button';
@@ -82,17 +81,7 @@ export function SignUpPage() {
 
   return (
     <section className="auth-screen">
-      <SurfaceCard
-        eyebrow="Sign up"
-        title="Create a new account and enter the protected workspace"
-      >
-        <div className="auth-screen__intro">
-          <p>
-            Registration immediately creates the local auth session. Keep the form minimal for the MVP:
-            `username`, `email` and `password`.
-          </p>
-        </div>
-
+      <SurfaceCard eyebrow="Sign up">
         <form
           className="form-showcase"
           onSubmit={(event) => void handleSubmit(event)}
@@ -142,12 +131,6 @@ export function SignUpPage() {
             >
               Create account
             </FormSubmitButton>
-            <ButtonLink
-              to={ROUTE_PATHS.signIn}
-              variant="secondary"
-            >
-              Back to sign in
-            </ButtonLink>
           </div>
         </form>
         {status.kind !== 'idle' ? (

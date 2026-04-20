@@ -14,9 +14,10 @@ test('sign-in route submits credentials and opens protected area', async ({ page
 
   await page.goto('/sign-in');
 
-  await expect(page.locator('.brand-mark__title')).toHaveText('Users Service Web');
+  await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Sign up' })).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: 'Enter the protected workspace with your existing account' }),
+    page.getByText('Username *'),
   ).toBeVisible();
 
   await page.getByLabel('Username *').fill('existing-user');
@@ -47,7 +48,7 @@ test('sign-up route creates account and authenticates the new user', async ({ pa
   await page.goto('/sign-up');
 
   await expect(
-    page.getByRole('heading', { name: 'Create a new account and enter the protected workspace' }),
+    page.getByText('Email *'),
   ).toBeVisible();
 
   await page.getByLabel('Username *').fill('new-user');
@@ -66,7 +67,7 @@ test('unauthorized visitor is redirected from protected route to sign-in', async
 
   await expect(page).toHaveURL(/\/sign-in$/);
   await expect(
-    page.getByRole('heading', { name: 'Enter the protected workspace with your existing account' }),
+    page.getByText('Username *'),
   ).toBeVisible();
 });
 
@@ -98,6 +99,6 @@ test('sign-out clears the local session and redirects back to sign-in', async ({
 
   await expect(page).toHaveURL(/\/sign-in$/);
   await expect(
-    page.getByRole('heading', { name: 'Enter the protected workspace with your existing account' }),
+    page.getByText('Username *'),
   ).toBeVisible();
 });

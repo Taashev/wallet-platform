@@ -11,7 +11,6 @@ import {
   type AuthFormStatus,
 } from '@/features/auth/model/auth-form-state';
 import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
-import { ButtonLink } from '@/shared/ui/button-link';
 import { FormFeedback } from '@/shared/ui/form-feedback';
 import { FormField } from '@/shared/ui/form-field';
 import { FormSubmitButton } from '@/shared/ui/form-submit-button';
@@ -86,17 +85,7 @@ export function SignInPage() {
 
   return (
     <section className="auth-screen">
-      <SurfaceCard
-        eyebrow="Sign in"
-        title="Enter the protected workspace with your existing account"
-      >
-        <div className="auth-screen__intro">
-          <p>
-            Use your existing `username` and `password`. After a successful sign-in,
-            the session is stored in the shared auth module and protected routes open immediately.
-          </p>
-        </div>
-
+      <SurfaceCard eyebrow="Sign in">
         <form
           className="form-showcase"
           onSubmit={(event) => void handleSubmit(event)}
@@ -134,12 +123,6 @@ export function SignInPage() {
             >
               Sign in
             </FormSubmitButton>
-            <ButtonLink
-              to={ROUTE_PATHS.signUp}
-              variant="secondary"
-            >
-              Create account
-            </ButtonLink>
           </div>
         </form>
 
