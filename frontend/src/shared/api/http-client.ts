@@ -1,4 +1,4 @@
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 type QueryValue =
   | string
@@ -25,7 +25,7 @@ type RetryContext = {
   error?: unknown;
 };
 
-type HttpRequestOptions = {
+export type HttpRequestOptions = {
   path: string;
   method?: HttpMethod;
   query?: QueryParams;

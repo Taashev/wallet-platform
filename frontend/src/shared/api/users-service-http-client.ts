@@ -1,4 +1,12 @@
-import { createHttpClient } from '@/shared/api/http-client';
+import {
+  createHttpClient,
+  type HttpClient,
+  type HttpRequestOptions,
+} from '@/shared/api/http-client';
+import {
+  normalizeUsersServiceError,
+  type UsersServiceError,
+} from '@/shared/api/users-service-error';
 
 type UsersServiceHttpClientOptions = {
   apiBaseUrl: string;
@@ -15,7 +23,7 @@ export function createUsersServiceHttpClient({
   onUnauthorized,
   fetchFn,
 }: UsersServiceHttpClientOptions) {
-  return createHttpClient({
+  const httpClient = createHttpClient({
     baseUrl: apiBaseUrl,
     defaultHeaders: {
       accept: 'application/json',
@@ -28,6 +36,41 @@ export function createUsersServiceHttpClient({
     onUnauthorized,
     fetchFn,
   });
+
+  return wrapUsersServiceHttpClient(httpClient);
 }
 
-export type UsersServiceHttpClient = ReturnType<typeof createUsersServiceHttpClient>;
+async function runWithUsersServiceError<T>(operation: () => Promise<T>) {
+  try {
+    return await operation();
+  } catch (error) {
+    throw normalizeUsersServiceError(error);
+  }
+}
+
+function wrapUsersServiceHttpClient(httpClient: HttpClient): UsersServiceHttpClient {
+  return {
+    request<T>(options: HttpRequestOptions) {
+      return runWithUsersServiceError(() => httpClient.request<T>(options));
+    },
+    get<T>(path: string, options?: Omit<HttpRequestOptions, 'method' | 'path'>) {
+      return runWithUsersServiceError(() => httpClient.get<T>(path, options));
+    },
+    post<T>(path: string, options?: Omit<HttpRequestOptions, 'method' | 'path'>) {
+      return runWithUsersServiceError(() => httpClient.post<T>(path, options));
+    },
+    patch<T>(path: string, options?: Omit<HttpRequestOptions, 'method' | 'path'>) {
+      return runWithUsersServiceError(() => httpClient.patch<T>(path, options));
+    },
+    delete<T>(path: string, options?: Omit<HttpRequestOptions, 'method' | 'path'>) {
+      return runWithUsersServiceError(() => httpClient.delete<T>(path, options));
+    },
+    normalizeError(error: unknown) {
+      return normalizeUsersServiceError(error);
+    },
+  };
+}
+
+export type UsersServiceHttpClient = HttpClient & {
+  normalizeError(error: unknown): UsersServiceError;
+};

@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useAppConfig } from '@/app/providers/use-app-config';
 import { useUsersServiceHttpClient } from '@/app/providers/use-users-service-http-client';
-import { HttpClientError } from '@/shared/api/http-client';
+import { UsersServiceError } from '@/shared/api/users-service-error';
 import { resolveUsersServiceUrl } from '@/shared/config/app-config';
 import { SurfaceCard } from '@/shared/ui/surface-card';
 
 type ProbeState =
   | { status: 'loading'; message: string }
   | { status: 'success'; message: string }
-  | { status: 'error'; message: string };
+  | { status: 'error'; message: string; details: string };
 
 const USERS_SERVICE_PROBE_PATH = 'docs/v1';
 
@@ -53,16 +53,13 @@ export function UsersServiceConnectionCard() {
           return;
         }
 
-        const fallbackMessage =
-          error instanceof HttpClientError
-            ? `${error.message} (${error.method} ${error.url})`
-            : error instanceof Error && error.message
-            ? error.message
-            : 'Network access to the configured users-service URL failed.';
+        const normalizedError = usersServiceHttpClient.normalizeError(error);
+        const details = formatProbeErrorDetails(normalizedError);
 
         setProbeState({
           status: 'error',
-          message: fallbackMessage,
+          message: normalizedError.message,
+          details,
         });
       }
     }
@@ -100,7 +97,10 @@ export function UsersServiceConnectionCard() {
 
         <div className="connection-card__status">
           <span className={`connection-card__dot connection-card__dot--${probeState.status}`} />
-          <p>{probeState.message}</p>
+          <div>
+            <p>{probeState.message}</p>
+            {probeState.status === 'error' ? <p>{probeState.details}</p> : null}
+          </div>
         </div>
 
         <button
@@ -113,4 +113,18 @@ export function UsersServiceConnectionCard() {
       </div>
     </SurfaceCard>
   );
+}
+
+function formatProbeErrorDetails(error: UsersServiceError) {
+  const detailParts = [`Normalized error: ${error.code}`];
+
+  if (error.status !== undefined) {
+    detailParts.push(`HTTP ${error.status}`);
+  }
+
+  if (error.retryable) {
+    detailParts.push('retryable');
+  }
+
+  return detailParts.join(' · ');
 }
