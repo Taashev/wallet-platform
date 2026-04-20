@@ -99,3 +99,17 @@
 **Заметки для следующей итерации:**
 - Изолированный прогон через mocked `fetch` подтвердил единый формат для `400`, `401`, `404`, `409`, `503` и сетевого сбоя
 - Для MVP пользовательские сообщения намеренно не завязаны на нестабильный текст backend-ответов
+
+## Итерация 7 — 2026-04-20
+**Фича:** TASK-007 — стратегия хранения accessToken и refreshToken
+**Статус:** Завершено
+**Что сделано:**
+- Зафиксирована стратегия хранения токенов через единый `auth-session` store с `sessionStorage` как основным web-MVP storage и memory fallback при недоступности browser storage
+- Добавлены `AuthSessionProvider` и `useAuthSession`, чтобы страницы и будущие фичи работали с session-модулем, а не с деталями хранения
+- `users-service` client теперь берёт `Bearer` access token из session store через `resolveAuthHeaders`, не дублируя storage-логику в feature-слое
+- На `sign-in` добавлена preview-card для сохранения и очистки session snapshot, чтобы можно было проверить bootstrap и восстановление после reload до реализации полного auth API flow
+**Следующие шаги:**
+- Перейти к `TASK-008` и собрать отдельный auth API module для `signup`, `signin`, `refresh`, `signout`
+**Заметки для следующей итерации:**
+- Изолированный прогон store подтвердил сценарий `save -> recreate store -> restore session` через одно и то же хранилище
+- Прямые вызовы `sessionStorage` остались только в `entities/auth/model/auth-session-store.ts`, а не в страницах или формах

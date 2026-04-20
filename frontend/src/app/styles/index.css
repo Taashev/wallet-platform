@@ -931,9 +931,59 @@ img {
   font-weight: 500;
 }
 
+.connection-card__action--secondary {
+  background: var(--color-surface);
+}
+
 .connection-card__action:hover {
   transform: translateY(-2px);
   background: var(--color-accent);
+}
+
+.session-preview-card {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.session-preview-card p {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.session-preview-card__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+.session-preview-card__panel {
+  display: grid;
+  gap: 0.625rem;
+}
+
+.session-preview-card__panel strong {
+  font-size: 0.95rem;
+}
+
+.session-preview-card__panel pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--color-ink);
+  font-family: ui-monospace, 'SFMono-Regular', 'SF Mono', Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.session-preview-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
 }
 
 .contract-preview {
@@ -981,7 +1031,8 @@ img {
   .protected-shell,
   .route-preview__grid,
   .config-screen__grid,
-  .contract-preview__grid {
+  .contract-preview__grid,
+  .session-preview-card__grid {
     grid-template-columns: 1fr;
   }
 }
