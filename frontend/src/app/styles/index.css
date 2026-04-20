@@ -946,6 +946,186 @@ img {
   background: var(--color-accent);
 }
 
+.form-showcase {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.form-layout {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.form-layout--inline {
+  align-items: end;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.form-field {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.form-field__label {
+  font-size: 0.96rem;
+  font-weight: 700;
+}
+
+.form-field__control {
+  width: 100%;
+  min-height: 3.4rem;
+  padding: 0.95rem 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: 1.1rem;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base),
+    transform var(--transition-base);
+}
+
+.form-field__control::placeholder {
+  color: var(--color-muted-soft);
+}
+
+.form-field__control:hover {
+  transform: translateY(-1px);
+}
+
+.form-field__control:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(185, 255, 102, 0.32);
+}
+
+.form-field__control:disabled {
+  background: var(--color-surface);
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+
+.form-field__control[aria-invalid='true'] {
+  border-color: #d64545;
+  box-shadow: 0 0 0 3px rgba(214, 69, 69, 0.12);
+}
+
+.form-field__control--textarea {
+  min-height: 8.5rem;
+  resize: vertical;
+}
+
+.form-field__hint,
+.form-field__error {
+  font-size: 0.92rem;
+}
+
+.form-field__hint {
+  color: var(--color-muted);
+}
+
+.form-field__error {
+  color: #b42318;
+  font-weight: 500;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.form-submit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.4rem;
+  padding: 0.95rem 1.4rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-button);
+  background: var(--color-ink);
+  box-shadow: var(--shadow-button);
+  color: var(--color-paper);
+  cursor: pointer;
+  font-weight: 600;
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    background-color var(--transition-base);
+}
+
+.form-submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--color-border);
+}
+
+.form-submit-button:disabled {
+  background: #6f7380;
+  box-shadow: none;
+  cursor: wait;
+  transform: none;
+}
+
+.feedback-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+.form-feedback {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+  border: 2px solid var(--color-border);
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.form-feedback__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.form-feedback__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.2rem 0.7rem;
+  border: 2px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-paper);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.form-feedback strong {
+  font-size: 1rem;
+}
+
+.form-feedback p {
+  color: var(--color-muted);
+}
+
+.form-feedback--loading {
+  background: rgba(243, 243, 243, 0.84);
+}
+
+.form-feedback--success {
+  background: rgba(185, 255, 102, 0.24);
+}
+
+.form-feedback--error {
+  background: rgba(255, 120, 120, 0.14);
+}
+
+.form-feedback--empty {
+  background: rgba(255, 255, 255, 0.92);
+  border-style: dashed;
+}
+
 .session-preview-card {
   display: grid;
   gap: var(--space-md);
@@ -1092,7 +1272,9 @@ img {
   .route-preview__grid,
   .config-screen__grid,
   .contract-preview__grid,
-  .session-preview-card__grid {
+  .session-preview-card__grid,
+  .feedback-grid,
+  .form-layout--inline {
     grid-template-columns: 1fr;
   }
 }
@@ -1105,13 +1287,15 @@ img {
   }
 
   .route-preview__actions,
-  .shell-tabs {
+  .shell-tabs,
+  .form-actions {
     display: grid;
   }
 
   .shell-tab,
   .protected-nav__link,
-  .route-preview__actions .button-link {
+  .route-preview__actions .button-link,
+  .form-submit-button {
     width: 100%;
   }
 }

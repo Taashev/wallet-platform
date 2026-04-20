@@ -156,3 +156,17 @@
 **Заметки для следующей итерации:**
 - Текущий bootstrap intentionally опирается на persisted frontend session snapshot и guard-логику роутера, без дополнительного сетевого refresh на старте
 - Проверки `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно; для Playwright потребовался escalated local execution из-за sandbox-ограничения на локальный порт
+
+## Итерация 11 — 2026-04-20
+**Фича:** TASK-011 — общий набор form primitives и UI-состояний
+**Статус:** Завершено
+**Что сделано:**
+- Добавлены общие form primitives в `shared/ui`: текстовое поле, textarea-вариант, submit-button и feedback block для состояний `loading`, `error`, `empty`, `success`
+- В `app/styles/index.css` добавлены единые стили для form controls, action rows, feedback blocks и mobile-поведения этих элементов
+- Демонстрация primitives встроена только в `sign-in` и `sign-up`, как согласовано для текущей итерации, без расширения на protected-экраны
+- Playwright smoke-проверки расширены так, чтобы проверять наличие общих auth-form элементов и feedback-состояний на публичных auth-маршрутах
+**Следующие шаги:**
+- Перейти к `TASK-012` и подключить реальный flow `sign in / sign up / sign out` поверх уже готовых auth primitives
+**Заметки для следующей итерации:**
+- Хотя demo сейчас ограничен `sign-in` и `sign-up`, primitives уже вынесены в `shared/ui` и готовы для повторного использования в profile/users flow без копирования разметки
+- Проверки `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно; для Playwright потребовался escalated local execution из-за sandbox-ограничения на локальный порт
