@@ -71,3 +71,17 @@
 **Заметки для следующей итерации:**
 - Прямых `fetch` в страницах и фичах больше нет; сетевой доступ централизован в `shared/api/http-client.ts`
 - Реальный backend на `127.0.0.1:8080` в этой сессии не был поднят, поэтому live users-service запрос проверить не удалось; сам клиент отдельно проверен через mocked `fetch` на base URL, headers и retry
+
+## Итерация 5 — 2026-04-20
+**Фича:** TASK-005 — contract layer и tolerant normalization
+**Статус:** Завершено
+**Что сделано:**
+- Добавлены DTO-типы для auth, profile и users list на основе `swagger-users-service.json`
+- Собраны нормализованные модели `AuthSession`, `UserProfile`, `UsersList` и tolerant normalizers для спорных полей `about`, `dateOfBirth`, `age`
+- Экранные модули `sign-in`, `profile` и `users` теперь используют preview через нормализованные модели, а не рендерят raw DTO напрямую
+- Добавлена наглядная contract preview карточка, чтобы видеть разницу между сырым payload и нормализованной моделью
+**Следующие шаги:**
+- Перейти к `TASK-006` и централизовать нормализацию backend/network ошибок поверх текущего contract layer
+**Заметки для следующей итерации:**
+- Swagger помечает `about`, `dateOfBirth` и `age` как required, но frontend уже нормализует их defensively в `null`, если backend вернёт пустые или спорные значения
+- Contract layer отдельно проверен через изолированный прогон нормализаторов после сборки TypeScript

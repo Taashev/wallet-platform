@@ -1,9 +1,21 @@
 import { ROUTE_PATHS } from '@/app/router/route-paths';
+import {
+  normalizeAuthTokensDto,
+  type AuthTokensDto,
+} from '@/shared/api/contracts/users-service-contract';
 import { ButtonLink } from '@/shared/ui/button-link';
+import { ContractPreviewCard } from '@/shared/ui/contract-preview-card';
 import { RoutePreviewPage } from '@/shared/ui/route-preview-page';
 import { UsersServiceConnectionCard } from '@/shared/ui/users-service-connection-card';
 
+const AUTH_TOKENS_DTO_EXAMPLE: AuthTokensDto = {
+  accessToken: ' access.jwt.token ',
+  refreshToken: ' refresh.jwt.token ',
+};
+
 export function SignInPage() {
+  const normalizedAuthTokens = normalizeAuthTokensDto(AUTH_TOKENS_DTO_EXAMPLE);
+
   return (
     <div className="route-page-stack">
       <RoutePreviewPage
@@ -40,6 +52,13 @@ export function SignInPage() {
         ]}
         status="Public route"
         title="Sign-in page sits in a dedicated public layout."
+      />
+      <ContractPreviewCard
+        description="Auth screens can now work with normalized token payloads instead of consuming raw response bodies directly."
+        eyebrow="Auth contract"
+        normalizedPayload={normalizedAuthTokens}
+        rawPayload={AUTH_TOKENS_DTO_EXAMPLE}
+        title="Auth tokens DTO is normalized before feature usage"
       />
       <UsersServiceConnectionCard />
     </div>

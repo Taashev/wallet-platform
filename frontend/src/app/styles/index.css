@@ -936,11 +936,52 @@ img {
   background: var(--color-accent);
 }
 
+.contract-preview {
+  display: grid;
+  gap: 1rem;
+}
+
+.contract-preview p {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.contract-preview__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+.contract-preview__panel {
+  display: grid;
+  gap: 0.625rem;
+}
+
+.contract-preview__panel strong {
+  font-size: 0.95rem;
+}
+
+.contract-preview__panel pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--color-ink);
+  font-family: ui-monospace, 'SFMono-Regular', 'SF Mono', Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 @media (max-width: 1080px) {
   .public-shell__body,
   .protected-shell,
   .route-preview__grid,
-  .config-screen__grid {
+  .config-screen__grid,
+  .contract-preview__grid {
     grid-template-columns: 1fr;
   }
 }
