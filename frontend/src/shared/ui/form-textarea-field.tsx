@@ -1,3 +1,4 @@
+import type { ChangeEventHandler } from 'react';
 import { useId } from 'react';
 
 type FormTextareaFieldProps = {
@@ -7,6 +8,8 @@ type FormTextareaFieldProps = {
   hint?: string;
   error?: string;
   defaultValue?: string;
+  value?: string;
+  onChange?: ChangeEventHandler<HTMLTextAreaElement>;
   disabled?: boolean;
   required?: boolean;
   rows?: number;
@@ -19,6 +22,8 @@ export function FormTextareaField({
   hint,
   error,
   defaultValue,
+  value,
+  onChange,
   disabled = false,
   required = false,
   rows = 4,
@@ -43,9 +48,11 @@ export function FormTextareaField({
         disabled={disabled}
         id={fieldId}
         name={name}
+        onChange={onChange}
         placeholder={placeholder}
         required={required}
         rows={rows}
+        value={value}
       />
       {hint ? (
         <span

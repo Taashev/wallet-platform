@@ -1,118 +1,156 @@
-import { AuthSessionPreviewCard } from '@/entities/auth/ui/auth-session-preview-card';
+import type { FormEvent } from 'react';
+import { useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
-import { AuthApiPreviewCard } from '@/features/auth/ui/auth-api-preview-card';
+import { useAuthSession } from '@/app/providers/use-auth-session';
+import { useAuthApi } from '@/features/auth/api/use-auth-api';
 import {
-  normalizeAuthTokensDto,
-  type AuthTokensDto,
-} from '@/shared/api/contracts/users-service-contract';
+  createErrorAuthFormStatus,
+  createIdleAuthFormStatus,
+  createSubmittingAuthFormStatus,
+  type AuthFormStatus,
+} from '@/features/auth/model/auth-form-state';
+import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
 import { ButtonLink } from '@/shared/ui/button-link';
-import { ContractPreviewCard } from '@/shared/ui/contract-preview-card';
 import { FormFeedback } from '@/shared/ui/form-feedback';
 import { FormField } from '@/shared/ui/form-field';
 import { FormSubmitButton } from '@/shared/ui/form-submit-button';
-import { RoutePreviewPage } from '@/shared/ui/route-preview-page';
 import { SurfaceCard } from '@/shared/ui/surface-card';
-import { UsersServiceConnectionCard } from '@/shared/ui/users-service-connection-card';
-
-const AUTH_TOKENS_DTO_EXAMPLE: AuthTokensDto = {
-  accessToken: ' access.jwt.token ',
-  refreshToken: ' refresh.jwt.token ',
-};
 
 export function SignInPage() {
-  const normalizedAuthTokens = normalizeAuthTokensDto(AUTH_TOKENS_DTO_EXAMPLE);
+  const authApi = useAuthApi();
+  const authSession = useAuthSession();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [status, setStatus] = useState<AuthFormStatus>(createIdleAuthFormStatus());
+  const [fieldErrors, setFieldErrors] = useState<{
+    username?: string;
+    password?: string;
+  }>({});
+  const redirectTarget = useMemo(
+    () =>
+      typeof location.state?.from === 'string'
+        ? location.state.from
+        : ROUTE_PATHS.profile,
+    [location.state],
+  );
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const normalizedUsername = username.trim();
+    const nextFieldErrors = {
+      username: normalizedUsername ? undefined : 'Username is required.',
+      password: password ? undefined : 'Password is required.',
+    };
+
+    setFieldErrors(nextFieldErrors);
+
+    if (nextFieldErrors.username || nextFieldErrors.password) {
+      setStatus(
+        createErrorAuthFormStatus(
+          'Form is incomplete',
+          'Enter both username and password before continuing.',
+        ),
+      );
+      return;
+    }
+
+    setStatus(
+      createSubmittingAuthFormStatus(
+        'Signing in',
+        'Checking credentials and restoring the protected session.',
+      ),
+    );
+
+    try {
+      const session = await authApi.signin({
+        username: normalizedUsername,
+        password,
+      });
+
+      authSession.saveSession(session);
+      setStatus(createIdleAuthFormStatus());
+      void navigate(redirectTarget, { replace: true });
+    } catch (error) {
+      const usersServiceError = normalizeUsersServiceError(error);
+      setStatus({
+        kind: 'error',
+        title: 'Sign-in failed',
+        description: usersServiceError.message,
+      });
+    }
+  }
 
   return (
-    <div className="route-page-stack">
-      <RoutePreviewPage
-        actions={
-          <>
-            <ButtonLink to={ROUTE_PATHS.signUp}>Create account</ButtonLink>
-            <ButtonLink
-              to={ROUTE_PATHS.profile}
-              variant="secondary"
-            >
-              Open protected preview
-            </ButtonLink>
-          </>
-        }
-        description="This route is now isolated inside the public shell and ready to receive the username/password form without dragging router or layout concerns into the feature module."
-        eyebrow="Sign in"
-        items={[
-          {
-            title: 'Form slot',
-            description: 'Primary auth surface is reserved for credentials, validation feedback and submit states.',
-          },
-          {
-            title: 'Public navigation',
-            description: 'Switching to sign up is already handled by the client router with no hard refresh.',
-          },
-          {
-            title: 'Scoped responsibility',
-            description: 'Public layout now respects bootstrap state and redirects authorized users away from auth routes.',
-          },
-        ]}
-        nextSteps={[
-          'Attach sign-in form behaviour in TASK-012.',
-          'Reuse shared form primitives once TASK-011 is implemented.',
-        ]}
-        status="Public route"
-        title="Sign-in page sits in a dedicated public layout."
-      />
+    <section className="auth-screen">
       <SurfaceCard
-        eyebrow="Form primitives"
-        title="Sign-in form can now be composed from shared fields and feedback blocks"
+        eyebrow="Sign in"
+        title="Enter the protected workspace with your existing account"
       >
-        <form className="form-showcase">
+        <div className="auth-screen__intro">
+          <p>
+            Use your existing `username` and `password`. After a successful sign-in,
+            the session is stored in the shared auth module and protected routes open immediately.
+          </p>
+        </div>
+
+        <form
+          className="form-showcase"
+          onSubmit={(event) => void handleSubmit(event)}
+        >
           <div className="form-layout">
             <FormField
               autoComplete="username"
-              defaultValue="anna"
-              hint="Use the same primitive for auth, profile and search inputs."
+              disabled={status.kind === 'submitting'}
+              error={fieldErrors.username}
               label="Username"
               name="username"
+              onChange={(event) => setUsername(event.target.value)}
               placeholder="Enter your username"
               required
+              value={username}
             />
             <FormField
               autoComplete="current-password"
+              disabled={status.kind === 'submitting'}
+              error={fieldErrors.password}
               label="Password"
               name="password"
+              onChange={(event) => setPassword(event.target.value)}
               placeholder="Enter your password"
               required
               type="password"
+              value={password}
             />
           </div>
 
           <div className="form-actions">
-            <FormSubmitButton>Sign in</FormSubmitButton>
-            <FormSubmitButton busy>Signing in</FormSubmitButton>
+            <FormSubmitButton
+              busy={status.kind === 'submitting'}
+              busyLabel="Signing in…"
+            >
+              Sign in
+            </FormSubmitButton>
+            <ButtonLink
+              to={ROUTE_PATHS.signUp}
+              variant="secondary"
+            >
+              Create account
+            </ButtonLink>
           </div>
         </form>
 
-        <div className="feedback-grid">
+        {status.kind !== 'idle' ? (
           <FormFeedback
-            description="The submit button is disabled and the form keeps layout stability while auth is in flight."
-            state="loading"
-            title="Loading state"
+            description={status.description}
+            state={status.kind === 'submitting' ? 'loading' : 'error'}
+            title={status.title}
           />
-          <FormFeedback
-            description="Normalized backend or network errors can be shown in one shared visual treatment."
-            state="error"
-            title="Error state"
-          />
-        </div>
+        ) : null}
       </SurfaceCard>
-      <ContractPreviewCard
-        description="Auth screens can now work with normalized token payloads instead of consuming raw response bodies directly."
-        eyebrow="Auth contract"
-        normalizedPayload={normalizedAuthTokens}
-        rawPayload={AUTH_TOKENS_DTO_EXAMPLE}
-        title="Auth tokens DTO is normalized before feature usage"
-      />
-      <AuthSessionPreviewCard previewSession={normalizedAuthTokens} />
-      <AuthApiPreviewCard />
-      <UsersServiceConnectionCard />
-    </div>
+    </section>
   );
 }

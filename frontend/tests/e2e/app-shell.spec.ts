@@ -1,58 +1,63 @@
 import { expect, test } from '@playwright/test';
 
-test('sign-in route renders the public app shell', async ({ page }) => {
+test('sign-in route submits credentials and opens protected area', async ({ page }) => {
+  await page.route('**/v1/auth/signin', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accessToken: 'signin-access-token',
+        refreshToken: 'signin-refresh-token',
+      }),
+    });
+  });
+
   await page.goto('/sign-in');
 
   await expect(page.locator('.brand-mark__title')).toHaveText('Users Service Web');
   await expect(
-    page.getByRole('heading', { name: 'Entry flows now live inside a dedicated shell.' }),
+    page.getByRole('heading', { name: 'Enter the protected workspace with your existing account' }),
+  ).toBeVisible();
+
+  await page.getByLabel('Username *').fill('existing-user');
+  await page.getByLabel('Password *').fill('strong-password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await expect(page).toHaveURL(/\/profile$/);
+  await expect(
+    page.getByRole('heading', { name: 'Profile screen now lives inside the protected shell.' }),
   ).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: 'Sign-in page sits in a dedicated public layout.' }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole('link', { name: 'Sign in' }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: 'Persist preview session' }),
-  ).toBeVisible();
-  await expect(
-    page.getByLabel('Username *'),
-  ).toBeVisible();
-  await expect(
-    page.getByLabel('Password *'),
-  ).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: 'Sign in' }),
-  ).toBeVisible();
-  await expect(
-    page.getByText('Loading state'),
-  ).toBeVisible();
-  await expect(
-    page.getByText('Error state'),
+    page.getByRole('button', { name: 'Sign out' }),
   ).toBeVisible();
 });
 
-test('sign-up route reuses shared auth form primitives', async ({ page }) => {
+test('sign-up route creates account and authenticates the new user', async ({ page }) => {
+  await page.route('**/v1/auth/signup', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accessToken: 'signup-access-token',
+        refreshToken: 'signup-refresh-token',
+      }),
+    });
+  });
+
   await page.goto('/sign-up');
 
   await expect(
-    page.getByRole('heading', { name: 'Sign-up route shares the public wrapper, not a separate one-off page shell.' }),
+    page.getByRole('heading', { name: 'Create a new account and enter the protected workspace' }),
   ).toBeVisible();
+
+  await page.getByLabel('Username *').fill('new-user');
+  await page.getByLabel('Email *').fill('new-user@example.com');
+  await page.getByLabel('Password *').fill('strong-password');
+  await page.getByRole('button', { name: 'Create account' }).click();
+
+  await expect(page).toHaveURL(/\/profile$/);
   await expect(
-    page.getByLabel('Username *'),
-  ).toBeVisible();
-  await expect(
-    page.getByLabel('Email *'),
-  ).toBeVisible();
-  await expect(
-    page.getByLabel('Password *'),
-  ).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: 'Create account' }),
-  ).toBeVisible();
-  await expect(
-    page.getByText('Success state'),
+    page.getByRole('heading', { name: 'Profile screen now lives inside the protected shell.' }),
   ).toBeVisible();
 });
 
@@ -61,23 +66,38 @@ test('unauthorized visitor is redirected from protected route to sign-in', async
 
   await expect(page).toHaveURL(/\/sign-in$/);
   await expect(
-    page.getByRole('heading', { name: 'Sign-in page sits in a dedicated public layout.' }),
+    page.getByRole('heading', { name: 'Enter the protected workspace with your existing account' }),
   ).toBeVisible();
 });
 
-test('persisted session survives reload and redirects away from public auth routes', async ({ page }) => {
+test('sign-out clears the local session and redirects back to sign-in', async ({ page }) => {
+  await page.route('**/v1/auth/signin', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accessToken: 'signin-access-token',
+        refreshToken: 'signin-refresh-token',
+      }),
+    });
+  });
+  await page.route('**/v1/auth/signout', async (route) => {
+    await route.fulfill({
+      status: 204,
+      body: '',
+    });
+  });
+
   await page.goto('/sign-in');
-  await page.getByRole('button', { name: 'Persist preview session' }).click();
+  await page.getByLabel('Username *').fill('existing-user');
+  await page.getByLabel('Password *').fill('strong-password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
 
   await expect(page).toHaveURL(/\/profile$/);
-  await expect(
-    page.getByRole('heading', { name: 'Profile screen now lives inside the protected shell.' }),
-  ).toBeVisible();
+  await page.getByRole('button', { name: 'Sign out' }).click();
 
-  await page.reload();
-
-  await expect(page).toHaveURL(/\/profile$/);
+  await expect(page).toHaveURL(/\/sign-in$/);
   await expect(
-    page.getByRole('heading', { name: 'Profile screen now lives inside the protected shell.' }),
+    page.getByRole('heading', { name: 'Enter the protected workspace with your existing account' }),
   ).toBeVisible();
 });

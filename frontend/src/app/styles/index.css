@@ -730,6 +730,12 @@ img {
   gap: 0.75rem;
 }
 
+.protected-shell__signout {
+  display: grid;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
 .protected-nav__link {
   display: inline-flex;
   align-items: center;
@@ -771,6 +777,21 @@ img {
 .route-page-stack {
   display: grid;
   gap: var(--space-lg);
+}
+
+.auth-screen {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.auth-screen__intro {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.auth-screen__intro p {
+  margin: 0;
+  color: var(--color-muted);
 }
 
 .route-preview__header {

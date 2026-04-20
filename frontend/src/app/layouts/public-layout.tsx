@@ -81,7 +81,7 @@ export function PublicLayout() {
           <ul className="hero-highlights">
             <li>Shared public framing keeps auth screens visually consistent from the start.</li>
             <li>Route transitions already happen through the client router without page reload.</li>
-            <li>Actual sign-in and sign-up logic stays isolated for later feature tasks.</li>
+            <li>Sign-in and sign-up now use the shared auth/session flow instead of preview-only placeholders.</li>
           </ul>
 
           <div className="hero-actions">

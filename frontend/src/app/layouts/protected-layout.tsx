@@ -2,6 +2,7 @@ import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { AuthGuardStatus } from '@/app/layouts/auth-guard-status';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useAuthSession } from '@/app/providers/use-auth-session';
+import { useAuthApi } from '@/features/auth/api/use-auth-api';
 
 const PROTECTED_NAV_ITEMS = [
   { label: 'Profile', to: ROUTE_PATHS.profile },
@@ -12,6 +13,7 @@ const PROTECTED_NAV_ITEMS = [
 ];
 
 export function ProtectedLayout() {
+  const authApi = useAuthApi();
   const authSession = useAuthSession();
   const location = useLocation();
 
@@ -34,6 +36,14 @@ export function ProtectedLayout() {
         to={ROUTE_PATHS.signIn}
       />
     );
+  }
+
+  async function handleSignout() {
+    try {
+      await authApi.signout();
+    } finally {
+      authSession.clearSession();
+    }
   }
 
   return (
@@ -73,6 +83,16 @@ export function ProtectedLayout() {
             </NavLink>
           ))}
         </nav>
+
+        <div className="protected-shell__signout">
+          <button
+            className="connection-card__action connection-card__action--secondary"
+            onClick={() => void handleSignout()}
+            type="button"
+          >
+            Sign out
+          </button>
+        </div>
       </aside>
 
       <section className="protected-shell__main">

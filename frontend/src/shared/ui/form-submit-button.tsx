@@ -2,11 +2,13 @@ import type { ButtonHTMLAttributes, PropsWithChildren } from 'react';
 
 type FormSubmitButtonProps = PropsWithChildren<{
   busy?: boolean;
+  busyLabel?: string;
 }> &
   Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'>;
 
 export function FormSubmitButton({
   busy = false,
+  busyLabel = 'Working…',
   children,
   disabled,
   className,
@@ -23,7 +25,7 @@ export function FormSubmitButton({
       disabled={disabled || busy}
       type="submit"
     >
-      {busy ? 'Working…' : children}
+      {busy ? busyLabel : children}
     </button>
   );
 }

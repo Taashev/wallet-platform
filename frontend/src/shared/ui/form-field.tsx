@@ -1,3 +1,4 @@
+import type { ChangeEventHandler } from 'react';
 import { useId } from 'react';
 
 type FormFieldProps = {
@@ -8,6 +9,8 @@ type FormFieldProps = {
   hint?: string;
   error?: string;
   defaultValue?: string;
+  value?: string;
+  onChange?: ChangeEventHandler<HTMLInputElement>;
   autoComplete?: string;
   disabled?: boolean;
   required?: boolean;
@@ -21,6 +24,8 @@ export function FormField({
   hint,
   error,
   defaultValue,
+  value,
+  onChange,
   autoComplete,
   disabled = false,
   required = false,
@@ -46,9 +51,11 @@ export function FormField({
         disabled={disabled}
         id={fieldId}
         name={name}
+        onChange={onChange}
         placeholder={placeholder}
         required={required}
         type={type}
+        value={value}
       />
       {hint ? (
         <span
