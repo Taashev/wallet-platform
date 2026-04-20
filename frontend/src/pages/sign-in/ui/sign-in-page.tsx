@@ -45,12 +45,12 @@ export function SignInPage() {
           },
           {
             title: 'Scoped responsibility',
-            description: 'Session bootstrap and actual auth guard remain outside this task on purpose.',
+            description: 'Public layout now respects bootstrap state and redirects authorized users away from auth routes.',
           },
         ]}
         nextSteps={[
           'Attach sign-in form behaviour in TASK-012.',
-          'Connect auth bootstrap and route protection in TASK-010.',
+          'Reuse shared form primitives once TASK-011 is implemented.',
         ]}
         status="Public route"
         title="Sign-in page sits in a dedicated public layout."

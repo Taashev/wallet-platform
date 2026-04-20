@@ -141,3 +141,18 @@
 **Заметки для следующей итерации:**
 - Локальный прогон against `http://127.0.0.1:8080` подтвердил single-flight: две конкурентные protected `401`-запроса дали ровно один `refresh`
 - Отдельный сценарий с невалидным `refreshToken` подтвердил очистку локальной сессии и итоговый `401 unauthorized`
+
+## Итерация 10 — 2026-04-20
+**Фича:** TASK-010 — bootstrap auth-сессии и guard-логика маршрутов
+**Статус:** Завершено
+**Что сделано:**
+- В `auth-session` snapshot добавлены явные bootstrap-поля, чтобы приложение различало восстановление сессии, авторизованное и неавторизованное состояния
+- `AuthSessionProvider` теперь завершает bootstrap при старте приложения, а `PublicLayout` и `ProtectedLayout` ждут это состояние перед редиректами
+- Добавлен route guard для защищённых маршрутов с возвратом неавторизованного пользователя на `/sign-in` и обратный redirect авторизованного пользователя с публичных auth-страниц
+- Обновлены Playwright-сценарии для проверки `protected -> sign-in`, `sign-in -> profile` и восстановления сессии после `reload`
+- Исправлен `eslint` ignore для `Playwright` артефактов, чтобы quality-check не падал на служебных директориях
+**Следующие шаги:**
+- Перейти к `TASK-011` и собрать общий набор form primitives для auth и profile flow
+**Заметки для следующей итерации:**
+- Текущий bootstrap intentionally опирается на persisted frontend session snapshot и guard-логику роутера, без дополнительного сетевого refresh на старте
+- Проверки `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно; для Playwright потребовался escalated local execution из-за sandbox-ограничения на локальный порт

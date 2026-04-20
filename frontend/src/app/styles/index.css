@@ -297,6 +297,12 @@ img {
   margin-top: var(--space-xl);
 }
 
+.auth-guard-status {
+  width: min(42rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(2rem, 10vh, 6rem) 0;
+}
+
 .page-section {
   display: grid;
   gap: var(--space-lg);

@@ -33,6 +33,8 @@ export function AuthSessionPreviewCard({
             <pre>
               {formatPayload({
                 isAuthenticated: authSession.isAuthenticated,
+                isBootstrapped: authSession.isBootstrapped,
+                bootstrapStatus: authSession.bootstrapStatus,
                 storageKind: authSession.storageKind,
                 session: authSession.session,
               })}

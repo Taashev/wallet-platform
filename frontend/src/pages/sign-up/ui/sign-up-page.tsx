@@ -8,12 +8,6 @@ export function SignUpPage() {
       actions={
         <>
           <ButtonLink to={ROUTE_PATHS.signIn}>Back to sign in</ButtonLink>
-          <ButtonLink
-            to={ROUTE_PATHS.users}
-            variant="secondary"
-          >
-            Preview users area
-          </ButtonLink>
         </>
       }
       description="The registration route reuses the same public shell while staying free from future auth and API implementation details."

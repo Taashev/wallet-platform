@@ -71,6 +71,8 @@ export function ProtectedSessionProbeCard() {
             <pre>
               {formatPayload({
                 isAuthenticated: authSession.isAuthenticated,
+                isBootstrapped: authSession.isBootstrapped,
+                bootstrapStatus: authSession.bootstrapStatus,
                 storageKind: authSession.storageKind,
                 hasSession: authSession.session !== null,
               })}

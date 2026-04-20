@@ -52,7 +52,7 @@ export function ProfilePage() {
         ]}
         nextSteps={[
           'Attach profile data loading after integration tasks are complete.',
-          'Enable actual route guard in TASK-010.',
+          'Add profile-specific form and mutation flows in their dedicated tasks.',
         ]}
         status="Protected route"
         title="Profile screen now lives inside the protected shell."

@@ -1,5 +1,6 @@
 import type {
   AuthSession,
+  AuthSessionBootstrapStatus,
   AuthSessionSnapshot,
   AuthSessionStorageKind,
 } from '@/entities/auth/model/auth-session';
@@ -21,6 +22,7 @@ export type AuthSessionStore = {
   getSession: () => AuthSession | null;
   saveSession: (session: AuthSession) => void;
   clearSession: () => void;
+  setBootstrapStatus: (status: AuthSessionBootstrapStatus) => void;
   subscribe: (listener: AuthSessionStoreListener) => () => void;
 };
 
@@ -30,7 +32,8 @@ export function createAuthSessionStore({
   storageKey = AUTH_SESSION_STORAGE_KEY,
 }: AuthSessionStoreOptions = {}): AuthSessionStore {
   let session = readAuthSessionFromStorage(storage, storageKey);
-  let snapshot = createAuthSessionSnapshot(session, storageKind);
+  let bootstrapStatus: AuthSessionBootstrapStatus = 'bootstrapping';
+  let snapshot = createAuthSessionSnapshot(session, storageKind, bootstrapStatus);
   const listeners = new Set<AuthSessionStoreListener>();
 
   function emitChange() {
@@ -47,14 +50,25 @@ export function createAuthSessionStore({
     saveSession(nextSession) {
       const normalizedSession = normalizeAuthSession(nextSession);
       session = normalizedSession;
-      snapshot = createAuthSessionSnapshot(session, storageKind);
+      bootstrapStatus = 'authenticated';
+      snapshot = createAuthSessionSnapshot(session, storageKind, bootstrapStatus);
       persistAuthSession(storage, storageKey, normalizedSession);
       emitChange();
     },
     clearSession() {
       session = null;
-      snapshot = createAuthSessionSnapshot(session, storageKind);
+      bootstrapStatus = 'unauthenticated';
+      snapshot = createAuthSessionSnapshot(session, storageKind, bootstrapStatus);
       clearPersistedAuthSession(storage, storageKey);
+      emitChange();
+    },
+    setBootstrapStatus(status) {
+      if (bootstrapStatus === status) {
+        return;
+      }
+
+      bootstrapStatus = status;
+      snapshot = createAuthSessionSnapshot(session, storageKind, bootstrapStatus);
       emitChange();
     },
     subscribe(listener) {
@@ -70,10 +84,13 @@ export function createAuthSessionStore({
 function createAuthSessionSnapshot(
   session: AuthSession | null,
   storageKind: AuthSessionStorageKind,
+  bootstrapStatus: AuthSessionBootstrapStatus,
 ): AuthSessionSnapshot {
   return {
     session,
-    isAuthenticated: session !== null,
+    isAuthenticated: session !== null && bootstrapStatus === 'authenticated',
+    isBootstrapped: bootstrapStatus !== 'bootstrapping',
+    bootstrapStatus,
     storageKind,
   };
 }

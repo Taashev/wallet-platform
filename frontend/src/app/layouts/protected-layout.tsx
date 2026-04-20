@@ -1,5 +1,7 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { AuthGuardStatus } from '@/app/layouts/auth-guard-status';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
+import { useAuthSession } from '@/app/providers/use-auth-session';
 
 const PROTECTED_NAV_ITEMS = [
   { label: 'Profile', to: ROUTE_PATHS.profile },
@@ -10,6 +12,30 @@ const PROTECTED_NAV_ITEMS = [
 ];
 
 export function ProtectedLayout() {
+  const authSession = useAuthSession();
+  const location = useLocation();
+
+  if (!authSession.isBootstrapped) {
+    return (
+      <AuthGuardStatus
+        description="The app is restoring the auth snapshot before it decides whether protected routes can be rendered."
+        title="Restoring protected session"
+      />
+    );
+  }
+
+  if (!authSession.isAuthenticated) {
+    const redirectPath = `${location.pathname}${location.search}${location.hash}`;
+
+    return (
+      <Navigate
+        replace
+        state={{ from: redirectPath }}
+        to={ROUTE_PATHS.signIn}
+      />
+    );
+  }
+
   return (
     <main className="protected-shell">
       <aside className="protected-shell__sidebar">
@@ -28,10 +54,9 @@ export function ProtectedLayout() {
           </div>
           <span className="mini-label">Protected area</span>
         </div>
-
         <p className="protected-shell__note">
-          Route grouping is in place now. Actual authorization guard and session bootstrap will be attached in
-          `TASK-010`.
+          Protected routes now wait for auth bootstrap and redirect unauthenticated traffic back to the sign-in
+          flow.
         </p>
 
         <nav

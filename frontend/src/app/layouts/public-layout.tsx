@@ -1,6 +1,8 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { AuthGuardStatus } from '@/app/layouts/auth-guard-status';
 import { ButtonLink } from '@/shared/ui/button-link';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
+import { useAuthSession } from '@/app/providers/use-auth-session';
 
 const PUBLIC_NAV_ITEMS = [
   { label: 'Sign in', to: ROUTE_PATHS.signIn },
@@ -8,6 +10,32 @@ const PUBLIC_NAV_ITEMS = [
 ];
 
 export function PublicLayout() {
+  const authSession = useAuthSession();
+  const location = useLocation();
+  const redirectTarget =
+    typeof location.state?.from === 'string'
+      ? location.state.from
+      : ROUTE_PATHS.profile;
+
+  if (!authSession.isBootstrapped) {
+    return (
+      <AuthGuardStatus
+        description="The app is restoring the persisted auth snapshot before rendering public entry routes."
+        title="Checking existing session"
+      />
+    );
+  }
+
+  if (authSession.isAuthenticated) {
+    return (
+      <Navigate
+        replace
+        state={null}
+        to={redirectTarget}
+      />
+    );
+  }
+
   return (
     <main className="public-shell">
       <header className="app-shell__header">
@@ -58,12 +86,6 @@ export function PublicLayout() {
 
           <div className="hero-actions">
             <ButtonLink to={ROUTE_PATHS.signUp}>Open sign up</ButtonLink>
-            <ButtonLink
-              to={ROUTE_PATHS.profile}
-              variant="secondary"
-            >
-              Preview protected shell
-            </ButtonLink>
           </div>
         </section>
 
