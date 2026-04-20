@@ -724,6 +724,10 @@ img {
   transform: translateY(-2px);
 }
 
+.shell-tab--status:hover {
+  transform: none;
+}
+
 .shell-tab--active,
 .protected-nav__link--active {
   background: var(--color-accent);
@@ -750,7 +754,7 @@ img {
 }
 
 .shell-tab--status.shell-tab--active {
-  border-color: var(--color-border);
+  border-color: transparent;
 }
 
 .shell-tab--status.shell-tab--active::before {
