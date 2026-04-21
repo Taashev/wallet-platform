@@ -11,7 +11,6 @@ import { DashboardField } from '@/shared/ui/dashboard-field';
 import { DashboardNotice } from '@/shared/ui/dashboard-notice';
 import { DashboardPanel } from '@/shared/ui/dashboard-panel';
 import { DashboardUserAvatar } from '@/shared/ui/dashboard-user-avatar';
-import { SettingsSignoutButton } from '@/shared/ui/settings-signout-button';
 import { SettingsTabs } from '@/shared/ui/settings-tabs';
 
 type EditProfileFormValues = {
@@ -153,7 +152,6 @@ export function ProfileEditPage() {
     <section className="dashboard-page">
       <DashboardPanel className="settings-workspace">
         <SettingsTabs
-          action={<SettingsSignoutButton />}
           tabs={[
             { label: 'Edit profile', to: ROUTE_PATHS.profileEdit },
             { label: 'Security', to: ROUTE_PATHS.profilePassword },

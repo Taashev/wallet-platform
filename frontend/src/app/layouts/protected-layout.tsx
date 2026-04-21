@@ -4,6 +4,7 @@ import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useAuthSession } from '@/app/providers/use-auth-session';
 import { DashboardUserAvatar } from '@/shared/ui/dashboard-user-avatar';
 import { DashboardIcon } from '@/shared/ui/dashboard-icon';
+import { TopbarSignoutButton } from '@/shared/ui/settings-signout-button';
 
 const PROTECTED_NAV_ITEMS = [
 	{ label: 'Home', to: ROUTE_PATHS.root, icon: 'home' as const },
@@ -78,6 +79,8 @@ export function ProtectedLayout() {
 						</button>
 
 						<DashboardUserAvatar ariaLabel='Current user' />
+
+						<TopbarSignoutButton />
 					</div>
 				</header>
 

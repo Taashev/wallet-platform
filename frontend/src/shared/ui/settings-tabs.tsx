@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 
 type SettingsTabsProps = {
@@ -6,10 +5,9 @@ type SettingsTabsProps = {
     label: string;
     to: string;
   }>;
-  action?: ReactNode;
 };
 
-export function SettingsTabs({ tabs, action }: SettingsTabsProps) {
+export function SettingsTabs({ tabs }: SettingsTabsProps) {
   return (
     <div className="settings-tabs">
       <nav
@@ -28,7 +26,6 @@ export function SettingsTabs({ tabs, action }: SettingsTabsProps) {
           </NavLink>
         ))}
       </nav>
-      {action ? <div className="settings-tabs__actions">{action}</div> : null}
     </div>
   );
 }

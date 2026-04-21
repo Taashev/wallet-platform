@@ -6,7 +6,6 @@ import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
 import { DashboardField } from '@/shared/ui/dashboard-field';
 import { DashboardNotice } from '@/shared/ui/dashboard-notice';
 import { DashboardPanel } from '@/shared/ui/dashboard-panel';
-import { SettingsSignoutButton } from '@/shared/ui/settings-signout-button';
 import { SettingsTabs } from '@/shared/ui/settings-tabs';
 
 export function ProfilePasswordPage() {
@@ -77,7 +76,6 @@ export function ProfilePasswordPage() {
     <section className="dashboard-page">
       <DashboardPanel className="settings-workspace">
         <SettingsTabs
-          action={<SettingsSignoutButton />}
           tabs={[
             { label: 'Edit profile', to: ROUTE_PATHS.profileEdit },
             { label: 'Security', to: ROUTE_PATHS.profilePassword },

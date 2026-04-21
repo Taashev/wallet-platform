@@ -85,7 +85,7 @@ test('sign-in route submits credentials and opens protected area', async ({ page
   await expect(page.getByText('anna')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Home', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Settings', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Sign out' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
 });
 
 test('sign-up route creates account and authenticates the new user', async ({ page }) => {
@@ -185,8 +185,6 @@ test('sign-out clears the local session and redirects back to sign-in', async ({
   await signIn(page);
 
   await expect(page).toHaveURL(/\/$/);
-  await page.getByRole('link', { name: 'Settings', exact: true }).click();
-  await expect(page).toHaveURL(/\/profile\/edit$/);
   await Promise.all([
     page.waitForURL(/\/sign-in$/),
     page.getByRole('button', { name: 'Sign out' }).click(),
@@ -197,7 +195,7 @@ test('sign-out clears the local session and redirects back to sign-in', async ({
   await expect(page).toHaveURL(/\/$/);
 });
 
-test('protected layout exposes home and settings navigation, and sign-out lives in settings on desktop and mobile', async ({ page }) => {
+test('protected layout exposes home and settings navigation, and sign-out lives in topbar on desktop and mobile', async ({ page }) => {
   await page.route('**/v1/auth/signin', async (route) => {
     await route.fulfill({
       status: 200,
@@ -223,7 +221,7 @@ test('protected layout exposes home and settings navigation, and sign-out lives 
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole('link', { name: 'Home', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Settings', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Sign out' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
 
   await page.getByRole('link', { name: 'Settings', exact: true }).click();
   await expect(page).toHaveURL(/\/profile\/edit$/);
