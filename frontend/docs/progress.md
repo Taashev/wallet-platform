@@ -272,3 +272,17 @@
 **Заметки для следующей итерации:**
 - `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно
 - Delete-flow специально реализован как отдельный route-level confirm screen, чтобы опасное действие нельзя было вызвать случайно из обычного profile/edit form
+
+## Итерация 19 — 2026-04-21
+**Фича:** TASK-019 — users directory API module
+**Статус:** Завершено
+**Что сделано:**
+- Добавлен отдельный `users directory` integration-слой в `features/users/api` с поддержкой нестандартного `POST /v1/users`
+- Query-параметры `offset`, `limit` и `username` теперь нормализуются в одном месте, без размазывания по будущему экрану списка
+- Добавлен `useUsersDirectoryApi`, чтобы следующий экранный этап работал через готовый hook, а не напрямую с `users-service` client
+- Контракт пагинации и фильтрации зафиксирован с safe defaults: `offset >= 0`, `limit` в диапазоне `1..40`, `username` обрезается до осмысленного значения
+**Следующие шаги:**
+- Перейти к `TASK-020` и собрать users list UI; туда же логично переложить ваши требования про `Home` как главный экран после авторизации с карточками пользователей
+**Заметки для следующей итерации:**
+- `npm run lint` и `npm run build` прошли успешно
+- Live local smoke against `127.0.0.1:8080` подтвердил `signup -> POST /v1/users?offset=0&limit=5&username=users-api-smoke -> DELETE /v1/users/me`
