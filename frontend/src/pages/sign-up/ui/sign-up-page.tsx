@@ -65,7 +65,7 @@ export function SignUpPage() {
 
 			clearCurrentProfile();
 			authSession.saveSession(session);
-			void navigate(ROUTE_PATHS.profile, { replace: true });
+			void navigate(ROUTE_PATHS.root, { replace: true });
 		} catch (error) {
 			const usersServiceError = normalizeUsersServiceError(error);
 			setStatus({

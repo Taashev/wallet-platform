@@ -13,16 +13,6 @@ import { UsersPage } from '@/pages/users';
 export function AppRouter() {
   return (
     <Routes>
-      <Route
-        element={
-          <Navigate
-            replace
-            to={ROUTE_PATHS.signIn}
-          />
-        }
-        path={ROUTE_PATHS.root}
-      />
-
       <Route element={<PublicLayout />}>
         <Route
           element={<SignInPage />}
@@ -35,6 +25,10 @@ export function AppRouter() {
       </Route>
 
       <Route element={<ProtectedLayout />}>
+        <Route
+          element={<UsersPage />}
+          path={ROUTE_PATHS.root}
+        />
         <Route
           element={<ProfilePage />}
           path={ROUTE_PATHS.profile}

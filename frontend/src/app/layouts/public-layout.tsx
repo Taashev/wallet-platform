@@ -2,6 +2,10 @@ import { NavLink, Navigate, useLocation } from 'react-router-dom';
 import { AuthGuardStatus } from '@/app/layouts/auth-guard-status';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useAuthSession } from '@/app/providers/use-auth-session';
+import {
+  clearPostLogoutRedirect,
+  shouldRedirectToHomeAfterLogout,
+} from '@/features/auth/model/post-logout-redirect';
 import { SignInPage } from '@/pages/sign-in';
 import { SignUpPage } from '@/pages/sign-up';
 
@@ -13,10 +17,13 @@ const PUBLIC_NAV_ITEMS = [
 export function PublicLayout() {
   const authSession = useAuthSession();
   const location = useLocation();
+  const isPostLogoutRedirect = shouldRedirectToHomeAfterLogout();
   const redirectTarget =
+    !isPostLogoutRedirect &&
+    location.state?.source === 'auth-guard' &&
     typeof location.state?.from === 'string'
       ? location.state.from
-      : ROUTE_PATHS.profile;
+      : ROUTE_PATHS.root;
   const isSignUpRoute = location.pathname === ROUTE_PATHS.signUp;
 
   if (!authSession.isBootstrapped) {
@@ -29,6 +36,10 @@ export function PublicLayout() {
   }
 
   if (authSession.isAuthenticated) {
+    if (isPostLogoutRedirect) {
+      clearPostLogoutRedirect();
+    }
+
     return (
       <Navigate
         replace

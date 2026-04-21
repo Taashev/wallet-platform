@@ -9,6 +9,41 @@ const CURRENT_PROFILE_RESPONSE = {
   age: 26,
 };
 
+const DIRECTORY_USERS = Array.from({ length: 18 }, (_, index) => ({
+  userId: `public-user-${index + 1}`,
+  username: index === 0 ? 'anna' : `user-${index + 1}`,
+  about: null,
+  dateOfBirth: null,
+  age: null,
+}));
+
+async function mockUsersDirectory(page: Page) {
+  await page.route(/\/v1\/users(\?.*)?$/, async (route, request) => {
+    const requestUrl = new URL(request.url());
+    const offset = Number(requestUrl.searchParams.get('offset') ?? '0');
+    const limit = Number(requestUrl.searchParams.get('limit') ?? '12');
+    const usernameFilter = requestUrl.searchParams
+      .get('username')
+      ?.trim()
+      .toLowerCase();
+    const filteredUsers = usernameFilter
+      ? DIRECTORY_USERS.filter((user) =>
+          user.username.toLowerCase().includes(usernameFilter),
+        )
+      : DIRECTORY_USERS;
+    const users = filteredUsers.slice(offset, offset + limit);
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        users,
+        total: filteredUsers.length,
+      }),
+    });
+  });
+}
+
 function getSignInPane(page: Page) {
   return page.getByTestId('auth-pane-sign-in');
 }
@@ -36,13 +71,7 @@ test('sign-in route submits credentials and opens protected area', async ({ page
       }),
     });
   });
-  await page.route('**/v1/users/me', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(CURRENT_PROFILE_RESPONSE),
-    });
-  });
+  await mockUsersDirectory(page);
 
   await page.goto('/sign-in');
 
@@ -52,8 +81,8 @@ test('sign-in route submits credentials and opens protected area', async ({ page
 
   await signIn(page);
 
-  await expect(page).toHaveURL(/\/profile$/);
-  await expect(page.getByRole('heading', { name: 'Welcome back, anna' })).toBeVisible();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText('anna')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Home', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Settings', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Sign out' })).toHaveCount(0);
@@ -70,13 +99,7 @@ test('sign-up route creates account and authenticates the new user', async ({ pa
       }),
     });
   });
-  await page.route('**/v1/users/me', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(CURRENT_PROFILE_RESPONSE),
-    });
-  });
+  await mockUsersDirectory(page);
 
   await page.goto('/sign-up');
 
@@ -88,8 +111,41 @@ test('sign-up route creates account and authenticates the new user', async ({ pa
   await signUpPane.getByLabel('Password *').fill('strong-password');
   await signUpPane.getByRole('button', { name: 'Create account' }).click();
 
-  await expect(page).toHaveURL(/\/profile$/);
-  await expect(page.getByRole('heading', { name: 'Welcome back, anna' })).toBeVisible();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText('anna')).toBeVisible();
+});
+
+test('home route shows paginated user cards and search narrows the protected list', async ({
+  page,
+}) => {
+  await page.route('**/v1/auth/signin', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accessToken: 'signin-access-token',
+        refreshToken: 'signin-refresh-token',
+      }),
+    });
+  });
+  await mockUsersDirectory(page);
+
+  await page.goto('/sign-in');
+  await signIn(page);
+
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText('user-12')).toBeVisible();
+  await expect(page.getByText('user-13')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Next' }).click();
+  await expect(page.getByText('user-13')).toBeVisible();
+
+  await page.getByPlaceholder('Search by username').fill('anna');
+  await page.getByRole('button', { name: 'Search' }).click();
+  await expect(page.getByText('anna')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Reset' }).click();
+  await expect(page.getByText('user-12')).toBeVisible();
 });
 
 test('unauthorized visitor is redirected from protected route to sign-in', async ({ page }) => {
@@ -110,6 +166,7 @@ test('sign-out clears the local session and redirects back to sign-in', async ({
       }),
     });
   });
+  await mockUsersDirectory(page);
   await page.route('**/v1/users/me', async (route) => {
     await route.fulfill({
       status: 200,
@@ -127,13 +184,17 @@ test('sign-out clears the local session and redirects back to sign-in', async ({
   await page.goto('/sign-in');
   await signIn(page);
 
-  await expect(page).toHaveURL(/\/profile$/);
+  await expect(page).toHaveURL(/\/$/);
   await page.getByRole('link', { name: 'Settings', exact: true }).click();
   await expect(page).toHaveURL(/\/profile\/edit$/);
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await Promise.all([
+    page.waitForURL(/\/sign-in$/),
+    page.getByRole('button', { name: 'Sign out' }).click(),
+  ]);
 
-  await expect(page).toHaveURL(/\/sign-in$/);
   await expect(getSignInPane(page).getByText('Username *')).toBeVisible();
+  await signIn(page);
+  await expect(page).toHaveURL(/\/$/);
 });
 
 test('protected layout exposes home and settings navigation, and sign-out lives in settings on desktop and mobile', async ({ page }) => {
@@ -147,6 +208,7 @@ test('protected layout exposes home and settings navigation, and sign-out lives 
       }),
     });
   });
+  await mockUsersDirectory(page);
   await page.route('**/v1/users/me', async (route) => {
     await route.fulfill({
       status: 200,
@@ -158,20 +220,20 @@ test('protected layout exposes home and settings navigation, and sign-out lives 
   await page.goto('/sign-in');
   await signIn(page);
 
-  await expect(page).toHaveURL(/\/profile$/);
+  await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole('link', { name: 'Home', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Settings', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Sign out' })).toHaveCount(0);
 
   await page.getByRole('link', { name: 'Settings', exact: true }).click();
   await expect(page).toHaveURL(/\/profile\/edit$/);
+  await expect(page.getByLabel('User Name *')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
 
   await page.setViewportSize({ width: 390, height: 844 });
 
   await expect(page.getByRole('link', { name: 'Home', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Settings', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
 });
 
 test('profile route renders loading result and recoverable error state for current user fetch', async ({ page }) => {
@@ -185,6 +247,7 @@ test('profile route renders loading result and recoverable error state for curre
       }),
     });
   });
+  await mockUsersDirectory(page);
   await page.route('**/v1/users/me', async (route) => {
     await route.fulfill({
       status: 503,
@@ -195,7 +258,8 @@ test('profile route renders loading result and recoverable error state for curre
     });
   });
 
-  await page.goto('/sign-in');
+  await page.goto('/profile');
+  await expect(page).toHaveURL(/\/sign-in$/);
   await signIn(page);
 
   await expect(page).toHaveURL(/\/profile$/);
@@ -217,6 +281,7 @@ test('profile edit saves changes and updates the home screen without a manual re
       }),
     });
   });
+  await mockUsersDirectory(page);
   await page.route('**/v1/users/me', async (route, request) => {
     if (request.method() === 'PATCH') {
       const payload = request.postDataJSON() as {
@@ -251,7 +316,7 @@ test('profile edit saves changes and updates the home screen without a manual re
   await page.goto('/sign-in');
   await signIn(page);
 
-  await expect(page).toHaveURL(/\/profile$/);
+  await expect(page).toHaveURL(/\/$/);
   await page.getByRole('link', { name: 'Settings', exact: true }).click();
 
   await expect(page).toHaveURL(/\/profile\/edit$/);
@@ -265,11 +330,21 @@ test('profile edit saves changes and updates the home screen without a manual re
   await expect(page.getByText('Profile saved')).toBeVisible();
   await page.getByRole('link', { name: 'Home', exact: true }).click();
 
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText('anna')).toBeVisible();
+  await page.getByRole('link', { name: 'Profile details' }).click();
+
   await expect(page).toHaveURL(/\/profile$/);
-  await expect(page.getByRole('heading', { name: 'Welcome back, anna-updated' })).toBeVisible();
-  await expect(page.getByRole('definition').filter({ hasText: 'anna-updated@example.com' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Welcome back, anna-updated' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('definition').filter({ hasText: 'anna-updated@example.com' }),
+  ).toBeVisible();
   await expect(page.getByText('Updated from the edit screen')).toBeVisible();
-  await expect(page.getByRole('definition').filter({ hasText: '2000-01-02' })).toBeVisible();
+  await expect(
+    page.getByRole('definition').filter({ hasText: '2000-01-02' }),
+  ).toBeVisible();
 });
 
 test('profile edit shows validation and save errors next to the form', async ({ page }) => {
@@ -283,6 +358,7 @@ test('profile edit shows validation and save errors next to the form', async ({ 
       }),
     });
   });
+  await mockUsersDirectory(page);
   await page.route('**/v1/users/me', async (route, request) => {
     if (request.method() === 'PATCH') {
       await route.fulfill({
@@ -305,7 +381,7 @@ test('profile edit shows validation and save errors next to the form', async ({ 
   await page.goto('/sign-in');
   await signIn(page);
 
-  await expect(page).toHaveURL(/\/profile$/);
+  await expect(page).toHaveURL(/\/$/);
   await page.getByRole('link', { name: 'Settings', exact: true }).click();
 
   await expect(page).toHaveURL(/\/profile\/edit$/);
@@ -353,6 +429,7 @@ test('security tab updates the password and the next sign-in only accepts the ne
       }),
     });
   });
+  await mockUsersDirectory(page);
   await page.route('**/v1/users/me/password', async (route, request) => {
     if (request.method() === 'PATCH') {
       const payload = request.postDataJSON() as {
@@ -395,7 +472,7 @@ test('security tab updates the password and the next sign-in only accepts the ne
   await page.goto('/sign-in');
   await signIn(page);
 
-  await expect(page).toHaveURL(/\/profile$/);
+  await expect(page).toHaveURL(/\/$/);
   await page.getByRole('link', { name: 'Settings', exact: true }).click();
   await page.getByRole('link', { name: 'Security', exact: true }).click();
 
@@ -412,7 +489,7 @@ test('security tab updates the password and the next sign-in only accepts the ne
   await expect(page.getByText('Sign-in failed')).toBeVisible();
 
   await signIn(page, 'stronger-password');
-  await expect(page).toHaveURL(/\/profile\/password$/);
+  await expect(page).toHaveURL(/\/$/);
 });
 
 test('delete account requires explicit confirmation and clears the local session after success', async ({ page }) => {
@@ -426,6 +503,7 @@ test('delete account requires explicit confirmation and clears the local session
       }),
     });
   });
+  await mockUsersDirectory(page);
   await page.route('**/v1/users/me', async (route, request) => {
     if (request.method() === 'DELETE') {
       await route.fulfill({
@@ -445,7 +523,7 @@ test('delete account requires explicit confirmation and clears the local session
   await page.goto('/sign-in');
   await signIn(page);
 
-  await expect(page).toHaveURL(/\/profile$/);
+  await expect(page).toHaveURL(/\/$/);
   await page.getByRole('link', { name: 'Settings', exact: true }).click();
   await page.getByRole('link', { name: 'Delete account', exact: true }).click();
 

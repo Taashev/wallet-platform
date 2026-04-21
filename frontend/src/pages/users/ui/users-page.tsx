@@ -1,81 +1,223 @@
+import type { FormEvent } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
-import {
-  normalizeUsersListResponseDto,
-  type UsersListResponseDto,
-} from '@/shared/api/contracts/users-service-contract';
-import { ButtonLink } from '@/shared/ui/button-link';
-import { ContractPreviewCard } from '@/shared/ui/contract-preview-card';
-import { RoutePreviewPage } from '@/shared/ui/route-preview-page';
+import { useUsersDirectoryApi } from '@/features/users/api/use-users-directory-api';
+import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
+import { DashboardField } from '@/shared/ui/dashboard-field';
+import { DashboardNotice } from '@/shared/ui/dashboard-notice';
+import { DashboardPanel } from '@/shared/ui/dashboard-panel';
+import { DashboardUserAvatar } from '@/shared/ui/dashboard-user-avatar';
 
-const USERS_LIST_DTO_EXAMPLE: UsersListResponseDto = {
-  users: [
-    {
-      userId: '8e27fcf1-7dfb-4ea5-a4f8-3db0884fa9d6',
-      username: 'user-one',
-      about: 'Backend engineer',
-      dateOfBirth: '1999-12-31',
-      age: 26,
-    },
-    {
-      userId: 'cc5a9302-cd78-4b64-851e-31c50afecab1',
-      username: 'user-two',
-      about: null,
-      dateOfBirth: '',
-      age: null,
-    },
-  ],
-  total: 2,
-};
+const USERS_DIRECTORY_PAGE_SIZE = 12;
+
+type UsersDirectoryState =
+  | { kind: 'loading' }
+  | {
+      kind: 'ready';
+      users: Array<{
+        id: string;
+        username: string;
+      }>;
+      total: number;
+    }
+  | {
+      kind: 'error';
+      message: string;
+    };
 
 export function UsersPage() {
-  const normalizedUsersList = normalizeUsersListResponseDto(
-    USERS_LIST_DTO_EXAMPLE,
-  );
+  const usersDirectoryApi = useUsersDirectoryApi();
+  const [searchDraft, setSearchDraft] = useState('');
+  const [activeUsernameFilter, setActiveUsernameFilter] = useState('');
+  const [offset, setOffset] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [state, setState] = useState<UsersDirectoryState>({ kind: 'loading' });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadUsersDirectory() {
+      setIsLoading(true);
+
+      try {
+        const response = await usersDirectoryApi.getUsersDirectory({
+          offset,
+          limit: USERS_DIRECTORY_PAGE_SIZE,
+          username: activeUsernameFilter,
+        });
+
+        if (!isMounted) {
+          return;
+        }
+
+        setState({
+          kind: 'ready',
+          users: response.users.map((user) => ({
+            id: user.id,
+            username: user.username,
+          })),
+          total: response.total,
+        });
+        setIsLoading(false);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setState({
+          kind: 'error',
+          message: normalizeUsersServiceError(error).message,
+        });
+        setIsLoading(false);
+      }
+    }
+
+    void loadUsersDirectory();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeUsernameFilter, offset, usersDirectoryApi]);
+
+  const totalUsers = state.kind === 'ready' ? state.total : 0;
+  const totalPages = Math.max(1, Math.ceil(totalUsers / USERS_DIRECTORY_PAGE_SIZE));
+  const currentPage = Math.floor(offset / USERS_DIRECTORY_PAGE_SIZE) + 1;
+  const canGoToPreviousPage = offset > 0;
+  const canGoToNextPage =
+    state.kind === 'ready' && offset + USERS_DIRECTORY_PAGE_SIZE < state.total;
+
+  function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setOffset(0);
+    setActiveUsernameFilter(searchDraft.trim());
+  }
+
+  function handleResetFilter() {
+    setSearchDraft('');
+    setActiveUsernameFilter('');
+    setOffset(0);
+  }
 
   return (
-    <div className="route-page-stack">
-      <RoutePreviewPage
-        actions={
-          <>
-            <ButtonLink to={ROUTE_PATHS.profile}>Profile route</ButtonLink>
-            <ButtonLink
-              to={ROUTE_PATHS.signIn}
-              variant="secondary"
+    <section className="dashboard-page">
+      <DashboardPanel className="users-directory">
+        <form
+          className="users-directory__toolbar"
+          noValidate
+          onSubmit={handleSearchSubmit}
+        >
+          <DashboardField
+            inputProps={{
+              autoComplete: 'off',
+              placeholder: 'Search by username',
+              type: 'text',
+            }}
+            label="Search"
+            name="users-directory-search"
+            onChange={(event) => setSearchDraft(event.target.value)}
+            value={searchDraft}
+          />
+          <div className="users-directory__toolbar-actions">
+            <button
+              className="dashboard-primary-button"
+              type="submit"
             >
-              Public shell
-            </ButtonLink>
+              Search
+            </button>
+            <button
+              className="dashboard-secondary-button"
+              onClick={handleResetFilter}
+              type="button"
+            >
+              Reset
+            </button>
+          </div>
+        </form>
+
+        {isLoading && state.kind !== 'ready' ? (
+          <DashboardNotice
+            description="Loading the next protected directory slice from users-service."
+            title="Loading users"
+            tone="info"
+          />
+        ) : null}
+
+        {state.kind === 'error' ? (
+          <DashboardNotice
+            description={state.message}
+            title="Users list is unavailable"
+            tone="error"
+          />
+        ) : null}
+
+        {state.kind === 'ready' && state.users.length === 0 ? (
+          <DashboardNotice
+            description={
+              activeUsernameFilter
+                ? `No users matched "${activeUsernameFilter}". Reset the filter to load the default paginated slice again.`
+                : 'The users directory is empty right now.'
+            }
+            title="No users found"
+            tone="info"
+          />
+        ) : null}
+
+        {state.kind === 'ready' && state.users.length > 0 ? (
+          <>
+            <div className="users-directory__grid">
+              {state.users.map((user) => (
+                <article
+                  className="users-directory-card"
+                  key={user.id}
+                >
+                  <DashboardUserAvatar ariaLabel={`${user.username} avatar`} size="lg" />
+                  <strong>{user.username}</strong>
+                </article>
+              ))}
+            </div>
+
+            <div className="users-directory__footer">
+              <div className="users-directory__pagination">
+                <button
+                  className="dashboard-secondary-button"
+                  disabled={!canGoToPreviousPage}
+                  onClick={(event) => {
+                    event.currentTarget.blur();
+                    setOffset((currentOffset) =>
+                      Math.max(0, currentOffset - USERS_DIRECTORY_PAGE_SIZE),
+                    );
+                  }}
+                  type="button"
+                >
+                  Previous
+                </button>
+                <span>{`Page ${currentPage} of ${totalPages}`}</span>
+                <button
+                  className="dashboard-secondary-button"
+                  disabled={!canGoToNextPage}
+                  onClick={(event) => {
+                    event.currentTarget.blur();
+                    setOffset(
+                      (currentOffset) => currentOffset + USERS_DIRECTORY_PAGE_SIZE,
+                    );
+                  }}
+                  type="button"
+                >
+                  Next
+                </button>
+              </div>
+
+              <Link
+                className="dashboard-secondary-button"
+                to={ROUTE_PATHS.profile}
+              >
+                Profile details
+              </Link>
+            </div>
           </>
-        }
-        description="Users listing is already grouped into the protected application area, ready for directory data, filters and pagination without leaking those concerns into public routes."
-        eyebrow="Users list"
-        items={[
-          {
-            title: 'Directory-ready route',
-            description: 'A dedicated protected route is reserved for list, filter and pagination controls.',
-          },
-          {
-            title: 'Navigation consistency',
-            description: 'Users can move between account routes and directory routes inside one protected shell.',
-          },
-          {
-            title: 'Future feature room',
-            description: 'The route is wide enough for server-state panels, empty states and error messaging later on.',
-          },
-        ]}
-        nextSteps={[
-          'Connect users API integration after TASK-004 to TASK-006.',
-          'Attach search and pagination behaviour in the users feature task.',
-        ]}
-        status="Protected route"
-        title="Users directory belongs to the protected application shell from day one."
-      />
-      <ContractPreviewCard
-        description="Public users data is normalized separately from `users/me`, so private fields like `email` do not leak into the directory model."
-        eyebrow="Users contract"
-        normalizedPayload={normalizedUsersList}
-        rawPayload={USERS_LIST_DTO_EXAMPLE}
-        title="Users list response is normalized into a public user model"
-      />
-    </div>
+        ) : null}
+      </DashboardPanel>
+    </section>
   );
 }

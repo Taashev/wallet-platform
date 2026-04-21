@@ -1,9 +1,12 @@
 import type { FormEvent } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useAuthSession } from '@/app/providers/use-auth-session';
 import { useAuthApi } from '@/features/auth/api/use-auth-api';
+import {
+	shouldRedirectToHomeAfterLogout,
+} from '@/features/auth/model/post-logout-redirect';
 import {
 	createErrorAuthFormStatus,
 	createIdleAuthFormStatus,
@@ -28,10 +31,24 @@ export function SignInPage() {
 		username?: string;
 		password?: string;
 	}>({});
+	const isPostLogoutRedirect = shouldRedirectToHomeAfterLogout();
 	const redirectTarget = useMemo(
-		() => (typeof location.state?.from === 'string' ? location.state.from : ROUTE_PATHS.profile),
-		[location.state],
+		() =>
+			!isPostLogoutRedirect &&
+			location.state?.source === 'auth-guard' &&
+			typeof location.state?.from === 'string'
+				? location.state.from
+				: ROUTE_PATHS.root,
+		[isPostLogoutRedirect, location.state],
 	);
+
+	useEffect(() => {
+		if (!isPostLogoutRedirect || location.state == null) {
+			return;
+		}
+
+		void navigate(ROUTE_PATHS.signIn, { replace: true, state: null });
+	}, [isPostLogoutRedirect, location.state, navigate]);
 
 	async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();

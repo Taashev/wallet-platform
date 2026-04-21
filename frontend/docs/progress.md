@@ -286,3 +286,18 @@
 **Заметки для следующей итерации:**
 - `npm run lint` и `npm run build` прошли успешно
 - Live local smoke against `127.0.0.1:8080` подтвердил `signup -> POST /v1/users?offset=0&limit=5&username=users-api-smoke -> DELETE /v1/users/me`
+
+## Итерация 20 — 2026-04-21
+**Фича:** TASK-020 — users list Home screen
+**Статус:** Завершено
+**Что сделано:**
+- Главный protected экран перенесён на `/`: после успешного `sign-in` или `sign-up` пользователь попадает на `Home`, где теперь отображается список пользователей системы
+- Users screen переведён с preview на реальный directory UI с карточками, которые показывают только fallback-avatar и `username`
+- Реализованы поиск по `username`, сброс фильтра, серверная пагинация и явные `loading`, `empty` и `error` состояния
+- Навигация `Home / Settings` синхронизирована с новым landing-flow; `/users` оставлен как алиас того же списка, а `Profile details` остаётся доступным из Home
+- Playwright e2e обновлены под новый root-route и дополнены сценарием `Home -> pagination -> search -> reset`
+**Следующие шаги:**
+- Перейти к `TASK-021` и добавить recoverable retry-state для `Profile` и нового users directory экрана
+**Заметки для следующей итерации:**
+- `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно
+- Текущее API не даёт server-side random sort, поэтому default list показывает обычную backend pagination slice без искусственной клиентской рандомизации

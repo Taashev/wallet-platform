@@ -2,17 +2,21 @@ import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { AuthGuardStatus } from '@/app/layouts/auth-guard-status';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useAuthSession } from '@/app/providers/use-auth-session';
-import { DashboardIcon } from '@/shared/ui/dashboard-icon';
 import { DashboardUserAvatar } from '@/shared/ui/dashboard-user-avatar';
+import { DashboardIcon } from '@/shared/ui/dashboard-icon';
 
 const PROTECTED_NAV_ITEMS = [
-	{ label: 'Home', to: ROUTE_PATHS.profile, icon: 'home' as const },
+	{ label: 'Home', to: ROUTE_PATHS.root, icon: 'home' as const },
 	{ label: 'Settings', to: ROUTE_PATHS.profileEdit, icon: 'settings' as const },
 ];
 
 export function ProtectedLayout() {
   const authSession = useAuthSession();
   const location = useLocation();
+	const isHomeRoute =
+		location.pathname === ROUTE_PATHS.root ||
+		location.pathname === ROUTE_PATHS.users ||
+		location.pathname === ROUTE_PATHS.profile;
 	const isSettingsRoute =
 		location.pathname.startsWith(ROUTE_PATHS.profileEdit) ||
 		location.pathname.startsWith(ROUTE_PATHS.profilePassword) ||
@@ -29,7 +33,13 @@ export function ProtectedLayout() {
 	if (!authSession.isAuthenticated) {
 		const redirectPath = `${location.pathname}${location.search}${location.hash}`;
 
-		return <Navigate replace state={{ from: redirectPath }} to={ROUTE_PATHS.signIn} />;
+		return (
+			<Navigate
+				replace
+				state={{ from: redirectPath, source: 'auth-guard' }}
+				to={ROUTE_PATHS.signIn}
+			/>
+		);
 	}
 
 	return (
@@ -44,8 +54,7 @@ export function ProtectedLayout() {
 
 				<nav aria-label='Primary navigation' className='dashboard-sidebar__nav'>
 					{PROTECTED_NAV_ITEMS.map((item) => {
-						const isActive =
-							item.to === ROUTE_PATHS.profile ? location.pathname === ROUTE_PATHS.profile : isSettingsRoute;
+						const isActive = item.to === ROUTE_PATHS.root ? isHomeRoute : isSettingsRoute;
 
 						return (
 							<NavLink
@@ -63,11 +72,6 @@ export function ProtectedLayout() {
 
 			<section className='dashboard-shell__main'>
 				<header className='dashboard-topbar'>
-					<label className='dashboard-search'>
-						<DashboardIcon name='search' />
-						<input aria-label='Search' disabled placeholder='Search for something' type='text' />
-					</label>
-
 					<div className='dashboard-topbar__actions'>
 						<button aria-label='Notifications' className='dashboard-topbar__icon-button' type='button'>
 							<DashboardIcon name='bell' />
