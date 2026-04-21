@@ -1614,6 +1614,7 @@ img {
   background: var(--color-paper);
   color: var(--color-muted);
   box-shadow: var(--shadow-card);
+  cursor: pointer;
 }
 
 .dashboard-topbar__icon-button--signout {
@@ -1840,8 +1841,7 @@ img {
 }
 
 .dashboard-primary-button:hover,
-.dashboard-secondary-button:hover,
-.dashboard-topbar__icon-button:hover {
+.dashboard-secondary-button:hover {
   transform: translateY(-1px);
 }
 
