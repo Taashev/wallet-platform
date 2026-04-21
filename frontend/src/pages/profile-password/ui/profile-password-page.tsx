@@ -1,12 +1,12 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useProfileApi } from '@/features/profile/api/use-profile-api';
 import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
 import { DashboardField } from '@/shared/ui/dashboard-field';
 import { DashboardNotice } from '@/shared/ui/dashboard-notice';
 import { DashboardPanel } from '@/shared/ui/dashboard-panel';
+import { SettingsSignoutButton } from '@/shared/ui/settings-signout-button';
 import { SettingsTabs } from '@/shared/ui/settings-tabs';
 
 export function ProfilePasswordPage() {
@@ -77,27 +77,15 @@ export function ProfilePasswordPage() {
     <section className="dashboard-page">
       <DashboardPanel className="settings-workspace">
         <SettingsTabs
+          action={<SettingsSignoutButton />}
           tabs={[
             { label: 'Edit profile', to: ROUTE_PATHS.profileEdit },
             { label: 'Security', to: ROUTE_PATHS.profilePassword },
+            { label: 'Delete account', to: ROUTE_PATHS.profileDelete },
           ]}
         />
 
         <div className="settings-layout settings-layout--security">
-          <aside className="settings-profile-card settings-profile-card--compact">
-            <div className="settings-profile-card__avatar settings-profile-card__avatar--dark">S</div>
-            <div className="settings-profile-card__copy">
-              <strong>Security</strong>
-              <span>Update your password in a dedicated protected flow.</span>
-            </div>
-            <Link
-              className="dashboard-secondary-button"
-              to={ROUTE_PATHS.profile}
-            >
-              Open home
-            </Link>
-          </aside>
-
           <form
             className="dashboard-form"
             noValidate

@@ -257,3 +257,18 @@
 **Заметки для следующей итерации:**
 - `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно
 - Figma MCP дал достаточно контекста для shell/settings typography и palette, но дальнейшие детальные чтения упёрлись в rate limit Starter plan; оставшийся polish лучше делать уже по локальному code review и живому UI
+
+## Итерация 18 — 2026-04-21
+**Фича:** TASK-018 — confirm-flow удаления аккаунта
+**Статус:** Завершено
+**Что сделано:**
+- `profile/delete` переведён с preview на реальный protected delete-flow с отдельным danger-zone экраном внутри текущего settings-area
+- Удаление теперь требует явного подтверждения: пользователь должен ввести текущий `username` и подтвердить необратимость действия через checkbox
+- После успешного `DELETE /v1/users/me` локальные auth/session и current-profile данные очищаются, а приложение переводит пользователя на `/sign-in`
+- Settings tabs расширены до `Edit profile / Security / Delete account`, чтобы destructive action оставался отделённым от обычных форм редактирования
+- Playwright e2e дополнены сценарием `delete account -> logout -> protected redirect`
+**Следующие шаги:**
+- Перейти к `TASK-019` и вынести users directory запросы в отдельный integration-модуль
+**Заметки для следующей итерации:**
+- `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно
+- Delete-flow специально реализован как отдельный route-level confirm screen, чтобы опасное действие нельзя было вызвать случайно из обычного profile/edit form

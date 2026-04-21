@@ -1,6 +1,5 @@
 import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useProfileApi } from '@/features/profile/api/use-profile-api';
 import {
@@ -11,6 +10,8 @@ import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
 import { DashboardField } from '@/shared/ui/dashboard-field';
 import { DashboardNotice } from '@/shared/ui/dashboard-notice';
 import { DashboardPanel } from '@/shared/ui/dashboard-panel';
+import { DashboardUserAvatar } from '@/shared/ui/dashboard-user-avatar';
+import { SettingsSignoutButton } from '@/shared/ui/settings-signout-button';
 import { SettingsTabs } from '@/shared/ui/settings-tabs';
 
 type EditProfileFormValues = {
@@ -152,9 +153,11 @@ export function ProfileEditPage() {
     <section className="dashboard-page">
       <DashboardPanel className="settings-workspace">
         <SettingsTabs
+          action={<SettingsSignoutButton />}
           tabs={[
             { label: 'Edit profile', to: ROUTE_PATHS.profileEdit },
             { label: 'Security', to: ROUTE_PATHS.profilePassword },
+            { label: 'Delete account', to: ROUTE_PATHS.profileDelete },
           ]}
         />
 
@@ -177,19 +180,7 @@ export function ProfileEditPage() {
         {!isLoading && !loadError ? (
           <div className="settings-layout">
             <aside className="settings-profile-card">
-              <div className="settings-profile-card__avatar">
-                {(profile?.username ?? formValues.username ?? 'W').slice(0, 1).toUpperCase()}
-              </div>
-              <div className="settings-profile-card__copy">
-                <strong>{profile?.username ?? formValues.username}</strong>
-                <span>{profile?.email ?? formValues.email}</span>
-              </div>
-              <Link
-                className="dashboard-secondary-button"
-                to={ROUTE_PATHS.profile}
-              >
-                Back home
-              </Link>
+              <DashboardUserAvatar size="lg" />
             </aside>
 
             <form
@@ -217,22 +208,6 @@ export function ProfileEditPage() {
                   disabled={isSaving}
                   error={fieldErrors.username}
                   inputProps={{
-                    placeholder: 'Choose a username',
-                    type: 'text',
-                  }}
-                  label="Your Name"
-                  name="edit-profile-username"
-                  onChange={(event) =>
-                    setFormValues((current) => ({
-                      ...current,
-                      username: event.target.value,
-                    }))}
-                  required
-                  value={formValues.username}
-                />
-                <DashboardField
-                  disabled={isSaving}
-                  inputProps={{
                     placeholder: 'Visible username',
                     type: 'text',
                   }}
@@ -243,6 +218,7 @@ export function ProfileEditPage() {
                       ...current,
                       username: event.target.value,
                     }))}
+                  required
                   value={formValues.username}
                 />
                 <DashboardField
@@ -263,17 +239,6 @@ export function ProfileEditPage() {
                   value={formValues.email}
                 />
                 <DashboardField
-                  disabled
-                  inputProps={{
-                    placeholder: 'Managed in Security tab',
-                    type: 'password',
-                  }}
-                  label="Password"
-                  name="edit-profile-password-preview"
-                  onChange={() => undefined}
-                  value="********"
-                />
-                <DashboardField
                   disabled={isSaving}
                   error={fieldErrors.dateOfBirth}
                   inputProps={{
@@ -288,22 +253,10 @@ export function ProfileEditPage() {
                     }))}
                   value={formValues.dateOfBirth}
                 />
-                <DashboardField
-                  disabled
-                  inputProps={{
-                    placeholder: 'Current account locale',
-                    type: 'text',
-                  }}
-                  label="Country"
-                  name="edit-profile-country-preview"
-                  onChange={() => undefined}
-                  value="Wallet Platform"
-                />
               </div>
 
               <DashboardField
                 disabled={isSaving}
-                hint="Optional short bio shown in your public profile."
                 label="About"
                 multiline
                 name="edit-profile-about"
