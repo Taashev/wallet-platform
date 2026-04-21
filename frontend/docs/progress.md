@@ -199,3 +199,17 @@
 **Заметки для следующей итерации:**
 - `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно
 - Основной protected navigation intentionally ограничен `Profile / Users / Sign out`, чтобы не смешивать primary app shell с secondary account actions следующих задач
+
+## Итерация 14 — 2026-04-21
+**Фича:** TASK-014 — profile API module
+**Статус:** Завершено
+**Что сделано:**
+- Добавлен отдельный `profile API` integration-слой с операциями `getCurrentProfile`, `updateCurrentProfile`, `changePassword`, `deleteCurrentProfile`
+- Новый модуль построен поверх существующего `users-service` client и current-user contract normalizers, без ручной HTTP-логики в страницах
+- Добавлен `useProfileApi`, чтобы экранный слой следующих задач работал с profile integration через единый hook, а не напрямую с HTTP client
+- Реальный локальный smoke against backend подтвердил `GET /v1/users/me`, `PATCH /v1/users/me`, `PATCH /v1/users/me/password` и `DELETE /v1/users/me`
+**Следующие шаги:**
+- Перейти к `TASK-015` и собрать экран просмотра собственного профиля поверх уже готового profile API module
+**Заметки для следующей итерации:**
+- `npm run lint` и `npm run build` прошли успешно
+- Локальная проверка показала важный контрактный нюанс: после смены пароля старый `accessToken` больше не подходит для `DELETE /v1/users/me`, поэтому destructive flow должен учитывать re-auth/новую сессию в следующих задачах
