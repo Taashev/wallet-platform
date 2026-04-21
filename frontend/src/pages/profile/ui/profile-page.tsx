@@ -1,70 +1,171 @@
+import { useEffect, useState } from 'react';
+import type { CurrentUserProfile } from '@/entities/user/model/user';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
-import { ProtectedSessionProbeCard } from '@/features/auth/ui/protected-session-probe-card';
-import {
-  normalizeCurrentUserDto,
-  type CurrentUserResponseDto,
-} from '@/shared/api/contracts/users-service-contract';
+import { useProfileApi } from '@/features/profile/api/use-profile-api';
+import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
 import { ButtonLink } from '@/shared/ui/button-link';
-import { ContractPreviewCard } from '@/shared/ui/contract-preview-card';
-import { RoutePreviewPage } from '@/shared/ui/route-preview-page';
-
-const PROFILE_DTO_EXAMPLE: CurrentUserResponseDto = {
-  userId: '3d76bc6b-7ceb-4a45-8ef4-b1ce75e6fd4d',
-  username: 'anna',
-  email: 'anna@example.com',
-  about: '   ',
-  dateOfBirth: 'not-a-date',
-  age: '26',
-};
+import { FormFeedback } from '@/shared/ui/form-feedback';
+import { SurfaceCard } from '@/shared/ui/surface-card';
 
 export function ProfilePage() {
-  const normalizedProfile = normalizeCurrentUserDto(PROFILE_DTO_EXAMPLE);
+  const profileApi = useProfileApi();
+  const [profile, setProfile] = useState<CurrentUserProfile | null>(null);
+  const [state, setState] = useState<
+    | { kind: 'loading' }
+    | { kind: 'ready' }
+    | { kind: 'error'; message: string }
+  >({ kind: 'loading' });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadProfile() {
+      setState({ kind: 'loading' });
+
+      try {
+        const nextProfile = await profileApi.getCurrentProfile();
+
+        if (!isMounted) {
+          return;
+        }
+
+        setProfile(nextProfile);
+        setState({ kind: 'ready' });
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        const usersServiceError = normalizeUsersServiceError(error);
+        setState({
+          kind: 'error',
+          message: usersServiceError.message,
+        });
+      }
+    }
+
+    void loadProfile();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [profileApi]);
+
+  const about = profile?.about ?? 'No bio added yet.';
+  const dateOfBirth = profile?.dateOfBirth ?? 'Not specified';
+  const age = profile?.age ?? 'Not specified';
 
   return (
-    <div className="route-page-stack">
-      <RoutePreviewPage
-        actions={
-          <>
-            <ButtonLink to={ROUTE_PATHS.profileEdit}>Edit profile route</ButtonLink>
-            <ButtonLink
-              to={ROUTE_PATHS.users}
-              variant="secondary"
-            >
-              Open users route
-            </ButtonLink>
-          </>
+    <section className="profile-screen">
+      <SurfaceCard
+        className="profile-screen__hero"
+        eyebrow="Current profile"
+        title={
+          state.kind === 'ready' && profile
+            ? `@${profile.username}`
+            : 'Current profile'
         }
-        description="This protected route is already separated from public auth screens and will later host the current-user profile surface."
-        eyebrow="Profile"
-        items={[
-          {
-            title: 'Profile summary slot',
-            description: 'Ready for the current user card, metadata blocks and account actions.',
-          },
-          {
-            title: 'Shared protected framing',
-            description: 'Primary navigation now stays in a shared top app bar so feature modules stay focused.',
-          },
-          {
-            title: 'Route-level scalability',
-            description: 'Future profile screens can stay inside the protected shell without duplicating navigation.',
-          },
-        ]}
-        nextSteps={[
-          'Attach profile data loading after integration tasks are complete.',
-          'Add profile-specific form and mutation flows in their dedicated tasks.',
-        ]}
-        status="Protected route"
-        title="Profile screen now lives inside the protected shell."
-      />
-      <ContractPreviewCard
-        description="Current-user payload keeps private fields like `email`, while the frontend still normalizes ambiguous `about`, `dateOfBirth` and `age` values defensively before rendering."
-        eyebrow="Profile contract"
-        normalizedPayload={normalizedProfile}
-        rawPayload={PROFILE_DTO_EXAMPLE}
-        title="Current user payload is normalized into a safe profile model"
-      />
-      <ProtectedSessionProbeCard />
-    </div>
+        tone="accent"
+      >
+        {state.kind === 'loading' ? (
+          <FormFeedback
+            description="Loading current account details from users-service."
+            state="loading"
+            title="Loading profile"
+          />
+        ) : null}
+
+        {state.kind === 'error' ? (
+          <FormFeedback
+            description={state.message}
+            state="error"
+            title="Profile is unavailable"
+          />
+        ) : null}
+
+        {state.kind === 'ready' && profile ? (
+          <>
+            <p className="profile-screen__lead">
+              Read-only account overview for the authenticated user. Edit, password and deletion flows stay on
+              their dedicated routes.
+            </p>
+
+            <div className="metric-strip">
+              <div className="metric-item">
+                <strong>{profile.username}</strong>
+                <span>Username</span>
+              </div>
+              <div className="metric-item">
+                <strong>{typeof age === 'number' ? age : '—'}</strong>
+                <span>Age</span>
+              </div>
+              <div className="metric-item">
+                <strong>{dateOfBirth === 'Not specified' ? '—' : dateOfBirth}</strong>
+                <span>Date of birth</span>
+              </div>
+            </div>
+
+            <div className="profile-screen__actions">
+              <ButtonLink to={ROUTE_PATHS.profileEdit}>Edit profile</ButtonLink>
+              <ButtonLink
+                to={ROUTE_PATHS.profilePassword}
+                variant="secondary"
+              >
+                Change password
+              </ButtonLink>
+            </div>
+          </>
+        ) : null}
+      </SurfaceCard>
+
+      {state.kind === 'ready' && profile ? (
+        <div className="card-grid card-grid--two">
+          <SurfaceCard
+            eyebrow="Identity"
+            title="Private account details"
+          >
+            <dl className="profile-screen__details">
+              <div>
+                <dt>Username</dt>
+                <dd>{profile.username}</dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd>{profile.email}</dd>
+              </div>
+              <div>
+                <dt>Date of birth</dt>
+                <dd>{dateOfBirth}</dd>
+              </div>
+              <div>
+                <dt>Age</dt>
+                <dd>{typeof age === 'number' ? age : age}</dd>
+              </div>
+            </dl>
+          </SurfaceCard>
+
+          <SurfaceCard
+            eyebrow="About"
+            title="Public-facing bio"
+          >
+            <p className="profile-screen__about">{about}</p>
+            <div className="profile-screen__secondary-actions">
+              <ButtonLink
+                to={ROUTE_PATHS.users}
+                variant="secondary"
+              >
+                Open users
+              </ButtonLink>
+              <ButtonLink
+                to={ROUTE_PATHS.profileDelete}
+                variant="secondary"
+              >
+                Delete account
+              </ButtonLink>
+            </div>
+          </SurfaceCard>
+        </div>
+      ) : null}
+    </section>
   );
 }

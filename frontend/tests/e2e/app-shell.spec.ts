@@ -1,5 +1,14 @@
 import { expect, test } from '@playwright/test';
 
+const CURRENT_PROFILE_RESPONSE = {
+  userId: '3d76bc6b-7ceb-4a45-8ef4-b1ce75e6fd4d',
+  username: 'anna',
+  email: 'anna@example.com',
+  about: 'Product-minded engineer',
+  dateOfBirth: '1999-12-31',
+  age: 26,
+};
+
 test('sign-in route submits credentials and opens protected area', async ({ page }) => {
   await page.route('**/v1/auth/signin', async (route) => {
     await route.fulfill({
@@ -9,6 +18,13 @@ test('sign-in route submits credentials and opens protected area', async ({ page
         accessToken: 'signin-access-token',
         refreshToken: 'signin-refresh-token',
       }),
+    });
+  });
+  await page.route('**/v1/users/me', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(CURRENT_PROFILE_RESPONSE),
     });
   });
 
@@ -26,7 +42,7 @@ test('sign-in route submits credentials and opens protected area', async ({ page
 
   await expect(page).toHaveURL(/\/profile$/);
   await expect(
-    page.getByRole('heading', { name: 'Profile screen now lives inside the protected shell.' }),
+    page.getByRole('heading', { name: '@anna' }),
   ).toBeVisible();
   await expect(
     page.getByRole('button', { name: 'Sign out' }),
@@ -44,6 +60,13 @@ test('sign-up route creates account and authenticates the new user', async ({ pa
       }),
     });
   });
+  await page.route('**/v1/users/me', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(CURRENT_PROFILE_RESPONSE),
+    });
+  });
 
   await page.goto('/sign-up');
 
@@ -58,7 +81,7 @@ test('sign-up route creates account and authenticates the new user', async ({ pa
 
   await expect(page).toHaveURL(/\/profile$/);
   await expect(
-    page.getByRole('heading', { name: 'Profile screen now lives inside the protected shell.' }),
+    page.getByRole('heading', { name: '@anna' }),
   ).toBeVisible();
 });
 
@@ -80,6 +103,13 @@ test('sign-out clears the local session and redirects back to sign-in', async ({
         accessToken: 'signin-access-token',
         refreshToken: 'signin-refresh-token',
       }),
+    });
+  });
+  await page.route('**/v1/users/me', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(CURRENT_PROFILE_RESPONSE),
     });
   });
   await page.route('**/v1/auth/signout', async (route) => {
@@ -114,6 +144,13 @@ test('protected layout exposes profile, users and sign-out navigation on desktop
       }),
     });
   });
+  await page.route('**/v1/users/me', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(CURRENT_PROFILE_RESPONSE),
+    });
+  });
 
   await page.goto('/sign-in');
   await page.getByLabel('Username *').fill('existing-user');
@@ -133,4 +170,36 @@ test('protected layout exposes profile, users and sign-out navigation on desktop
   await expect(page.getByRole('link', { name: 'Profile', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Users', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
+});
+
+test('profile route renders loading result and recoverable error state for current user fetch', async ({ page }) => {
+  await page.route('**/v1/auth/signin', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accessToken: 'signin-access-token',
+        refreshToken: 'signin-refresh-token',
+      }),
+    });
+  });
+  await page.route('**/v1/users/me', async (route) => {
+    await route.fulfill({
+      status: 503,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        message: 'Service unavailable',
+      }),
+    });
+  });
+
+  await page.goto('/sign-in');
+  await page.getByLabel('Username *').fill('existing-user');
+  await page.getByLabel('Password *').fill('strong-password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await expect(page).toHaveURL(/\/profile$/);
+  await expect(
+    page.getByText('Profile is unavailable'),
+  ).toBeVisible();
 });

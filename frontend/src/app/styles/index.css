@@ -838,6 +838,60 @@ img {
   gap: var(--space-lg);
 }
 
+.profile-screen {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.profile-screen__hero {
+  gap: 1.25rem;
+}
+
+.profile-screen__lead {
+  max-width: 56ch;
+  color: rgba(25, 26, 35, 0.84);
+}
+
+.profile-screen__actions,
+.profile-screen__secondary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.profile-screen__details {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+}
+
+.profile-screen__details div {
+  display: grid;
+  gap: 0.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed rgba(25, 26, 35, 0.2);
+}
+
+.profile-screen__details div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.profile-screen__details dt {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.profile-screen__details dd {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.profile-screen__about {
+  white-space: pre-wrap;
+}
+
 .auth-screen {
   display: grid;
   gap: var(--space-lg);
@@ -1385,7 +1439,9 @@ img {
 
   .route-preview__actions,
   .shell-tabs,
-  .form-actions {
+  .form-actions,
+  .profile-screen__actions,
+  .profile-screen__secondary-actions {
     display: grid;
   }
 
