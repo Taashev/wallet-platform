@@ -762,14 +762,7 @@ img {
 }
 
 .protected-shell {
-  display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  gap: var(--space-lg);
-}
-
-.protected-shell__brand {
-  display: grid;
-  gap: var(--space-sm);
+  display: block;
 }
 
 .protected-shell__note,
@@ -779,19 +772,20 @@ img {
 }
 
 .protected-shell__nav {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
 }
 
 .protected-shell__signout {
-  display: grid;
-  gap: var(--space-sm);
-  margin-top: var(--space-sm);
+  display: flex;
+  justify-content: flex-end;
 }
 
 .protected-nav__link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 3.1rem;
   padding: 0.9rem 1rem;
   border: 2px solid var(--color-border);
@@ -812,9 +806,21 @@ img {
 
 .protected-shell__topbar {
   display: grid;
-  gap: var(--space-sm);
+  gap: var(--space-md);
   padding: clamp(1.5rem, 3vw, 2rem);
   background: var(--color-surface);
+}
+
+.protected-shell__topbar-main {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.protected-shell__topbar-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-md);
+  align-items: center;
 }
 
 .protected-shell__surface {
@@ -1078,7 +1084,7 @@ img {
 }
 
 .form-field__control:hover {
-  transform: translateY(-1px);
+  transform: none;
 }
 
 .form-field__control:focus-visible {
@@ -1356,13 +1362,16 @@ img {
 
 @media (max-width: 1080px) {
   .public-shell__body,
-  .protected-shell,
   .route-preview__grid,
   .config-screen__grid,
   .contract-preview__grid,
   .session-preview-card__grid,
   .feedback-grid,
   .form-layout--inline {
+    grid-template-columns: 1fr;
+  }
+
+  .protected-shell__topbar-actions {
     grid-template-columns: 1fr;
   }
 }
@@ -1393,5 +1402,10 @@ img {
 
   .public-shell__tabs {
     justify-self: stretch;
+  }
+
+  .protected-shell__nav,
+  .protected-shell__signout {
+    display: grid;
   }
 }

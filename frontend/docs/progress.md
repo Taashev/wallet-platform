@@ -185,3 +185,17 @@
 **Заметки для следующей итерации:**
 - `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно
 - Дополнительно выполнена живая локальная проверка against `127.0.0.1:8080`: `signup -> signin -> signout` отрабатывают успешно через реальные backend endpoints
+
+## Итерация 13 — 2026-04-21
+**Фича:** TASK-013 — верхняя навигация и адаптивный protected layout
+**Статус:** Завершено
+**Что сделано:**
+- Protected shell переведён с боковой навигации на верхний app bar с основными действиями `Profile`, `Users`, `Sign out`
+- Основная навигация упрощена до маршрутов, заявленных в задаче, при этом secondary маршруты `edit/password/delete` остаются доступны из самих экранов
+- Layout обновлён под mobile-friendly поведение: верхняя навигация и sign-out action корректно перестраиваются на узких экранах
+- Smoke e2e расширены проверкой protected navigation, перехода `Profile -> Users` и сохранения работоспособности layout после смены viewport на mobile width
+**Следующие шаги:**
+- Перейти к `TASK-014` и вынести profile API операции в отдельный integration-модуль
+**Заметки для следующей итерации:**
+- `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно
+- Основной protected navigation intentionally ограничен `Profile / Users / Sign out`, чтобы не смешивать primary app shell с secondary account actions следующих задач

@@ -114,7 +114,6 @@ export function SignUpPage() {
               autoComplete="new-password"
               disabled={status.kind === 'submitting'}
               error={fieldErrors.password}
-              hint="Use at least 8 characters for the MVP password flow."
               label="Password"
               name="registration-password"
               onChange={(event) => setPassword(event.target.value)}

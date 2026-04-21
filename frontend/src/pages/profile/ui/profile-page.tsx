@@ -43,7 +43,7 @@ export function ProfilePage() {
           },
           {
             title: 'Shared protected framing',
-            description: 'Sidebar navigation and topbar stay outside the page so feature modules stay focused.',
+            description: 'Primary navigation now stays in a shared top app bar so feature modules stay focused.',
           },
           {
             title: 'Route-level scalability',

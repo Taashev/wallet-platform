@@ -102,3 +102,35 @@ test('sign-out clears the local session and redirects back to sign-in', async ({
     page.getByText('Username *'),
   ).toBeVisible();
 });
+
+test('protected layout exposes profile, users and sign-out navigation on desktop and mobile', async ({ page }) => {
+  await page.route('**/v1/auth/signin', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accessToken: 'signin-access-token',
+        refreshToken: 'signin-refresh-token',
+      }),
+    });
+  });
+
+  await page.goto('/sign-in');
+  await page.getByLabel('Username *').fill('existing-user');
+  await page.getByLabel('Password *').fill('strong-password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await expect(page).toHaveURL(/\/profile$/);
+  await expect(page.getByRole('link', { name: 'Profile', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Users', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
+
+  await page.getByRole('link', { name: 'Users', exact: true }).click();
+  await expect(page).toHaveURL(/\/users$/);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+
+  await expect(page.getByRole('link', { name: 'Profile', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Users', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
+});
