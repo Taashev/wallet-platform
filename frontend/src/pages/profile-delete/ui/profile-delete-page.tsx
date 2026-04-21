@@ -141,8 +141,6 @@ export function ProfileDeletePage() {
                   <strong>Account access ends immediately</strong>
                   <p>After deletion, protected routes become unavailable until a different account signs in.</p>
                 </div>
-                <div>
-                </div>
               </div>
 
               <DashboardField

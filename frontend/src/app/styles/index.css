@@ -1928,6 +1928,32 @@ img {
     box-shadow var(--transition-base);
 }
 
+.dashboard-field__control-wrap {
+  position: relative;
+  display: block;
+}
+
+.dashboard-field__control-wrap--password .dashboard-field__control {
+  padding-right: 5.4rem;
+}
+
+.dashboard-field__toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.85rem;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dashboard-field__toggle:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
 .dashboard-field__control::placeholder {
   color: var(--color-muted);
 }
@@ -2057,11 +2083,18 @@ img {
 }
 
 .settings-layout--security {
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
 }
 
 .settings-layout--danger {
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
+}
+
+.settings-layout--security .dashboard-form,
+.settings-layout--danger .dashboard-form {
+  width: min(100%, 760px);
 }
 
 .settings-profile-card {

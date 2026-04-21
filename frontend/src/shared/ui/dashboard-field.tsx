@@ -3,7 +3,7 @@ import type {
   InputHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react';
-import { useId } from 'react';
+import { useId, useState } from 'react';
 
 type DashboardFieldBaseProps = {
   label: string;
@@ -52,6 +52,17 @@ export function DashboardField(props: DashboardFieldProps) {
   const hintId = hint ? `${fieldId}-hint` : undefined;
   const errorId = error ? `${fieldId}-error` : undefined;
   const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined;
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const isPasswordField =
+    !props.multiline && props.inputProps?.type === 'password';
+  const resolvedInputType = isPasswordField
+    ? isPasswordVisible
+      ? 'text'
+      : 'password'
+    : props.multiline
+      ? undefined
+      : props.inputProps?.type;
 
   return (
     <label className="dashboard-field">
@@ -73,18 +84,35 @@ export function DashboardField(props: DashboardFieldProps) {
           value={props.value}
         />
       ) : (
-        <input
-          {...props.inputProps}
-          aria-describedby={describedBy}
-          aria-invalid={Boolean(error)}
-          className="dashboard-field__control"
-          disabled={disabled}
-          id={fieldId}
-          name={name}
-          onChange={props.onChange}
-          required={required}
-          value={props.value}
-        />
+        <span className={`dashboard-field__control-wrap${isPasswordField ? ' dashboard-field__control-wrap--password' : ''}`}>
+          <input
+            {...props.inputProps}
+            aria-describedby={describedBy}
+            aria-invalid={Boolean(error)}
+            className="dashboard-field__control"
+            disabled={disabled}
+            id={fieldId}
+            name={name}
+            onChange={props.onChange}
+            required={required}
+            type={resolvedInputType}
+            value={props.value}
+          />
+          {isPasswordField ? (
+            <button
+              aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
+              className="dashboard-field__toggle"
+              disabled={disabled}
+              onClick={(event) => {
+                event.preventDefault();
+                setIsPasswordVisible((current) => !current);
+              }}
+              type="button"
+            >
+              {isPasswordVisible ? 'Hide' : 'Show'}
+            </button>
+          ) : null}
+        </span>
       )}
       {hint ? (
         <span
