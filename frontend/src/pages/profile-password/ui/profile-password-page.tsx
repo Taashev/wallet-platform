@@ -1,43 +1,166 @@
+import type { FormEvent } from 'react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
-import { ButtonLink } from '@/shared/ui/button-link';
-import { RoutePreviewPage } from '@/shared/ui/route-preview-page';
+import { useProfileApi } from '@/features/profile/api/use-profile-api';
+import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
+import { DashboardField } from '@/shared/ui/dashboard-field';
+import { DashboardNotice } from '@/shared/ui/dashboard-notice';
+import { DashboardPanel } from '@/shared/ui/dashboard-panel';
+import { SettingsTabs } from '@/shared/ui/settings-tabs';
 
 export function ProfilePasswordPage() {
+  const profileApi = useProfileApi();
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{
+    oldPassword?: string;
+    newPassword?: string;
+  }>({});
+  const [status, setStatus] = useState<{
+    kind: 'idle' | 'submitting' | 'success' | 'error';
+    title?: string;
+    description?: string;
+  }>({ kind: 'idle' });
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const nextFieldErrors = {
+      oldPassword: oldPassword ? undefined : 'Current password is required.',
+      newPassword: newPassword.length >= 8
+        ? oldPassword === newPassword
+          ? 'New password must be different.'
+          : undefined
+        : 'New password must be at least 8 characters long.',
+    };
+
+    setFieldErrors(nextFieldErrors);
+
+    if (nextFieldErrors.oldPassword || nextFieldErrors.newPassword) {
+      setStatus({
+        kind: 'error',
+        title: 'Security form is incomplete',
+        description: 'Fix the highlighted password fields before saving.',
+      });
+      return;
+    }
+
+    setStatus({
+      kind: 'submitting',
+      title: 'Updating password',
+      description: 'Sending the security update to users-service.',
+    });
+
+    try {
+      await profileApi.changePassword({
+        oldPassword,
+        newPassword,
+      });
+      setOldPassword('');
+      setNewPassword('');
+      setStatus({
+        kind: 'success',
+        title: 'Password updated',
+        description: 'Use the new password the next time you sign in.',
+      });
+    } catch (error) {
+      setStatus({
+        kind: 'error',
+        title: 'Password was not updated',
+        description: normalizeUsersServiceError(error).message,
+      });
+    }
+  }
+
   return (
-    <RoutePreviewPage
-      actions={
-        <>
-          <ButtonLink to={ROUTE_PATHS.profile}>Profile overview</ButtonLink>
-          <ButtonLink
-            to={ROUTE_PATHS.profileDelete}
-            variant="secondary"
+    <section className="dashboard-page">
+      <DashboardPanel className="settings-workspace">
+        <SettingsTabs
+          tabs={[
+            { label: 'Edit profile', to: ROUTE_PATHS.profileEdit },
+            { label: 'Security', to: ROUTE_PATHS.profilePassword },
+          ]}
+        />
+
+        <div className="settings-layout settings-layout--security">
+          <aside className="settings-profile-card settings-profile-card--compact">
+            <div className="settings-profile-card__avatar settings-profile-card__avatar--dark">S</div>
+            <div className="settings-profile-card__copy">
+              <strong>Security</strong>
+              <span>Update your password in a dedicated protected flow.</span>
+            </div>
+            <Link
+              className="dashboard-secondary-button"
+              to={ROUTE_PATHS.profile}
+            >
+              Open home
+            </Link>
+          </aside>
+
+          <form
+            className="dashboard-form"
+            noValidate
+            onSubmit={(event) => void handleSubmit(event)}
           >
-            Delete account route
-          </ButtonLink>
-        </>
-      }
-      description="Password management is already isolated as a protected route so secure actions do not get mixed into profile reading and editing contexts."
-      eyebrow="Change password"
-      items={[
-        {
-          title: 'Sensitive action isolation',
-          description: 'This route keeps password changes separated from general profile updates.',
-        },
-        {
-          title: 'Feedback-friendly shell',
-          description: 'The page has room for validation, success messages and password rules.',
-        },
-        {
-          title: 'Stable protected navigation',
-          description: 'Moving between profile routes no longer requires page-specific navigation duplication.',
-        },
-      ]}
-      nextSteps={[
-        'Attach old/new password form in the feature task.',
-        'Use centralized error and session flows in later integration tasks.',
-      ]}
-      status="Protected route"
-      title="Password changes are routed through their own protected layout branch."
-    />
+            {status.kind !== 'idle' ? (
+              <DashboardNotice
+                description={status.description!}
+                title={status.title!}
+                tone={
+                  status.kind === 'success'
+                    ? 'success'
+                    : status.kind === 'submitting'
+                      ? 'info'
+                      : 'error'
+                }
+              />
+            ) : null}
+
+            <div className="dashboard-form__grid">
+              <DashboardField
+                disabled={status.kind === 'submitting'}
+                error={fieldErrors.oldPassword}
+                inputProps={{
+                  autoComplete: 'current-password',
+                  placeholder: 'Enter current password',
+                  type: 'password',
+                }}
+                label="Current Password"
+                name="current-password"
+                onChange={(event) => setOldPassword(event.target.value)}
+                required
+                value={oldPassword}
+              />
+              <DashboardField
+                disabled={status.kind === 'submitting'}
+                error={fieldErrors.newPassword}
+                hint="Use at least 8 characters and avoid repeating the old password."
+                inputProps={{
+                  autoComplete: 'new-password',
+                  placeholder: 'Create new password',
+                  type: 'password',
+                }}
+                label="New Password"
+                name="new-password"
+                onChange={(event) => setNewPassword(event.target.value)}
+                required
+                value={newPassword}
+              />
+            </div>
+
+            <div className="dashboard-form__actions dashboard-form__actions--end">
+              <button
+                className="dashboard-primary-button"
+                disabled={status.kind === 'submitting'}
+                type="submit"
+              >
+                {status.kind === 'submitting' ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </DashboardPanel>
+    </section>
   );
 }

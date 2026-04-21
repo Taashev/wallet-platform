@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useProfileApi } from '@/features/profile/api/use-profile-api';
 import {
@@ -8,12 +8,10 @@ import {
   useCurrentProfile,
 } from '@/features/profile/model/current-profile-store';
 import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
-import { ButtonLink } from '@/shared/ui/button-link';
-import { FormFeedback } from '@/shared/ui/form-feedback';
-import { FormField } from '@/shared/ui/form-field';
-import { FormSubmitButton } from '@/shared/ui/form-submit-button';
-import { FormTextareaField } from '@/shared/ui/form-textarea-field';
-import { SurfaceCard } from '@/shared/ui/surface-card';
+import { DashboardField } from '@/shared/ui/dashboard-field';
+import { DashboardNotice } from '@/shared/ui/dashboard-notice';
+import { DashboardPanel } from '@/shared/ui/dashboard-panel';
+import { SettingsTabs } from '@/shared/ui/settings-tabs';
 
 type EditProfileFormValues = {
   username: string;
@@ -65,7 +63,6 @@ function validateEditProfileForm(values: EditProfileFormValues): EditProfileFiel
 }
 
 export function ProfileEditPage() {
-  const navigate = useNavigate();
   const profileApi = useProfileApi();
   const profile = useCurrentProfile();
   const [formValues, setFormValues] = useState<EditProfileFormValues>(() =>
@@ -74,6 +71,7 @@ export function ProfileEditPage() {
   const [fieldErrors, setFieldErrors] = useState<EditProfileFieldErrors>({});
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(profile === null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -123,6 +121,7 @@ export function ProfileEditPage() {
     const nextFieldErrors = validateEditProfileForm(formValues);
     setFieldErrors(nextFieldErrors);
     setSaveError(null);
+    setSaveSuccess(null);
 
     if (nextFieldErrors.username || nextFieldErrors.email || nextFieldErrors.dateOfBirth) {
       return;
@@ -139,10 +138,7 @@ export function ProfileEditPage() {
       });
 
       saveCurrentProfile(updatedProfile);
-      void navigate(ROUTE_PATHS.profile, {
-        replace: true,
-        state: { flash: 'profile-updated' },
-      });
+      setSaveSuccess('Profile details were saved. Home already uses the updated data.');
     } catch (error) {
       setSaveError(normalizeUsersServiceError(error).message);
       setIsSaving(false);
@@ -153,123 +149,189 @@ export function ProfileEditPage() {
   }
 
   return (
-    <section className="profile-edit-screen">
-      <SurfaceCard
-        eyebrow="Edit profile"
-        title="Update account details"
-        tone="accent"
-      >
-        <div className="profile-edit-screen__intro">
-          <p>Only username, email, about and date of birth can be changed from this screen.</p>
-          <ButtonLink
-            to={ROUTE_PATHS.profile}
-            variant="secondary"
-          >
-            Back to profile
-          </ButtonLink>
-        </div>
+    <section className="dashboard-page">
+      <DashboardPanel className="settings-workspace">
+        <SettingsTabs
+          tabs={[
+            { label: 'Edit profile', to: ROUTE_PATHS.profileEdit },
+            { label: 'Security', to: ROUTE_PATHS.profilePassword },
+          ]}
+        />
 
         {isLoading ? (
-          <FormFeedback
+          <DashboardNotice
             description="Loading current profile data before the form becomes editable."
-            state="loading"
             title="Preparing edit form"
+            tone="info"
           />
         ) : null}
 
         {loadError ? (
-          <FormFeedback
+          <DashboardNotice
             description={loadError}
-            state="error"
             title="Edit screen is unavailable"
+            tone="error"
           />
         ) : null}
 
         {!isLoading && !loadError ? (
-          <form
-            className="form-showcase"
-            noValidate
-            onSubmit={(submitEvent) => void handleSubmit(submitEvent)}
-          >
-            {saveError ? (
-              <FormFeedback
-                description={saveError}
-                state="error"
-                title="Profile was not saved"
-              />
-            ) : null}
+          <div className="settings-layout">
+            <aside className="settings-profile-card">
+              <div className="settings-profile-card__avatar">
+                {(profile?.username ?? formValues.username ?? 'W').slice(0, 1).toUpperCase()}
+              </div>
+              <div className="settings-profile-card__copy">
+                <strong>{profile?.username ?? formValues.username}</strong>
+                <span>{profile?.email ?? formValues.email}</span>
+              </div>
+              <Link
+                className="dashboard-secondary-button"
+                to={ROUTE_PATHS.profile}
+              >
+                Back home
+              </Link>
+            </aside>
 
-            <div className="form-layout">
-              <FormField
-                disabled={isSaving}
-                error={fieldErrors.username}
-                label="Username"
-                name="edit-profile-username"
-                onChange={(event) =>
-                  setFormValues((current) => ({
-                    ...current,
-                    username: event.target.value,
-                  }))}
-                placeholder="Choose a username"
-                required
-                value={formValues.username}
-              />
-              <FormField
-                disabled={isSaving}
-                error={fieldErrors.email}
-                label="Email"
-                name="edit-profile-email"
-                onChange={(event) =>
-                  setFormValues((current) => ({
-                    ...current,
-                    email: event.target.value,
-                  }))}
-                placeholder="name@example.com"
-                required
-                type="email"
-                value={formValues.email}
-              />
-              <FormField
-                disabled={isSaving}
-                error={fieldErrors.dateOfBirth}
-                hint="Optional. Use the same format expected by users-service."
-                label="Date of birth"
-                name="edit-profile-date-of-birth"
-                onChange={(event) =>
-                  setFormValues((current) => ({
-                    ...current,
-                    dateOfBirth: event.target.value,
-                  }))}
-                type="date"
-                value={formValues.dateOfBirth}
-              />
-              <FormTextareaField
+            <form
+              className="dashboard-form"
+              noValidate
+              onSubmit={(submitEvent) => void handleSubmit(submitEvent)}
+            >
+              {saveSuccess ? (
+                <DashboardNotice
+                  description={saveSuccess}
+                  title="Profile saved"
+                  tone="success"
+                />
+              ) : null}
+              {saveError ? (
+                <DashboardNotice
+                  description={saveError}
+                  title="Profile was not saved"
+                  tone="error"
+                />
+              ) : null}
+
+              <div className="dashboard-form__grid dashboard-form__grid--two">
+                <DashboardField
+                  disabled={isSaving}
+                  error={fieldErrors.username}
+                  inputProps={{
+                    placeholder: 'Choose a username',
+                    type: 'text',
+                  }}
+                  label="Your Name"
+                  name="edit-profile-username"
+                  onChange={(event) =>
+                    setFormValues((current) => ({
+                      ...current,
+                      username: event.target.value,
+                    }))}
+                  required
+                  value={formValues.username}
+                />
+                <DashboardField
+                  disabled={isSaving}
+                  inputProps={{
+                    placeholder: 'Visible username',
+                    type: 'text',
+                  }}
+                  label="User Name"
+                  name="edit-profile-username-secondary"
+                  onChange={(event) =>
+                    setFormValues((current) => ({
+                      ...current,
+                      username: event.target.value,
+                    }))}
+                  value={formValues.username}
+                />
+                <DashboardField
+                  disabled={isSaving}
+                  error={fieldErrors.email}
+                  inputProps={{
+                    placeholder: 'name@example.com',
+                    type: 'email',
+                  }}
+                  label="Email"
+                  name="edit-profile-email"
+                  onChange={(event) =>
+                    setFormValues((current) => ({
+                      ...current,
+                      email: event.target.value,
+                    }))}
+                  required
+                  value={formValues.email}
+                />
+                <DashboardField
+                  disabled
+                  inputProps={{
+                    placeholder: 'Managed in Security tab',
+                    type: 'password',
+                  }}
+                  label="Password"
+                  name="edit-profile-password-preview"
+                  onChange={() => undefined}
+                  value="********"
+                />
+                <DashboardField
+                  disabled={isSaving}
+                  error={fieldErrors.dateOfBirth}
+                  inputProps={{
+                    type: 'date',
+                  }}
+                  label="Date of Birth"
+                  name="edit-profile-date-of-birth"
+                  onChange={(event) =>
+                    setFormValues((current) => ({
+                      ...current,
+                      dateOfBirth: event.target.value,
+                    }))}
+                  value={formValues.dateOfBirth}
+                />
+                <DashboardField
+                  disabled
+                  inputProps={{
+                    placeholder: 'Current account locale',
+                    type: 'text',
+                  }}
+                  label="Country"
+                  name="edit-profile-country-preview"
+                  onChange={() => undefined}
+                  value="Wallet Platform"
+                />
+              </div>
+
+              <DashboardField
                 disabled={isSaving}
                 hint="Optional short bio shown in your public profile."
                 label="About"
+                multiline
                 name="edit-profile-about"
                 onChange={(event) =>
                   setFormValues((current) => ({
                     ...current,
                     about: event.target.value,
                   }))}
-                placeholder="Tell other users a little about yourself"
-                rows={5}
+                textareaProps={{
+                  placeholder: 'Tell other users a little about yourself',
+                  rows: 5,
+                }}
                 value={formValues.about}
               />
-            </div>
 
-            <div className="form-actions">
-              <FormSubmitButton
-                busy={isSaving}
-                busyLabel="Saving profile…"
-              >
-                Save changes
-              </FormSubmitButton>
-            </div>
-          </form>
+              <div className="dashboard-form__actions dashboard-form__actions--end">
+                <button
+                  className="dashboard-primary-button"
+                  disabled={isSaving}
+                  type="submit"
+                >
+                  {isSaving ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+            </form>
+          </div>
         ) : null}
-      </SurfaceCard>
+      </DashboardPanel>
     </section>
   );
 }

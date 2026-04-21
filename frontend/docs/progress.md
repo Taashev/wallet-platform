@@ -242,3 +242,18 @@
 **Заметки для следующей итерации:**
 - `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно
 - Для Playwright снова потребовался escalated local execution из-за sandbox-ограничения на локальный порт для Vite web server
+
+## Итерация 17 — 2026-04-21
+**Фича:** TASK-017 — security flow и BankDash-inspired redesign
+**Статус:** Завершено
+**Что сделано:**
+- Protected shell переведён на новый visual direction по мотивам Figma-макета: `Inter`, светлая banking-палитра, sidebar `Home / Settings`, topbar с search/actions и новые dashboard-style panels
+- Public auth layout и текущие рабочие экраны `sign-in`, `sign-up`, `Home (/profile)`, `Settings (/profile/edit, /profile/password)` переписаны с использованием нового набора UI-примитивов вместо старого chunky UI-слоя
+- Реализован настоящий `Security` tab на `/profile/password` с локальной валидацией `oldPassword/newPassword`, success/error feedback и интеграцией с `PATCH /v1/users/me/password`
+- Edit profile flow сохранён и встроен в новый settings-layout; обновлённый current-profile store продолжает синхронно обновлять `Home` без reload
+- Playwright e2e синхронизированы с новым shell и дополнены browser flow `change password -> sign out -> sign in with new password`
+**Следующие шаги:**
+- Перейти к `TASK-018` и собрать confirm-flow удаления аккаунта в уже обновлённом settings-area
+**Заметки для следующей итерации:**
+- `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно
+- Figma MCP дал достаточно контекста для shell/settings typography и palette, но дальнейшие детальные чтения упёрлись в rate limit Starter plan; оставшийся polish лучше делать уже по локальному code review и живому UI

@@ -4,16 +4,29 @@ import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useAuthSession } from '@/app/providers/use-auth-session';
 import { useAuthApi } from '@/features/auth/api/use-auth-api';
 import { clearCurrentProfile } from '@/features/profile/model/current-profile-store';
+import { useCurrentProfile } from '@/features/profile/model/current-profile-store';
+import { DashboardIcon } from '@/shared/ui/dashboard-icon';
 
 const PROTECTED_NAV_ITEMS = [
-  { label: 'Profile', to: ROUTE_PATHS.profile },
-  { label: 'Users', to: ROUTE_PATHS.users },
+  { label: 'Home', to: ROUTE_PATHS.profile, icon: 'home' as const },
+  { label: 'Settings', to: ROUTE_PATHS.profileEdit, icon: 'settings' as const },
 ];
 
 export function ProtectedLayout() {
   const authApi = useAuthApi();
   const authSession = useAuthSession();
+  const currentProfile = useCurrentProfile();
   const location = useLocation();
+  const isSettingsRoute =
+    location.pathname.startsWith(ROUTE_PATHS.profileEdit) ||
+    location.pathname.startsWith(ROUTE_PATHS.profilePassword) ||
+    location.pathname.startsWith(ROUTE_PATHS.profileDelete);
+  const topbarTitle = isSettingsRoute
+    ? 'Settings'
+    : location.pathname.startsWith(ROUTE_PATHS.users)
+      ? 'Users'
+      : 'Home';
+  const avatarLabel = currentProfile?.username?.slice(0, 1).toUpperCase() ?? 'W';
 
   if (!authSession.isBootstrapped) {
     return (
@@ -46,49 +59,79 @@ export function ProtectedLayout() {
   }
 
   return (
-    <main className="protected-shell">
-      <section className="protected-shell__main">
-        <header className="protected-shell__topbar">
-          <div className="protected-shell__topbar-main">
-            <div>
-              <span className="hero-eyebrow">Protected area</span>
-              <h1>Protected routes stay inside one responsive app shell.</h1>
-            </div>
-            <p className="protected-shell__topbar-copy">
-              Profile and users routes share one primary navigation bar, while sign out stays available without
-              breaking auth guards or smaller screens.
-            </p>
+    <main className="dashboard-shell">
+      <aside className="dashboard-shell__sidebar">
+        <div className="dashboard-sidebar__brand">
+          <div className="dashboard-sidebar__brand-mark">W</div>
+          <div>
+            <strong>Wallet Platform</strong>
+            <span>BankDash-inspired shell</span>
           </div>
+        </div>
 
-          <div className="protected-shell__topbar-actions">
-            <nav
-              aria-label="Protected routes"
-              className="protected-shell__nav"
-            >
-              {PROTECTED_NAV_ITEMS.map((item) => (
-                <NavLink
-                  className={({ isActive }) => `protected-nav__link${isActive ? ' protected-nav__link--active' : ''}`}
-                  key={item.to}
-                  to={item.to}
-                >
-                  {item.label}
-                </NavLink>
-              ))}
-            </nav>
+        <nav
+          aria-label="Primary navigation"
+          className="dashboard-sidebar__nav"
+        >
+          {PROTECTED_NAV_ITEMS.map((item) => {
+            const isActive = item.to === ROUTE_PATHS.profile ? location.pathname === ROUTE_PATHS.profile : isSettingsRoute;
 
-            <div className="protected-shell__signout">
-              <button
-                className="connection-card__action connection-card__action--secondary"
-                onClick={() => void handleSignout()}
-                type="button"
+            return (
+              <NavLink
+                className={`dashboard-sidebar__link${isActive ? ' dashboard-sidebar__link--active' : ''}`}
+                key={item.to}
+                to={item.to}
               >
-                Sign out
-              </button>
+                <DashboardIcon name={item.icon} />
+                <span>{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+      </aside>
+
+      <section className="dashboard-shell__main">
+        <header className="dashboard-topbar">
+          <h1 className="dashboard-topbar__title">{topbarTitle}</h1>
+
+          <div className="dashboard-topbar__actions">
+            <label className="dashboard-search">
+              <DashboardIcon name="search" />
+              <input
+                aria-label="Search"
+                disabled
+                placeholder="Search for something"
+                type="text"
+              />
+            </label>
+
+            <button
+              aria-label="Notifications"
+              className="dashboard-topbar__icon-button"
+              type="button"
+            >
+              <DashboardIcon name="bell" />
+            </button>
+
+            <button
+              className="dashboard-signout"
+              onClick={() => void handleSignout()}
+              type="button"
+            >
+              <DashboardIcon name="logout" />
+              <span>Sign out</span>
+            </button>
+
+            <div
+              aria-label="Current user"
+              className="dashboard-avatar"
+            >
+              {avatarLabel}
             </div>
           </div>
         </header>
 
-        <div className="protected-shell__surface">
+        <div className="dashboard-shell__content">
           <Outlet />
         </div>
       </section>

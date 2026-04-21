@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useProfileApi } from '@/features/profile/api/use-profile-api';
@@ -7,9 +8,9 @@ import {
   useCurrentProfile,
 } from '@/features/profile/model/current-profile-store';
 import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
-import { ButtonLink } from '@/shared/ui/button-link';
-import { FormFeedback } from '@/shared/ui/form-feedback';
-import { SurfaceCard } from '@/shared/ui/surface-card';
+import { DashboardIcon } from '@/shared/ui/dashboard-icon';
+import { DashboardNotice } from '@/shared/ui/dashboard-notice';
+import { DashboardPanel } from '@/shared/ui/dashboard-panel';
 
 type ProfileLocationState = {
   flash?: 'profile-updated';
@@ -67,79 +68,102 @@ export function ProfilePage() {
   const showProfileUpdatedFeedback = locationState?.flash === 'profile-updated';
 
   return (
-    <section className="profile-screen">
+    <section className="dashboard-page">
       {showProfileUpdatedFeedback ? (
-        <FormFeedback
+        <DashboardNotice
           description="Profile changes were saved and are already reflected in the protected workspace."
-          state="success"
           title="Profile updated"
+          tone="success"
         />
       ) : null}
 
-      <SurfaceCard
-        className="profile-screen__hero"
-        eyebrow="Current profile"
-        title={profile ? `@${profile.username}` : 'Current profile'}
-        tone="accent"
+      <DashboardPanel
+        className="dashboard-home__hero"
+        description="A compact account overview styled like the Figma banking dashboard, but limited to the real data and flows already present in the product."
+        title={profile ? `Welcome back, ${profile.username}` : 'Preparing your workspace'}
       >
         {!profile && state.kind === 'loading' ? (
-          <FormFeedback
+          <DashboardNotice
             description="Loading current account details from users-service."
-            state="loading"
             title="Loading profile"
+            tone="info"
           />
         ) : null}
 
         {!profile && state.kind === 'error' ? (
-          <FormFeedback
+          <DashboardNotice
             description={state.message}
-            state="error"
             title="Profile is unavailable"
+            tone="error"
           />
         ) : null}
 
         {profile ? (
           <>
-            <p className="profile-screen__lead">
-              Read-only account overview for the authenticated user. Edit, password and deletion flows stay on
-              their dedicated routes.
-            </p>
-
-            <div className="metric-strip">
-              <div className="metric-item">
-                <strong>{profile.username}</strong>
-                <span>Username</span>
-              </div>
-              <div className="metric-item">
-                <strong>{typeof age === 'number' ? age : '—'}</strong>
-                <span>Age</span>
-              </div>
-              <div className="metric-item">
-                <strong>{dateOfBirth === 'Not specified' ? '—' : dateOfBirth}</strong>
-                <span>Date of birth</span>
-              </div>
+            <div className="dashboard-stat-grid">
+              <article className="dashboard-stat-card">
+                <div className="dashboard-stat-card__icon dashboard-stat-card__icon--blue">
+                  <DashboardIcon name="user" />
+                </div>
+                <div>
+                  <span className="dashboard-stat-card__label">Username</span>
+                  <strong>{profile.username}</strong>
+                </div>
+              </article>
+              <article className="dashboard-stat-card">
+                <div className="dashboard-stat-card__icon dashboard-stat-card__icon--yellow">
+                  <DashboardIcon name="mail" />
+                </div>
+                <div>
+                  <span className="dashboard-stat-card__label">Email</span>
+                  <strong>{profile.email}</strong>
+                </div>
+              </article>
+              <article className="dashboard-stat-card">
+                <div className="dashboard-stat-card__icon dashboard-stat-card__icon--pink">
+                  <DashboardIcon name="calendar" />
+                </div>
+                <div>
+                  <span className="dashboard-stat-card__label">Date of birth</span>
+                  <strong>{dateOfBirth === 'Not specified' ? 'Not set' : dateOfBirth}</strong>
+                </div>
+              </article>
+              <article className="dashboard-stat-card">
+                <div className="dashboard-stat-card__icon dashboard-stat-card__icon--teal">
+                  <DashboardIcon name="shield" />
+                </div>
+                <div>
+                  <span className="dashboard-stat-card__label">Age</span>
+                  <strong>{typeof age === 'number' ? age : 'Not set'}</strong>
+                </div>
+              </article>
             </div>
 
-            <div className="profile-screen__actions">
-              <ButtonLink to={ROUTE_PATHS.profileEdit}>Edit profile</ButtonLink>
-              <ButtonLink
-                to={ROUTE_PATHS.profilePassword}
-                variant="secondary"
+            <div className="dashboard-inline-actions">
+              <Link
+                className="dashboard-primary-button"
+                to={ROUTE_PATHS.profileEdit}
               >
-                Change password
-              </ButtonLink>
+                Open settings
+              </Link>
+              <Link
+                className="dashboard-secondary-button"
+                to={ROUTE_PATHS.profilePassword}
+              >
+                Security
+              </Link>
             </div>
           </>
         ) : null}
-      </SurfaceCard>
+      </DashboardPanel>
 
       {profile ? (
-        <div className="card-grid card-grid--two">
-          <SurfaceCard
-            eyebrow="Identity"
-            title="Private account details"
+        <div className="dashboard-grid dashboard-grid--two">
+          <DashboardPanel
+            description="The current authenticated user details coming from users-service."
+            title="Account details"
           >
-            <dl className="profile-screen__details">
+            <dl className="dashboard-detail-list">
               <div>
                 <dt>Username</dt>
                 <dd>{profile.username}</dd>
@@ -154,31 +178,31 @@ export function ProfilePage() {
               </div>
               <div>
                 <dt>Age</dt>
-                <dd>{typeof age === 'number' ? age : age}</dd>
+                <dd>{typeof age === 'number' ? age : 'Not specified'}</dd>
               </div>
             </dl>
-          </SurfaceCard>
+          </DashboardPanel>
 
-          <SurfaceCard
-            eyebrow="About"
-            title="Public-facing bio"
+          <DashboardPanel
+            description="About text and account actions stay grouped in one secondary panel."
+            title="Profile notes"
           >
-            <p className="profile-screen__about">{about}</p>
-            <div className="profile-screen__secondary-actions">
-              <ButtonLink
+            <p className="dashboard-copy-block">{about}</p>
+            <div className="dashboard-inline-actions">
+              <Link
+                className="dashboard-secondary-button"
                 to={ROUTE_PATHS.users}
-                variant="secondary"
               >
                 Open users
-              </ButtonLink>
-              <ButtonLink
+              </Link>
+              <Link
+                className="dashboard-secondary-button dashboard-secondary-button--danger"
                 to={ROUTE_PATHS.profileDelete}
-                variant="secondary"
               >
                 Delete account
-              </ButtonLink>
+              </Link>
             </div>
-          </SurfaceCard>
+          </DashboardPanel>
         </div>
       ) : null}
     </section>
