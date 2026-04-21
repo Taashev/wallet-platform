@@ -10,6 +10,7 @@ import {
   createSubmittingAuthFormStatus,
   type AuthFormStatus,
 } from '@/features/auth/model/auth-form-state';
+import { clearCurrentProfile } from '@/features/profile/model/current-profile-store';
 import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
 import { FormFeedback } from '@/shared/ui/form-feedback';
 import { FormField } from '@/shared/ui/form-field';
@@ -70,6 +71,7 @@ export function SignInPage() {
         password,
       });
 
+      clearCurrentProfile();
       authSession.saveSession(session);
       setStatus(createIdleAuthFormStatus());
       void navigate(redirectTarget, { replace: true });

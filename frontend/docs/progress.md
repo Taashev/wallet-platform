@@ -227,3 +227,18 @@
 **Заметки для следующей итерации:**
 - `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно
 - Локальный backend smoke подтвердил реальный `GET /v1/users/me`; текущий backend по умолчанию возвращает fallback-значения вроде `about: "Пока ничего не рассказал о себе"` и `dateOfBirth: "1970-01-01"`, поэтому UI следующих profile-задач должен учитывать, что часть данных может быть technically present, но по смыслу выглядеть как placeholder
+
+## Итерация 16 — 2026-04-21
+**Фича:** TASK-016 — экран редактирования профиля
+**Статус:** Завершено
+**Что сделано:**
+- `profile/edit` переведён с preview на реальную форму редактирования `username`, `email`, `about`, `dateOfBirth` поверх `PATCH /v1/users/me`
+- Добавлен небольшой shared current-profile store, чтобы после успешного сохранения обновлённые данные сразу отражались на `Profile` без ручного reload
+- На edit screen добавлены inline validation errors, form-level save error state и redirect обратно на `Profile` с success feedback после сохранения
+- Profile cache очищается вместе со сбросом auth-session, чтобы не протекали данные предыдущего пользователя между sign-in/sign-out и fail-closed refresh logout
+- Playwright e2e расширены сценариями успешного edit/save flow и отображения validation/save errors рядом с формой
+**Следующие шаги:**
+- Перейти к `TASK-017` и реализовать отдельный экран смены пароля с локальной валидацией и понятным success/error feedback
+**Заметки для следующей итерации:**
+- `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно
+- Для Playwright снова потребовался escalated local execution из-за sandbox-ограничения на локальный порт для Vite web server

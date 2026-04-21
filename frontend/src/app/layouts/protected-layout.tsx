@@ -3,6 +3,7 @@ import { AuthGuardStatus } from '@/app/layouts/auth-guard-status';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useAuthSession } from '@/app/providers/use-auth-session';
 import { useAuthApi } from '@/features/auth/api/use-auth-api';
+import { clearCurrentProfile } from '@/features/profile/model/current-profile-store';
 
 const PROTECTED_NAV_ITEMS = [
   { label: 'Profile', to: ROUTE_PATHS.profile },
@@ -39,6 +40,7 @@ export function ProtectedLayout() {
     try {
       await authApi.signout();
     } finally {
+      clearCurrentProfile();
       authSession.clearSession();
     }
   }

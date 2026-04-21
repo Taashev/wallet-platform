@@ -1,20 +1,30 @@
 import { useEffect, useState } from 'react';
-import type { CurrentUserProfile } from '@/entities/user/model/user';
+import { useLocation } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useProfileApi } from '@/features/profile/api/use-profile-api';
+import {
+  saveCurrentProfile,
+  useCurrentProfile,
+} from '@/features/profile/model/current-profile-store';
 import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
 import { ButtonLink } from '@/shared/ui/button-link';
 import { FormFeedback } from '@/shared/ui/form-feedback';
 import { SurfaceCard } from '@/shared/ui/surface-card';
 
+type ProfileLocationState = {
+  flash?: 'profile-updated';
+};
+
 export function ProfilePage() {
   const profileApi = useProfileApi();
-  const [profile, setProfile] = useState<CurrentUserProfile | null>(null);
+  const location = useLocation();
+  const locationState = location.state as ProfileLocationState | null;
+  const profile = useCurrentProfile();
   const [state, setState] = useState<
     | { kind: 'loading' }
     | { kind: 'ready' }
     | { kind: 'error'; message: string }
-  >({ kind: 'loading' });
+  >(profile ? { kind: 'ready' } : { kind: 'loading' });
 
   useEffect(() => {
     let isMounted = true;
@@ -29,7 +39,7 @@ export function ProfilePage() {
           return;
         }
 
-        setProfile(nextProfile);
+        saveCurrentProfile(nextProfile);
         setState({ kind: 'ready' });
       } catch (error) {
         if (!isMounted) {
@@ -54,20 +64,25 @@ export function ProfilePage() {
   const about = profile?.about ?? 'No bio added yet.';
   const dateOfBirth = profile?.dateOfBirth ?? 'Not specified';
   const age = profile?.age ?? 'Not specified';
+  const showProfileUpdatedFeedback = locationState?.flash === 'profile-updated';
 
   return (
     <section className="profile-screen">
+      {showProfileUpdatedFeedback ? (
+        <FormFeedback
+          description="Profile changes were saved and are already reflected in the protected workspace."
+          state="success"
+          title="Profile updated"
+        />
+      ) : null}
+
       <SurfaceCard
         className="profile-screen__hero"
         eyebrow="Current profile"
-        title={
-          state.kind === 'ready' && profile
-            ? `@${profile.username}`
-            : 'Current profile'
-        }
+        title={profile ? `@${profile.username}` : 'Current profile'}
         tone="accent"
       >
-        {state.kind === 'loading' ? (
+        {!profile && state.kind === 'loading' ? (
           <FormFeedback
             description="Loading current account details from users-service."
             state="loading"
@@ -75,7 +90,7 @@ export function ProfilePage() {
           />
         ) : null}
 
-        {state.kind === 'error' ? (
+        {!profile && state.kind === 'error' ? (
           <FormFeedback
             description={state.message}
             state="error"
@@ -83,7 +98,7 @@ export function ProfilePage() {
           />
         ) : null}
 
-        {state.kind === 'ready' && profile ? (
+        {profile ? (
           <>
             <p className="profile-screen__lead">
               Read-only account overview for the authenticated user. Edit, password and deletion flows stay on
@@ -118,7 +133,7 @@ export function ProfilePage() {
         ) : null}
       </SurfaceCard>
 
-      {state.kind === 'ready' && profile ? (
+      {profile ? (
         <div className="card-grid card-grid--two">
           <SurfaceCard
             eyebrow="Identity"

@@ -203,3 +203,126 @@ test('profile route renders loading result and recoverable error state for curre
     page.getByText('Profile is unavailable'),
   ).toBeVisible();
 });
+
+test('profile edit saves changes and updates profile screen without a manual reload', async ({ page }) => {
+  let currentProfileResponse = {
+    ...CURRENT_PROFILE_RESPONSE,
+  };
+
+  await page.route('**/v1/auth/signin', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accessToken: 'signin-access-token',
+        refreshToken: 'signin-refresh-token',
+      }),
+    });
+  });
+  await page.route('**/v1/users/me', async (route, request) => {
+    if (request.method() === 'PATCH') {
+      const payload = request.postDataJSON() as {
+        username: string;
+        email: string;
+        about: string;
+        dateOfBirth: string;
+      };
+      currentProfileResponse = {
+        ...currentProfileResponse,
+        username: payload.username,
+        email: payload.email,
+        about: payload.about || null,
+        dateOfBirth: payload.dateOfBirth || null,
+      };
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(currentProfileResponse),
+      });
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(currentProfileResponse),
+    });
+  });
+
+  await page.goto('/sign-in');
+  await page.getByLabel('Username *').fill('existing-user');
+  await page.getByLabel('Password *').fill('strong-password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await expect(page).toHaveURL(/\/profile$/);
+  await page.getByRole('link', { name: 'Edit profile' }).click();
+
+  await expect(page).toHaveURL(/\/profile\/edit$/);
+  await page.getByLabel('Username *').fill('anna-updated');
+  await page.getByLabel('Email *').fill('anna-updated@example.com');
+  await page.getByLabel('About').fill('Updated from the edit screen');
+  await page.getByLabel('Date of birth').fill('2000-01-02');
+  await page.getByRole('button', { name: 'Save changes' }).click();
+
+  await expect(page).toHaveURL(/\/profile$/);
+  await expect(page.getByText('Profile updated')).toBeVisible();
+  await expect(page.getByRole('heading', { name: '@anna-updated' })).toBeVisible();
+  await expect(page.getByText('anna-updated@example.com')).toBeVisible();
+  await expect(page.getByText('Updated from the edit screen')).toBeVisible();
+  await expect(page.getByRole('definition').filter({ hasText: '2000-01-02' })).toBeVisible();
+});
+
+test('profile edit shows validation and save errors next to the form', async ({ page }) => {
+  await page.route('**/v1/auth/signin', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accessToken: 'signin-access-token',
+        refreshToken: 'signin-refresh-token',
+      }),
+    });
+  });
+  await page.route('**/v1/users/me', async (route, request) => {
+    if (request.method() === 'PATCH') {
+      await route.fulfill({
+        status: 409,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          message: 'Conflict',
+        }),
+      });
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(CURRENT_PROFILE_RESPONSE),
+    });
+  });
+
+  await page.goto('/sign-in');
+  await page.getByLabel('Username *').fill('existing-user');
+  await page.getByLabel('Password *').fill('strong-password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await expect(page).toHaveURL(/\/profile$/);
+  await page.getByRole('link', { name: 'Edit profile' }).click();
+
+  await expect(page).toHaveURL(/\/profile\/edit$/);
+  await page.getByLabel('Username *').fill('');
+  await page.getByLabel('Email *').fill('not-an-email');
+  await page.getByRole('button', { name: 'Save changes' }).click();
+
+  await expect(page.getByText('Username is required.')).toBeVisible();
+  await expect(page.getByText('Enter a valid email address.')).toBeVisible();
+
+  await page.getByLabel('Username *').fill('anna');
+  await page.getByLabel('Email *').fill('anna@example.com');
+  await page.getByRole('button', { name: 'Save changes' }).click();
+
+  await expect(page.getByText('Profile was not saved')).toBeVisible();
+  await expect(page.getByText('Request conflicts with existing users-service data.')).toBeVisible();
+});

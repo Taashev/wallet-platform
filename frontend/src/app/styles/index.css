@@ -613,6 +613,11 @@ img {
   .cta-panel__actions {
     display: grid;
   }
+
+  .profile-edit-screen__intro {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -843,8 +848,30 @@ img {
   gap: var(--space-lg);
 }
 
+.profile-edit-screen {
+  display: grid;
+}
+
 .profile-screen__hero {
   gap: 1.25rem;
+}
+
+.profile-edit-screen .surface-card__body {
+  gap: 1.25rem;
+}
+
+.profile-edit-screen__intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.profile-edit-screen__intro p {
+  margin: 0;
+  max-width: 54ch;
+  color: var(--color-muted);
 }
 
 .profile-screen__lead {

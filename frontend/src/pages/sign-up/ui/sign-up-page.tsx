@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/app/router/route-paths';
 import { useAuthSession } from '@/app/providers/use-auth-session';
 import { useAuthApi } from '@/features/auth/api/use-auth-api';
+import { clearCurrentProfile } from '@/features/profile/model/current-profile-store';
 import { normalizeUsersServiceError } from '@/shared/api/users-service-error';
 import { FormFeedback } from '@/shared/ui/form-feedback';
 import { FormField } from '@/shared/ui/form-field';
@@ -67,6 +68,7 @@ export function SignUpPage() {
         password,
       });
 
+      clearCurrentProfile();
       authSession.saveSession(session);
       void navigate(ROUTE_PATHS.profile, { replace: true });
     } catch (error) {

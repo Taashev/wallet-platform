@@ -1,5 +1,6 @@
 import type { AuthSessionStore } from '@/entities/auth/model/auth-session-store';
 import type { AuthApi } from '@/features/auth/api/auth-api';
+import { clearCurrentProfile } from '@/features/profile/model/current-profile-store';
 import type { RetryContext } from '@/shared/api/http-client';
 
 const AUTH_ROUTE_PREFIX = 'v1/auth/';
@@ -28,6 +29,7 @@ export function createRefreshSessionOrchestrator({
     const session = authSessionStore.getSession();
 
     if (!session) {
+      clearCurrentProfile();
       authSessionStore.clearSession();
       const failedRefreshPromise = Promise.resolve(false);
       latestRefreshPromise = failedRefreshPromise;
@@ -42,6 +44,7 @@ export function createRefreshSessionOrchestrator({
         authSessionStore.saveSession(nextSession);
         return true;
       } catch {
+        clearCurrentProfile();
         authSessionStore.clearSession();
         return false;
       }
