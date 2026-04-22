@@ -115,6 +115,58 @@ test('sign-up route creates account and authenticates the new user', async ({ pa
   await expect(page.getByText('anna')).toBeVisible();
 });
 
+test('auth form supports keyboard-only submit and disables controls while sign-in is pending', async ({ page }) => {
+  let releaseSignInRequest: (() => void) | null = null;
+  const signInRequestGate = new Promise<void>((resolve) => {
+    releaseSignInRequest = resolve;
+  });
+
+  await page.route('**/v1/auth/signin', async (route) => {
+    await signInRequestGate;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accessToken: 'signin-access-token',
+        refreshToken: 'signin-refresh-token',
+      }),
+    });
+  });
+  await mockUsersDirectory(page);
+  await page.route('**/v1/users/me', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(CURRENT_PROFILE_RESPONSE),
+    });
+  });
+
+  await page.goto('/sign-in');
+
+  const signInPane = getSignInPane(page);
+  const usernameField = signInPane.getByLabel('Username *');
+  const passwordField = signInPane.getByLabel('Password *');
+
+  await expect(usernameField).toBeFocused();
+  await page.keyboard.type('existing-user');
+  await page.keyboard.press('Tab');
+  await expect(passwordField).toBeFocused();
+  await page.keyboard.type('strong-password');
+  await page.keyboard.press('Tab');
+  await expect(signInPane.getByRole('button', { name: 'Show password' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(signInPane.getByRole('button', { name: 'Sign in' })).toBeFocused();
+  await page.keyboard.press('Enter');
+
+  await expect(usernameField).toBeDisabled();
+  await expect(passwordField).toBeDisabled();
+  await expect(signInPane.getByRole('button', { name: 'Signing in…' })).toBeDisabled();
+
+  releaseSignInRequest?.();
+
+  await expect(page).toHaveURL(/\/$/);
+});
+
 test('home route shows paginated user cards and search narrows the protected list', async ({
   page,
 }) => {
@@ -232,6 +284,9 @@ test('protected layout exposes home and settings navigation, and sign-out lives 
 
   await expect(page.getByRole('link', { name: 'Home', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Settings', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Edit profile', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Security', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Delete account', exact: true })).toBeVisible();
 });
 
 test('profile route retries after a recoverable current-user error without reloading the app', async ({ page }) => {
@@ -384,7 +439,7 @@ test('profile edit saves changes and updates the home screen without a manual re
   await page.getByLabel('Email *').fill('anna-updated@example.com');
   await page.getByLabel('About').fill('Updated from the edit screen');
   await page.getByLabel('Date of Birth').fill('2000-01-02');
-  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('button', { name: 'Save changes' }).click();
 
   await expect(page).toHaveURL(/\/profile\/edit$/);
   await expect(page.getByText('Profile saved')).toBeVisible();
@@ -447,14 +502,14 @@ test('profile edit shows validation and save errors next to the form', async ({ 
   await expect(page).toHaveURL(/\/profile\/edit$/);
   await page.getByLabel('User Name *').fill('');
   await page.getByLabel('Email *').fill('not-an-email');
-  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('button', { name: 'Save changes' }).click();
 
   await expect(page.getByText('Username is required.')).toBeVisible();
   await expect(page.getByText('Enter a valid email address.')).toBeVisible();
 
   await page.getByLabel('User Name *').fill('anna');
   await page.getByLabel('Email *').fill('anna@example.com');
-  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('button', { name: 'Save changes' }).click();
 
   await expect(page.getByText('Profile was not saved')).toBeVisible();
   await expect(page.getByText('Request conflicts with existing users-service data.')).toBeVisible();
@@ -539,7 +594,7 @@ test('security tab updates the password and the next sign-in only accepts the ne
   await expect(page).toHaveURL(/\/profile\/password$/);
   await page.getByLabel('Current Password *').fill('strong-password');
   await page.getByLabel('New Password *').fill('stronger-password');
-  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('button', { name: 'Save new password' }).click();
 
   await expect(page.getByText('Password updated')).toBeVisible();
   await page.getByRole('button', { name: 'Sign out' }).click();

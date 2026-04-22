@@ -75,6 +75,28 @@ export function ProfileEditPage() {
   const [isLoading, setIsLoading] = useState(profile === null);
   const [isSaving, setIsSaving] = useState(false);
 
+  function handleFieldChange(field: keyof EditProfileFormValues, value: string) {
+    setFormValues((current) => ({
+      ...current,
+      [field]: value,
+    }));
+
+    if (fieldErrors[field]) {
+      setFieldErrors((current) => ({
+        ...current,
+        [field]: undefined,
+      }));
+    }
+
+    if (saveError) {
+      setSaveError(null);
+    }
+
+    if (saveSuccess) {
+      setSaveSuccess(null);
+    }
+  }
+
   useEffect(() => {
     if (profile) {
       setFormValues(createFormValuesFromProfile(profile));
@@ -182,6 +204,7 @@ export function ProfileEditPage() {
             </aside>
 
             <form
+              aria-busy={isSaving}
               className="dashboard-form"
               noValidate
               onSubmit={(submitEvent) => void handleSubmit(submitEvent)}
@@ -205,64 +228,55 @@ export function ProfileEditPage() {
                 <DashboardField
                   disabled={isSaving}
                   error={fieldErrors.username}
+                  hint="Shown across the protected workspace and users directory."
                   inputProps={{
+                    autoComplete: 'username',
                     placeholder: 'Visible username',
                     type: 'text',
                   }}
                   label="User Name"
                   name="edit-profile-username-secondary"
-                  onChange={(event) =>
-                    setFormValues((current) => ({
-                      ...current,
-                      username: event.target.value,
-                    }))}
+                  onChange={(event) => handleFieldChange('username', event.target.value)}
                   required
                   value={formValues.username}
                 />
                 <DashboardField
                   disabled={isSaving}
                   error={fieldErrors.email}
+                  hint="Used for account communication and sign-in recovery."
                   inputProps={{
+                    autoComplete: 'email',
                     placeholder: 'name@example.com',
                     type: 'email',
                   }}
                   label="Email"
                   name="edit-profile-email"
-                  onChange={(event) =>
-                    setFormValues((current) => ({
-                      ...current,
-                      email: event.target.value,
-                    }))}
+                  onChange={(event) => handleFieldChange('email', event.target.value)}
                   required
                   value={formValues.email}
                 />
                 <DashboardField
                   disabled={isSaving}
                   error={fieldErrors.dateOfBirth}
+                  hint="Optional. Keep this empty if you do not want to share it."
                   inputProps={{
+                    autoComplete: 'bday',
                     type: 'date',
                   }}
                   label="Date of Birth"
                   name="edit-profile-date-of-birth"
-                  onChange={(event) =>
-                    setFormValues((current) => ({
-                      ...current,
-                      dateOfBirth: event.target.value,
-                    }))}
+                  onChange={(event) => handleFieldChange('dateOfBirth', event.target.value)}
                   value={formValues.dateOfBirth}
                 />
               </div>
 
               <DashboardField
                 disabled={isSaving}
+                hint="Optional short bio shown on your profile screen."
                 label="About"
                 multiline
                 name="edit-profile-about"
-                onChange={(event) =>
-                  setFormValues((current) => ({
-                    ...current,
-                    about: event.target.value,
-                  }))}
+                onChange={(event) => handleFieldChange('about', event.target.value)}
                 textareaProps={{
                   placeholder: 'Tell other users a little about yourself',
                   rows: 5,
@@ -276,7 +290,7 @@ export function ProfileEditPage() {
                   disabled={isSaving}
                   type="submit"
                 >
-                  {isSaving ? 'Saving…' : 'Save'}
+                  {isSaving ? 'Saving changes…' : 'Save changes'}
                 </button>
               </div>
             </form>

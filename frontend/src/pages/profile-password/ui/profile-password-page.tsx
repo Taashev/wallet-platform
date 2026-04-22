@@ -22,6 +22,24 @@ export function ProfilePasswordPage() {
     description?: string;
   }>({ kind: 'idle' });
 
+  function handlePasswordChange(field: 'oldPassword' | 'newPassword', value: string) {
+    if (field === 'oldPassword') {
+      setOldPassword(value);
+    }
+
+    if (field === 'newPassword') {
+      setNewPassword(value);
+    }
+
+    if (fieldErrors[field]) {
+      setFieldErrors((current) => ({ ...current, [field]: undefined }));
+    }
+
+    if (status.kind === 'error' || status.kind === 'success') {
+      setStatus({ kind: 'idle' });
+    }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -85,6 +103,7 @@ export function ProfilePasswordPage() {
 
         <div className="settings-layout settings-layout--security">
           <form
+            aria-busy={status.kind === 'submitting'}
             className="dashboard-form"
             noValidate
             onSubmit={(event) => void handleSubmit(event)}
@@ -107,14 +126,16 @@ export function ProfilePasswordPage() {
               <DashboardField
                 disabled={status.kind === 'submitting'}
                 error={fieldErrors.oldPassword}
+                hint="Enter the password you use right now."
                 inputProps={{
                   autoComplete: 'current-password',
+                  autoFocus: true,
                   placeholder: 'Enter current password',
                   type: 'password',
                 }}
                 label="Current Password"
                 name="current-password"
-                onChange={(event) => setOldPassword(event.target.value)}
+                onChange={(event) => handlePasswordChange('oldPassword', event.target.value)}
                 required
                 value={oldPassword}
               />
@@ -129,7 +150,7 @@ export function ProfilePasswordPage() {
                 }}
                 label="New Password"
                 name="new-password"
-                onChange={(event) => setNewPassword(event.target.value)}
+                onChange={(event) => handlePasswordChange('newPassword', event.target.value)}
                 required
                 value={newPassword}
               />
@@ -141,7 +162,7 @@ export function ProfilePasswordPage() {
                 disabled={status.kind === 'submitting'}
                 type="submit"
               >
-                {status.kind === 'submitting' ? 'Saving…' : 'Save'}
+                {status.kind === 'submitting' ? 'Saving new password…' : 'Save new password'}
               </button>
             </div>
           </form>

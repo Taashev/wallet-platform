@@ -28,6 +28,28 @@ export function SignUpPage() {
 		password?: string;
 	}>({});
 
+	function handleFieldChange(field: 'username' | 'email' | 'password', value: string) {
+		if (field === 'username') {
+			setUsername(value);
+		}
+
+		if (field === 'email') {
+			setEmail(value);
+		}
+
+		if (field === 'password') {
+			setPassword(value);
+		}
+
+		if (fieldErrors[field]) {
+			setFieldErrors((current) => ({ ...current, [field]: undefined }));
+		}
+
+		if (status.kind === 'error') {
+			setStatus({ kind: 'idle' });
+		}
+	}
+
 	async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 
@@ -79,7 +101,12 @@ export function SignUpPage() {
 	return (
 		<section className='auth-page'>
 			<DashboardPanel className='auth-form-panel' title='Sign up'>
-				<form className='dashboard-form' noValidate onSubmit={(event) => void handleSubmit(event)}>
+				<form
+					aria-busy={status.kind === 'submitting'}
+					className='dashboard-form'
+					noValidate
+					onSubmit={(event) => void handleSubmit(event)}
+				>
 					{status.kind !== 'idle' ? (
 						<DashboardNotice
 							description={status.description!}
@@ -92,20 +119,23 @@ export function SignUpPage() {
 						<DashboardField
 							disabled={status.kind === 'submitting'}
 							error={fieldErrors.username}
+							hint='This name will be visible in the protected users directory.'
 							inputProps={{
 								autoComplete: 'username',
+								autoFocus: true,
 								placeholder: 'Choose a username',
 								type: 'text',
 							}}
 							label='Username'
 							name='registration-username'
-							onChange={(event) => setUsername(event.target.value)}
+							onChange={(event) => handleFieldChange('username', event.target.value)}
 							required
 							value={username}
 						/>
 						<DashboardField
 							disabled={status.kind === 'submitting'}
 							error={fieldErrors.email}
+							hint='Use an address you can recognize later in Settings.'
 							inputProps={{
 								autoComplete: 'email',
 								placeholder: 'name@example.com',
@@ -113,13 +143,14 @@ export function SignUpPage() {
 							}}
 							label='Email'
 							name='registration-email'
-							onChange={(event) => setEmail(event.target.value)}
+							onChange={(event) => handleFieldChange('email', event.target.value)}
 							required
 							value={email}
 						/>
 						<DashboardField
 							disabled={status.kind === 'submitting'}
 							error={fieldErrors.password}
+							hint='Use at least 8 characters.'
 							inputProps={{
 								autoComplete: 'new-password',
 								placeholder: 'Create a password',
@@ -127,7 +158,7 @@ export function SignUpPage() {
 							}}
 							label='Password'
 							name='registration-password'
-							onChange={(event) => setPassword(event.target.value)}
+							onChange={(event) => handleFieldChange('password', event.target.value)}
 							required
 							value={password}
 						/>

@@ -15,6 +15,7 @@ export function DashboardNotice({
 }: DashboardNoticeProps) {
   return (
     <section
+      aria-live={tone === 'error' ? 'assertive' : 'polite'}
       className={`dashboard-notice dashboard-notice--${tone}`}
       role={tone === 'error' ? 'alert' : 'status'}
     >

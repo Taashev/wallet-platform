@@ -50,6 +50,30 @@ export function SignInPage() {
 		void navigate(ROUTE_PATHS.signIn, { replace: true, state: null });
 	}, [isPostLogoutRedirect, location.state, navigate]);
 
+	function handleUsernameChange(nextValue: string) {
+		setUsername(nextValue);
+
+		if (fieldErrors.username) {
+			setFieldErrors((current) => ({ ...current, username: undefined }));
+		}
+
+		if (status.kind === 'error') {
+			setStatus(createIdleAuthFormStatus());
+		}
+	}
+
+	function handlePasswordChange(nextValue: string) {
+		setPassword(nextValue);
+
+		if (fieldErrors.password) {
+			setFieldErrors((current) => ({ ...current, password: undefined }));
+		}
+
+		if (status.kind === 'error') {
+			setStatus(createIdleAuthFormStatus());
+		}
+	}
+
 	async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 
@@ -101,7 +125,12 @@ export function SignInPage() {
 	return (
 		<section className='auth-page'>
 			<DashboardPanel className='auth-form-panel' title='Sign in'>
-				<form className='dashboard-form' noValidate onSubmit={(event) => void handleSubmit(event)}>
+				<form
+					aria-busy={status.kind === 'submitting'}
+					className='dashboard-form'
+					noValidate
+					onSubmit={(event) => void handleSubmit(event)}
+				>
 					{status.kind !== 'idle' ? (
 						<DashboardNotice
 							description={status.description}
@@ -114,20 +143,23 @@ export function SignInPage() {
 						<DashboardField
 							disabled={status.kind === 'submitting'}
 							error={fieldErrors.username}
+							hint='Use the username attached to your wallet profile.'
 							inputProps={{
 								autoComplete: 'username',
+								autoFocus: true,
 								placeholder: 'Enter your username',
 								type: 'text',
 							}}
 							label='Username'
 							name='username'
-							onChange={(event) => setUsername(event.target.value)}
+							onChange={(event) => handleUsernameChange(event.target.value)}
 							required
 							value={username}
 						/>
 						<DashboardField
 							disabled={status.kind === 'submitting'}
 							error={fieldErrors.password}
+							hint='Password is case-sensitive.'
 							inputProps={{
 								autoComplete: 'current-password',
 								placeholder: 'Enter your password',
@@ -135,7 +167,7 @@ export function SignInPage() {
 							}}
 							label='Password'
 							name='password'
-							onChange={(event) => setPassword(event.target.value)}
+							onChange={(event) => handlePasswordChange(event.target.value)}
 							required
 							value={password}
 						/>

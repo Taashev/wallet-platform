@@ -34,6 +34,7 @@ export function UsersPage() {
   const [retryNonce, setRetryNonce] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [state, setState] = useState<UsersDirectoryState>({ kind: 'loading' });
+  const isDirectoryBusy = isLoading;
 
   useEffect(() => {
     let isMounted = true;
@@ -104,35 +105,44 @@ export function UsersPage() {
     <section className="dashboard-page">
       <DashboardPanel className="users-directory">
         <form
+          aria-busy={isDirectoryBusy}
           className="users-directory__toolbar"
           noValidate
           onSubmit={handleSearchSubmit}
         >
-          <DashboardField
-            inputProps={{
-              autoComplete: 'off',
-              placeholder: 'Search by username',
-              type: 'text',
-            }}
-            label="Search"
-            name="users-directory-search"
-            onChange={(event) => setSearchDraft(event.target.value)}
-            value={searchDraft}
-          />
-          <div className="users-directory__toolbar-actions">
-            <button
-              className="dashboard-primary-button"
-              type="submit"
-            >
-              Search
-            </button>
-            <button
-              className="dashboard-secondary-button"
-              onClick={handleResetFilter}
-              type="button"
-            >
-              Reset
-            </button>
+          <div className="users-directory__toolbar-main">
+            <DashboardField
+              disabled={isDirectoryBusy}
+              inputProps={{
+                autoComplete: 'off',
+                placeholder: 'Search by username',
+                type: 'search',
+              }}
+              label="Search"
+              name="users-directory-search"
+              onChange={(event) => setSearchDraft(event.target.value)}
+              value={searchDraft}
+            />
+            <div className="users-directory__toolbar-actions">
+              <button
+                className="dashboard-primary-button"
+                disabled={isDirectoryBusy}
+                type="submit"
+              >
+                {isDirectoryBusy ? 'Updating…' : 'Search'}
+              </button>
+              <button
+                className="dashboard-secondary-button"
+                disabled={
+                  isDirectoryBusy ||
+                  (searchDraft.length === 0 && activeUsernameFilter.length === 0 && offset === 0)
+                }
+                onClick={handleResetFilter}
+                type="button"
+              >
+                Reset
+              </button>
+            </div>
           </div>
         </form>
 
@@ -140,6 +150,14 @@ export function UsersPage() {
           <DashboardNotice
             description="Loading the next protected directory slice from users-service."
             title="Loading users"
+            tone="info"
+          />
+        ) : null}
+
+        {isLoading && state.kind === 'ready' ? (
+          <DashboardNotice
+            description="Refreshing the directory while keeping the current results visible."
+            title="Updating users"
             tone="info"
           />
         ) : null}
@@ -191,7 +209,7 @@ export function UsersPage() {
               <div className="users-directory__pagination">
                 <button
                   className="dashboard-secondary-button"
-                  disabled={!canGoToPreviousPage}
+                  disabled={isDirectoryBusy || !canGoToPreviousPage}
                   onClick={(event) => {
                     event.currentTarget.blur();
                     setOffset((currentOffset) =>
@@ -205,7 +223,7 @@ export function UsersPage() {
                 <span>{`Page ${currentPage} of ${totalPages}`}</span>
                 <button
                   className="dashboard-secondary-button"
-                  disabled={!canGoToNextPage}
+                  disabled={isDirectoryBusy || !canGoToNextPage}
                   onClick={(event) => {
                     event.currentTarget.blur();
                     setOffset(

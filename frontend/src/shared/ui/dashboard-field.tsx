@@ -74,6 +74,7 @@ export function DashboardField(props: DashboardFieldProps) {
         <textarea
           {...props.textareaProps}
           aria-describedby={describedBy}
+          aria-errormessage={errorId}
           aria-invalid={Boolean(error)}
           className="dashboard-field__control dashboard-field__control--textarea"
           disabled={disabled}
@@ -88,6 +89,7 @@ export function DashboardField(props: DashboardFieldProps) {
           <input
             {...props.inputProps}
             aria-describedby={describedBy}
+            aria-errormessage={errorId}
             aria-invalid={Boolean(error)}
             className="dashboard-field__control"
             disabled={disabled}
