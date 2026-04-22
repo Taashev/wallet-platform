@@ -6,23 +6,19 @@ import { ProfileDeletePage } from '@/pages/profile-delete';
 import { ProfileEditPage } from '@/pages/profile-edit';
 import { ProfilePasswordPage } from '@/pages/profile-password';
 import { ProfilePage } from '@/pages/profile';
-import { SignInPage } from '@/pages/sign-in';
-import { SignUpPage } from '@/pages/sign-up';
 import { UsersPage } from '@/pages/users';
 
 export function AppRouter() {
   return (
     <Routes>
-      <Route element={<PublicLayout />}>
-        <Route
-          element={<SignInPage />}
-          path={ROUTE_PATHS.signIn}
-        />
-        <Route
-          element={<SignUpPage />}
-          path={ROUTE_PATHS.signUp}
-        />
-      </Route>
+      <Route
+        element={<PublicLayout />}
+        path={ROUTE_PATHS.signIn}
+      />
+      <Route
+        element={<PublicLayout />}
+        path={ROUTE_PATHS.signUp}
+      />
 
       <Route element={<ProtectedLayout />}>
         <Route
