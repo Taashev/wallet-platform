@@ -31,6 +31,7 @@ export function UsersPage() {
   const [searchDraft, setSearchDraft] = useState('');
   const [activeUsernameFilter, setActiveUsernameFilter] = useState('');
   const [offset, setOffset] = useState(0);
+  const [retryNonce, setRetryNonce] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [state, setState] = useState<UsersDirectoryState>({ kind: 'loading' });
 
@@ -78,7 +79,7 @@ export function UsersPage() {
     return () => {
       isMounted = false;
     };
-  }, [activeUsernameFilter, offset, usersDirectoryApi]);
+  }, [activeUsernameFilter, offset, retryNonce, usersDirectoryApi]);
 
   const totalUsers = state.kind === 'ready' ? state.total : 0;
   const totalPages = Math.max(1, Math.ceil(totalUsers / USERS_DIRECTORY_PAGE_SIZE));
@@ -145,6 +146,15 @@ export function UsersPage() {
 
         {state.kind === 'error' ? (
           <DashboardNotice
+            actions={(
+              <button
+                className="dashboard-secondary-button"
+                onClick={() => setRetryNonce((value) => value + 1)}
+                type="button"
+              >
+                Retry request
+              </button>
+            )}
             description={state.message}
             title="Users list is unavailable"
             tone="error"

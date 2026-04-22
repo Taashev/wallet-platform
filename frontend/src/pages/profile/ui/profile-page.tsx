@@ -21,6 +21,7 @@ export function ProfilePage() {
   const location = useLocation();
   const locationState = location.state as ProfileLocationState | null;
   const profile = useCurrentProfile();
+  const [retryNonce, setRetryNonce] = useState(0);
   const [state, setState] = useState<
     | { kind: 'loading' }
     | { kind: 'ready' }
@@ -60,7 +61,7 @@ export function ProfilePage() {
     return () => {
       isMounted = false;
     };
-  }, [profileApi]);
+  }, [profileApi, retryNonce]);
 
   const about = profile?.about ?? 'No bio added yet.';
   const dateOfBirth = profile?.dateOfBirth ?? 'Not specified';
@@ -90,10 +91,19 @@ export function ProfilePage() {
           />
         ) : null}
 
-        {!profile && state.kind === 'error' ? (
+        {state.kind === 'error' ? (
           <DashboardNotice
+            actions={(
+              <button
+                className="dashboard-secondary-button"
+                onClick={() => setRetryNonce((value) => value + 1)}
+                type="button"
+              >
+                Retry request
+              </button>
+            )}
             description={state.message}
-            title="Profile is unavailable"
+            title={profile ? 'Profile refresh failed' : 'Profile is unavailable'}
             tone="error"
           />
         ) : null}

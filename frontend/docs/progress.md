@@ -301,3 +301,17 @@
 **Заметки для следующей итерации:**
 - `npm run lint`, `npm run build` и `npm run test:e2e` прошли успешно
 - Текущее API не даёт server-side random sort, поэтому default list показывает обычную backend pagination slice без искусственной клиентской рандомизации
+
+## Итерация 21 — 2026-04-22
+**Фича:** TASK-021 — recoverable retry-state для query-экранов
+**Статус:** Завершено
+**Что сделано:**
+- `DashboardNotice` расширен action-slot, чтобы error-state мог показывать повторную попытку без локальной разметки-копипаста на каждом экране
+- На `Profile` добавлен recoverable error banner с `Retry request`, который повторно вызывает `GET /v1/users/me` без полной перезагрузки приложения
+- На `Users` добавлен такой же retry-flow для directory query, чтобы временная недоступность backend не приводила к тупику и hard reload
+- Playwright e2e дополнены двумя browser-сценариями: `Profile retry after 503` и `Users retry after 503`, где временная ошибка снимается и данные успешно догружаются после нажатия retry
+**Следующие шаги:**
+- Перейти к `TASK-022` и провести UI-hardening форм и ключевых экранов по accessibility, focus и responsive-полировке
+**Заметки для следующей итерации:**
+- `npm run check` и `npm run test:e2e` прошли успешно
+- Для e2e retry-кейсов пришлось стабилизировать не тексты ошибок backend, а сам пользовательский flow: запросы мокируются в режиме `fail-until-toggle`, чтобы тестировать именно recoverable state, который видит пользователь

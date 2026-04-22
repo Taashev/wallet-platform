@@ -234,7 +234,9 @@ test('protected layout exposes home and settings navigation, and sign-out lives 
   await expect(page.getByRole('link', { name: 'Settings', exact: true })).toBeVisible();
 });
 
-test('profile route renders loading result and recoverable error state for current user fetch', async ({ page }) => {
+test('profile route retries after a recoverable current-user error without reloading the app', async ({ page }) => {
+  let allowProfileSuccess = false;
+
   await page.route('**/v1/auth/signin', async (route) => {
     await route.fulfill({
       status: 200,
@@ -247,12 +249,21 @@ test('profile route renders loading result and recoverable error state for curre
   });
   await mockUsersDirectory(page);
   await page.route('**/v1/users/me', async (route) => {
+    if (!allowProfileSuccess) {
+      await route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          message: 'Service unavailable',
+        }),
+      });
+      return;
+    }
+
     await route.fulfill({
-      status: 503,
+      status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({
-        message: 'Service unavailable',
-      }),
+      body: JSON.stringify(CURRENT_PROFILE_RESPONSE),
     });
   });
 
@@ -262,6 +273,57 @@ test('profile route renders loading result and recoverable error state for curre
 
   await expect(page).toHaveURL(/\/profile$/);
   await expect(page.getByText('Profile is unavailable')).toBeVisible();
+  allowProfileSuccess = true;
+  await page.getByRole('button', { name: 'Retry request' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Welcome back, anna' }),
+  ).toBeVisible();
+});
+
+test('users route retries after a recoverable directory error without reloading the app', async ({ page }) => {
+  let allowUsersSuccess = false;
+
+  await page.route('**/v1/auth/signin', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        accessToken: 'signin-access-token',
+        refreshToken: 'signin-refresh-token',
+      }),
+    });
+  });
+  await page.route(/\/v1\/users(\?.*)?$/, async (route) => {
+    if (!allowUsersSuccess) {
+      await route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          message: 'Service unavailable',
+        }),
+      });
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        users: DIRECTORY_USERS.slice(0, 12),
+        total: DIRECTORY_USERS.length,
+      }),
+    });
+  });
+
+  await page.goto('/users');
+  await expect(page).toHaveURL(/\/sign-in$/);
+  await signIn(page);
+
+  await expect(page).toHaveURL(/\/users$/);
+  await expect(page.getByText('Users list is unavailable')).toBeVisible();
+  allowUsersSuccess = true;
+  await page.getByRole('button', { name: 'Retry request' }).click();
+  await expect(page.getByText('user-12')).toBeVisible();
 });
 
 test('profile edit saves changes and updates the home screen without a manual reload', async ({ page }) => {

@@ -1,13 +1,17 @@
+import type { ReactNode } from 'react';
+
 type DashboardNoticeProps = {
   title: string;
   description: string;
   tone: 'info' | 'success' | 'error';
+  actions?: ReactNode;
 };
 
 export function DashboardNotice({
   title,
   description,
   tone,
+  actions,
 }: DashboardNoticeProps) {
   return (
     <section
@@ -16,6 +20,7 @@ export function DashboardNotice({
     >
       <strong>{title}</strong>
       <p>{description}</p>
+      {actions ? <div className="dashboard-notice__actions">{actions}</div> : null}
     </section>
   );
 }

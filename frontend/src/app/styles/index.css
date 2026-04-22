@@ -2037,6 +2037,13 @@ img {
   margin: 0;
 }
 
+.dashboard-notice__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+}
+
 .dashboard-notice--info {
   background: #edf9f6;
   border-color: #cdeee7;
