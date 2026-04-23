@@ -1,98 +1,161 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# users-service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+`users-service` — backend-сервис на `NestJS`, который отвечает за регистрацию, аутентификацию, сессии и управление профилем пользователя в проекте `Wallet Platform`.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Сервис использует:
 
-## Description
+- `NestJS 11`
+- `TypeORM`
+- `PostgreSQL`
+- `Swagger`
+- `JWT access/refresh tokens`
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Что умеет сервис
 
-## Project setup
+- регистрация пользователя;
+- вход по `username` и `password`;
+- обновление пары `accessToken` / `refreshToken`;
+- выход из текущей сессии;
+- получение текущего профиля;
+- обновление профиля;
+- смена пароля;
+- мягкое удаление текущего пользователя;
+- получение списка пользователей с пагинацией и фильтром по `username`.
 
-```bash
-$ npm install
+## Требования
+
+- `Node.js` 24.13.1;
+- `npm` 11.8.0;
+- `Docker` и `Docker Compose` для локального запуска PostgreSQL.
+
+## Переменные окружения
+
+Сервис читает конфигурацию из файла `.env` в корне `users-service`.
+
+Обязательные переменные:
+
+```env
+NODE_ENV=development
+APP_HOST=127.0.0.1
+APP_PORT=8080
+
+PASSWORD_SALT=10
+
+ACCESS_TOKEN_SECRET=change-me-access-secret
+REFRESH_TOKEN_SECRET=change-me-refresh-secret
+ACCESS_TOKEN_TTL_SECONDS=900
+REFRESH_TOKEN_TTL_SECONDS=604800
+SESSION_TTL_SECONDS=2592000
+
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=users_service
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
 ```
 
-## Compile and run the project
+Назначение переменных:
+
+- `NODE_ENV` — окружение приложения: `development`, `test` или `production`;
+- `APP_HOST` / `APP_PORT` — адрес и порт HTTP-сервера;
+- `PASSWORD_SALT` — количество salt rounds для `bcrypt`;
+- `ACCESS_TOKEN_SECRET` — секрет для access token;
+- `REFRESH_TOKEN_SECRET` — секрет для refresh token;
+- `ACCESS_TOKEN_TTL_SECONDS` — срок жизни access token в секундах;
+- `REFRESH_TOKEN_TTL_SECONDS` — срок жизни refresh token в секундах;
+- `SESSION_TTL_SECONDS` — срок жизни записи сессии в БД;
+- `POSTGRES_HOST` / `POSTGRES_PORT` / `POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD` — параметры подключения к PostgreSQL.
+
+## Быстрый старт
+
+### 1. Установить зависимости
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cd backend/users-service
+npm install
 ```
 
-## Run tests
+### 2. Создать `.env`
+
+Создайте файл `.env` в `backend/users-service` и заполните его значениями из примера выше.
+
+### 3. Поднять PostgreSQL
+
+В каталоге `backend/users-service` есть `docker-compose.yml`, который поднимает только базу данных.
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+cd backend/users-service
+docker compose up -d
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Проверить контейнер можно так:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker compose ps
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 4. Применить миграции
 
-## Resources
+```bash
+cd backend/users-service
+npm run migrate:up
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### 5. Запустить сервис
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Для разработки:
 
-## Support
+```bash
+cd backend/users-service
+npm run start:dev
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Для production-сценария:
 
-## Stay in touch
+```bash
+cd backend/users-service
+npm run build
+npm run start:prod
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Команды
 
-## License
+```bash
+npm run start         # обычный запуск
+npm run start:dev     # запуск в watch-режиме
+npm run start:debug   # запуск с debug и watch
+npm run build         # сборка проекта
+npm run start:prod    # запуск собранного приложения
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+npm run lint          # eslint --fix
+npm run test          # unit tests
+
+npm run migrate:up    # применить миграции
+npm run migrate:down  # откатить последнюю миграцию
+```
+
+## HTTP API
+
+Все маршруты версионируются через URI и доступны под префиксом `/v1`.
+
+Большинство пользовательских ручек требуют `Bearer` access token.
+
+## Работа с базой данных
+
+Сервис использует `TypeORM` с отключённым `synchronize`, поэтому изменения схемы нужно вносить только через миграции.
+
+Текущие миграции лежат в:
+
+- `src/infrastructure/database/migrations`
+
+CLI подключается к БД через `.env`, используя data source
+
+## Проверка после запуска
+
+Базовый сценарий проверки:
+
+1. Открыть Swagger: `http://127.0.0.1:8080/docs/v1`
+2. Выполнить `POST /v1/auth/signup`
+3. Скопировать `accessToken`
+4. Авторизоваться через кнопку `Authorize` в Swagger
+5. Проверить `GET /v1/users/me`
