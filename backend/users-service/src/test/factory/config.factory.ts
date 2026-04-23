@@ -4,6 +4,7 @@ import {
   AppConfigType,
   AuthConfigType,
   ConfigType,
+  CorsConfigType,
   DatabaseConfigType,
   SecurityConfigType,
 } from '../../infrastructure/config';
@@ -11,6 +12,7 @@ import {
   appConfigMock,
   authConfigMock,
   configMock,
+  corsConfigMock,
   databaseConfigMock,
   securityConfigMock,
 } from '../mocks';
@@ -21,6 +23,7 @@ export type ConfigServiceMock = jest.Mocked<
 
 type CreateConfigMockProps = {
   app?: Partial<AppConfigType>;
+  cors?: Partial<CorsConfigType>;
   security?: Partial<SecurityConfigType>;
   auth?: {
     accessToken?: Partial<AuthConfigType['accessToken']>;
@@ -36,6 +39,10 @@ export const createConfigMock = (
   app: {
     ...appConfigMock,
     ...props.app,
+  },
+  cors: {
+    ...corsConfigMock,
+    ...props.cors,
   },
   security: {
     ...securityConfigMock,

@@ -32,12 +32,15 @@
 
 Сервис читает конфигурацию из файла `.env` в корне `users-service`.
 
-Обязательные переменные:
+Минимальный рабочий пример:
 
 ```env
 NODE_ENV=development
-APP_HOST=127.0.0.1
+APP_HOST=localhost
 APP_PORT=8080
+
+CORS_ORIGINS=*
+CORS_ENABLED=true
 
 PASSWORD_SALT=10
 
@@ -54,10 +57,44 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 ```
 
+Обязательные переменные:
+
+- `NODE_ENV`
+- `CORS_ORIGINS`
+- `ACCESS_TOKEN_SECRET`
+- `REFRESH_TOKEN_SECRET`
+- `ACCESS_TOKEN_TTL_SECONDS`
+- `REFRESH_TOKEN_TTL_SECONDS`
+- `SESSION_TTL_SECONDS`
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+
+Опциональные переменные и значения по умолчанию:
+
+- `APP_HOST=localhost`
+- `APP_PORT=8080`
+- `CORS_METHODS=GET,POST,PUT,PATCH,DELETE,OPTIONS`
+- `CORS_ALLOWED_HEADERS=Content-Type,Authorization`
+- `CORS_EXPOSED_HEADERS=`
+- `CORS_CREDENTIALS=false`
+- `CORS_MAX_AGE_SECONDS=3600`
+- `CORS_ENABLED=false`
+- `PASSWORD_SALT=10`
+- `POSTGRES_HOST=localhost`
+- `POSTGRES_PORT=5432`
+
 Назначение переменных:
 
 - `NODE_ENV` — окружение приложения: `development`, `test` или `production`;
 - `APP_HOST` / `APP_PORT` — адрес и порт HTTP-сервера;
+- `CORS_ORIGINS` — список разрешённых origin через запятую или `*`;
+- `CORS_METHODS` — список разрешённых HTTP-методов для CORS;
+- `CORS_ALLOWED_HEADERS` — список request headers, разрешённых в CORS-запросах;
+- `CORS_EXPOSED_HEADERS` — список response headers, доступных в браузере;
+- `CORS_CREDENTIALS` — разрешены ли cookies и auth headers в CORS-запросах;
+- `CORS_MAX_AGE_SECONDS` — время кеширования `preflight`-ответа браузером;
+- `CORS_ENABLED` — включает или отключает `CORS` при старте;
 - `PASSWORD_SALT` — количество salt rounds для `bcrypt`;
 - `ACCESS_TOKEN_SECRET` — секрет для access token;
 - `REFRESH_TOKEN_SECRET` — секрет для refresh token;
@@ -65,6 +102,34 @@ POSTGRES_PASSWORD=postgres
 - `REFRESH_TOKEN_TTL_SECONDS` — срок жизни refresh token в секундах;
 - `SESSION_TTL_SECONDS` — срок жизни записи сессии в БД;
 - `POSTGRES_HOST` / `POSTGRES_PORT` / `POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD` — параметры подключения к PostgreSQL.
+
+## CORS
+
+Конфигурация `CORS` читается из `.env`, валидируется на старте и приводится к runtime-конфигу до инициализации Nest-приложения.
+
+Поддерживаемое поведение:
+
+- если `CORS_ENABLED=false`, `CORS` не включается вообще;
+- `CORS_ORIGINS` может быть `*` или списком origin через запятую;
+- строковые значения `true` / `false` для `CORS_ENABLED` и `CORS_CREDENTIALS` явно валидируются;
+- если опциональные `CORS_*` переменные не заданы, сервис использует дефолтные значения из конфига.
+
+Пример строгого allowlist для локальной разработки:
+
+```env
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+CORS_ENABLED=true
+CORS_CREDENTIALS=false
+```
+
+Пример для сценария с wildcard:
+
+```env
+CORS_ORIGINS=*
+CORS_ENABLED=true
+```
+
+Для production лучше использовать явный allowlist, а не `*`.
 
 ## Быстрый старт
 

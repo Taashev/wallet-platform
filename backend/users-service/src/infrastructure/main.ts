@@ -3,12 +3,29 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
-import { AppConfigType, ConfigType } from './config';
+import { AppConfigType, ConfigType, CorsConfigType } from './config';
 import { AppExceptionFilter } from './http/filters/app-exception.filter';
 import { buildSwagger } from './swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const configService = app.get<ConfigService<ConfigType>>(ConfigService);
+
+  const appConfig = configService.getOrThrow<AppConfigType>('app');
+
+  const corsConfig = configService.getOrThrow<CorsConfigType>('cors');
+
+  if (corsConfig.enabled) {
+    app.enableCors({
+      origin: corsConfig.origin,
+      methods: corsConfig.methods,
+      allowedHeaders: corsConfig.allowedHeaders,
+      exposedHeaders: corsConfig.exposedHeaders,
+      credentials: corsConfig.credentials,
+      maxAge: corsConfig.maxAge,
+    });
+  }
 
   app.enableVersioning({
     type: VersioningType.URI,
@@ -23,10 +40,6 @@ async function bootstrap() {
       transformOptions: { exposeDefaultValues: true },
     }),
   );
-
-  const configService = app.get<ConfigService<ConfigType>>(ConfigService);
-
-  const appConfig = configService.getOrThrow<AppConfigType>('app');
 
   const baseUrl = `http://${appConfig.host}:${appConfig.port}`;
 
