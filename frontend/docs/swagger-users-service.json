@@ -1,0 +1,571 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1/users/me": {
+      "get": {
+        "operationId": "UsersController_getCurrentUser_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseUserDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Токен доступа отсутствует или недействителен"
+          },
+          "404": {
+            "description": "Пользователь не найден"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Получить профиль авторизованного пользователя",
+        "tags": [
+          "Users"
+        ]
+      },
+      "delete": {
+        "operationId": "UsersController_softDeleteUser_v1",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Пользователь удален"
+          },
+          "401": {
+            "description": "Токен доступа отсутствует или недействителен"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Мягкое удаление текущего пользователя",
+        "tags": [
+          "Users"
+        ]
+      },
+      "patch": {
+        "operationId": "UsersController_changeCurrentUser_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseUserDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": "Токен доступа отсутствует или недействителен"
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Обновить текущий профиль пользователя",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/users": {
+      "post": {
+        "operationId": "UsersController_getUsers_v1",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 40,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "username",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 50,
+              "example": "user",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersListResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Токен доступа отсутствует или недействителен"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Получить список пользователей",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/users/me/password": {
+      "patch": {
+        "operationId": "UsersController_changePassword_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Пароль изменен"
+          },
+          "400": {
+            "description": ""
+          },
+          "401": {
+            "description": "Токен доступа отсутствует или недействителен"
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Изменить текущий пароль пользователя",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/auth/signup": {
+      "post": {
+        "operationId": "AuthController_createUser_v1",
+        "parameters": [
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokensDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Нарушено ограничение уникальности"
+          }
+        },
+        "summary": "Регистрация нового пользователя",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/signin": {
+      "post": {
+        "operationId": "AuthController_authLocal_v1",
+        "parameters": [
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthLocalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokensDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Авторизация с помощью username и password",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refreshToken_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokensDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Обновить access и refresh токены",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/signout": {
+      "post": {
+        "operationId": "AuthController_signout_v1",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Пользователь вышел из системы"
+          },
+          "401": {
+            "description": "Токен доступа отсутствует или недействителен."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Выйти из сессии текущего пользователя",
+        "tags": [
+          "Auth"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Users Service API V1",
+    "description": "API документация для users-service",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "v1"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Paste access token"
+      }
+    },
+    "schemas": {
+      "ResponseUserDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "example": "8e27fcf1-7dfb-4ea5-a4f8-3db0884fa9d6"
+          },
+          "username": {
+            "type": "string",
+            "example": "user"
+          },
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "about": {
+            "type": "string",
+            "example": "Backend engineer"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "example": "1999-12-31"
+          },
+          "age": {
+            "type": "number",
+            "example": 26
+          }
+        },
+        "required": [
+          "userId",
+          "username",
+          "email",
+          "about",
+          "dateOfBirth",
+          "age"
+        ]
+      },
+      "UsersListResponseDto": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseUserDto"
+            }
+          },
+          "total": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": [
+          "users",
+          "total"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "example": "updated_user"
+          },
+          "email": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 255,
+            "example": "updated@example.com"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "example": "2000-01-01"
+          },
+          "about": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "Updated bio"
+          }
+        }
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "newPassword": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 255,
+            "example": "NewStrongPass123"
+          },
+          "oldPassword": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 255,
+            "example": "OldStrongPass123"
+          }
+        },
+        "required": [
+          "newPassword",
+          "oldPassword"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "example": "user"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 255,
+            "example": "StrongPass123"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "example": "1999-12-31"
+          },
+          "about": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "Backend engineer"
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password"
+        ]
+      },
+      "AuthTokensDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "JWT access token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.access.payload.signature"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "JWT refresh token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh.payload.signature"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken"
+        ]
+      },
+      "AuthLocalDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "example": "user"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 255,
+            "example": "StrongPass123"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh токен",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh.payload.signature"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      }
+    }
+  }
+}
