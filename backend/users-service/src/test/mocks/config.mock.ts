@@ -12,7 +12,9 @@ export const appHostMock: AppConfigType['host'] = '127.0.0.1';
 export const appPortMock: AppConfigType['port'] = 8080;
 export const passwordSaltRoundsMock: SecurityConfigType['passwordSaltRounds'] = 10;
 export const corsEnabledMock: CorsConfigType['enabled'] = true;
-export const corsOriginMock: CorsConfigType['origin'] = ['http://localhost:3000'];
+export const corsOriginMock: CorsConfigType['origin'] = [
+  'http://localhost:3000',
+];
 export const corsMethodsMock: CorsConfigType['methods'] = [
   'GET',
   'POST',

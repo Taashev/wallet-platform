@@ -19,7 +19,6 @@ import {
   userIdMock,
 } from '../../test/mocks';
 
-import { SessionsRepository } from './interfaces/sessions-repository.interface';
 import { SessionsService } from './sessions.service';
 
 describe('SessionsService', () => {
@@ -34,7 +33,7 @@ describe('SessionsService', () => {
 
     sessionsService = new SessionsService(
       configService as unknown as ConfigService<ConfigType>,
-      sessionsRepository as unknown as SessionsRepository,
+      sessionsRepository,
     );
   });
 

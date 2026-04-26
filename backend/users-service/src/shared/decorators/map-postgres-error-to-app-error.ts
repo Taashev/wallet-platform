@@ -79,10 +79,7 @@ function applyClassDecorator<T extends { prototype: Record<string, unknown> }>(
       continue;
     }
 
-    const updatedDescriptor = applyMethodDecorator(
-      descriptor as TypedPropertyDescriptor<AsyncMethod>,
-      errorMap,
-    );
+    const updatedDescriptor = applyMethodDecorator(descriptor, errorMap);
 
     Object.defineProperty(target.prototype, propertyName, updatedDescriptor);
   }

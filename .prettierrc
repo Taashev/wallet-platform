@@ -9,15 +9,22 @@
     "typescript",
     "decorators-legacy"
   ],
-  "importOrder": [
-    "^@nestjs",
-    "<THIRD_PARTY_MODULES>",
-    "^@/(.*)$",
-    "^../(.*)",
-    "^./(.*)",
-    "^[./]"
-  ],
   "plugins": [
     "@trivago/prettier-plugin-sort-imports"
+  ],
+  "overrides": [
+    {
+      "files": "backend/**/*.{ts,js}",
+      "options": {
+        "importOrder": [
+          "^@nestjs",
+          "<THIRD_PARTY_MODULES>",
+          "^@/(.*)$",
+          "^../(.*)",
+          "^./(.*)",
+          "^[./]"
+        ]
+      }
+    }
   ]
 }
