@@ -1,3 +1,3 @@
 export default {
-  'backend/**/*.{ts,js}': ['eslint --fix', 'prettier --write'],
+  'backend/**/*.{ts,js}': ['eslint', 'prettier --check'],
 };

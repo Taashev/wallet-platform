@@ -1,0 +1,35 @@
+{
+  // Форматтер по умолчанию для файлов.
+  // Здесь используется расширение Prettier.
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // Автоматически форматировать файл при сохранении.
+  "editor.formatOnSave": true,
+  // Code Actions, которые VS Code выполняет при сохранении файла.
+  "editor.codeActionsOnSave": {
+    // Автоматически добавлять недостающие импорты в TypeScript-файлах,
+    // если TypeScript Language Server может их однозначно определить.
+    "source.addMissingImports.ts": "explicit",
+    // Автоматически удалять неиспользуемые импорты в TypeScript-файлах.
+    "source.removeUnusedImports.ts": "explicit",
+    // Запускать автоисправления ESLint при сохранении:
+    // например удаление unused imports через eslint-plugin-unused-imports,
+    // исправление правил с --fix и т.п.
+    // "source.fixAll.eslint": "explicit"
+  },
+  // Помогает ESLint extension корректно находить рабочую директорию
+  // в монорепах и проектах с несколькими package.json / eslint config.
+  "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ],
+  // Включает предложения автоимпортов для TypeScript.
+  // Например, при вводе имени класса/функции VS Code предложит импорт.
+  "typescript.suggest.autoImports": true,
+  // То же самое для JavaScript.
+  "javascript.suggest.autoImports": true,
+  // Разрешает TypeScript учитывать package.json при автоимпортах.
+  // Значение "auto" позволяет VS Code самому решать,
+  // когда искать импорты из зависимостей проекта.
+  "typescript.preferences.includePackageJsonAutoImports": "auto"
+}

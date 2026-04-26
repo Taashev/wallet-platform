@@ -1,11 +1,28 @@
 import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import eslintPluginUnusedImports from 'eslint-plugin-unused-imports';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 const baseConfig = {
   extends: [eslint.configs.recommended, eslintPluginPrettierRecommended],
+  plugins: {
+    'unused-imports': eslintPluginUnusedImports,
+  },
+  rules: {
+    '@typescript-eslint/no-unused-vars': 'off',
+    'unused-imports/no-unused-imports': 'error',
+    'unused-imports/no-unused-vars': [
+      'warn',
+      {
+        vars: 'all',
+        varsIgnorePattern: '^_',
+        args: 'after-used',
+        argsIgnorePattern: '^_',
+      },
+    ],
+  },
 };
 
 const baseBackendConfig = {
@@ -34,6 +51,7 @@ export default defineConfig(
     'eslint.config.mjs',
     'backend/**/dist/**',
     'backend/**/node_modules/**',
+    'frontend/'
   ]),
   baseConfig,
   baseBackendConfig,
