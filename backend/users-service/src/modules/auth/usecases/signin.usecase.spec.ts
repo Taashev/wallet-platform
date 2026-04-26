@@ -21,7 +21,6 @@ import {
 import { PasswordService } from '../../security/password.service';
 import { TokenService } from '../../security/token.service';
 import { SessionsService } from '../../sessions/sessions.service';
-import { UsersRepository } from '../../users/interfaces/repository.interface';
 
 import { SigninUseCase } from './signin.usecase';
 
@@ -40,7 +39,7 @@ describe('SigninUseCase', () => {
     passwordService = createPasswordServiceMock();
 
     signinUseCase = new SigninUseCase(
-      usersRepository as unknown as UsersRepository,
+      usersRepository,
       passwordService as unknown as PasswordService,
       tokenService as unknown as TokenService,
       sessionsService as unknown as SessionsService,

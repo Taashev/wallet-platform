@@ -5,7 +5,6 @@ import {
   UsersRepositoryMock,
 } from '../../../test/factory';
 import { emailMock, userIdMock, usernameMock } from '../../../test/mocks';
-import { UsersRepository } from '../interfaces/repository.interface';
 
 import { UpdateCurrentUserUseCase } from './update-current-user.usecase';
 
@@ -17,9 +16,7 @@ describe('UpdateCurrentUserUseCase', () => {
   beforeEach(() => {
     usersRepository = createUsersRepositoryMock();
 
-    updateCurrentUserUseCase = new UpdateCurrentUserUseCase(
-      usersRepository as unknown as UsersRepository,
-    );
+    updateCurrentUserUseCase = new UpdateCurrentUserUseCase(usersRepository);
   });
 
   it('успешно обновляет профиль пользователя', async () => {

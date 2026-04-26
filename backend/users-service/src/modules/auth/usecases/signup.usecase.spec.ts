@@ -28,7 +28,6 @@ import {
 import { PasswordService } from '../../security/password.service';
 import { TokenService } from '../../security/token.service';
 import { SessionsService } from '../../sessions/sessions.service';
-import { UsersRepository } from '../../users/interfaces/repository.interface';
 
 import { SignupUseCase } from './signup.usecase';
 
@@ -49,7 +48,7 @@ describe('SignUpUseCase', () => {
     transactionServie = createTransactionServiceMock();
 
     signUpUseCase = new SignupUseCase(
-      usersRepository as unknown as UsersRepository,
+      usersRepository,
       sessionsService as unknown as SessionsService,
       tokenService as unknown as TokenService,
       passwordService as unknown as PasswordService,

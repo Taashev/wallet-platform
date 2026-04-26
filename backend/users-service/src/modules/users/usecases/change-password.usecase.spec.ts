@@ -18,7 +18,6 @@ import {
 import { passwordMock, sessionIdMock, userIdMock } from '../../../test/mocks';
 import { PasswordService } from '../../security/password.service';
 import { SessionsService } from '../../sessions/sessions.service';
-import { UsersRepository } from '../interfaces/repository.interface';
 
 import { ChangePasswordUseCase } from './change-password.usecase';
 
@@ -37,7 +36,7 @@ describe('ChangePasswordUseCase', () => {
     transactionService = createTransactionServiceMock();
 
     changePasswordUseCase = new ChangePasswordUseCase(
-      usersRepository as unknown as UsersRepository,
+      usersRepository,
       passwordService as unknown as PasswordService,
       sessionsService as unknown as SessionsService,
       transactionService as unknown as TransactionService,
