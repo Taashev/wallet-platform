@@ -13,7 +13,8 @@
   "scripts": {
     "prepare": "husky",
     "lint-staged": "lint-staged",
-    "lint:fix": "eslint --fix"
+    "lint:fix": "eslint --fix",
+    "nx:test": "nx affected -t test --base=origin/dev-v2 --head=HEAD"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
@@ -26,6 +27,7 @@
     "globals": "^17.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
+    "nx": "22.7.0",
     "prettier": "^3.8.3",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^6.0.3",
