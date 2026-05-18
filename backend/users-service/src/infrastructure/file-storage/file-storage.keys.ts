@@ -1,0 +1,2 @@
+export const S3_CLIENT = Symbol('S3_CLIENT_PROVIDER');
+export const FILE_STORAGE_SERVICE = Symbol('FILE_STORAGE_SERVICE');

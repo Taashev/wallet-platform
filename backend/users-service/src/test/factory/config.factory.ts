@@ -6,14 +6,15 @@ import {
   ConfigType,
   CorsConfigType,
   DatabaseConfigType,
+  S3ConfigType,
   SecurityConfigType,
 } from '../../infrastructure/config';
 import {
   appConfigMock,
   authConfigMock,
-  configMock,
   corsConfigMock,
   databaseConfigMock,
+  s3ConfigMock,
   securityConfigMock,
 } from '../mocks';
 
@@ -31,6 +32,7 @@ type CreateConfigMockProps = {
     session?: Partial<AuthConfigType['session']>;
   };
   database?: Partial<DatabaseConfigType>;
+  s3?: Partial<S3ConfigType>;
 };
 
 export const createConfigMock = (
@@ -66,7 +68,13 @@ export const createConfigMock = (
     ...databaseConfigMock,
     ...props.database,
   },
+  s3: {
+    ...s3ConfigMock,
+    ...props.s3,
+  },
 });
+
+export const configMock: ConfigType = createConfigMock();
 
 export const createConfigServiceMock = (
   config: ConfigType = configMock,
