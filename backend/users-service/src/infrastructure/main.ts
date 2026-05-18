@@ -46,12 +46,13 @@ async function bootstrap() {
   const urlSwaggerV1 = buildSwagger(baseUrl, 'v1', app);
 
   await app.listen(appConfig.port, appConfig.host, () => {
-    console.table({
-      host: appConfig.host,
-      port: appConfig.port,
-      docsV1: urlSwaggerV1,
-      pid: process.pid,
-    });
+    if (appConfig.isDev) {
+      console.table({
+        baseUrl,
+        docsV1: urlSwaggerV1,
+        pid: process.pid,
+      });
+    }
   });
 }
 void bootstrap();
