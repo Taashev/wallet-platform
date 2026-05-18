@@ -65,6 +65,8 @@ export function validateConfig(data: Record<string, any>): ConfigType {
       secretAccessKey: s3Env.S3_SECRET_KEY,
       bucket: s3Env.S3_BUCKET,
       forcePathStyle: s3Env.S3_FORCE_PATH_STYLE,
+      avatarMaxFileSizeBytes: s3Env.S3_AVATAR_MAX_FILE_SIZE_BYTES,
+      uploadPresignedUrlTtlSeconds: s3Env.S3_UPLOAD_PRESIGNED_URL_TTL_SECONDS,
     },
   };
 }

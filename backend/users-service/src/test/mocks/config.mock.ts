@@ -96,4 +96,6 @@ export const s3ConfigMock: S3ConfigType = {
   bucket: '',
   accessKeyId: '',
   secretAccessKey: '',
+  uploadPresignedUrlTtlSeconds: 0,
+  avatarMaxFileSizeBytes: 0,
 };

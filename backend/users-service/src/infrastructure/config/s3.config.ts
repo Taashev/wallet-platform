@@ -28,6 +28,8 @@ export const s3EnvSchema = z.object({
   S3_SECRET_KEY: z.string().min(1),
   S3_BUCKET: z.string().min(1),
   S3_FORCE_PATH_STYLE: envBooleanSchema.default(DEFAULT_S3_FORCE_PATH_STYLE),
+  S3_UPLOAD_PRESIGNED_URL_TTL_SECONDS: z.coerce.number().int().positive(),
+  S3_AVATAR_MAX_FILE_SIZE_BYTES: z.coerce.number().int().positive(),
 });
 
 export type S3Env = z.infer<typeof s3EnvSchema>;
@@ -39,4 +41,6 @@ export type S3ConfigType = {
   secretAccessKey: S3Env['S3_SECRET_KEY'];
   bucket: S3Env['S3_BUCKET'];
   forcePathStyle: S3Env['S3_FORCE_PATH_STYLE'];
+  uploadPresignedUrlTtlSeconds: S3Env['S3_UPLOAD_PRESIGNED_URL_TTL_SECONDS'];
+  avatarMaxFileSizeBytes: S3Env['S3_AVATAR_MAX_FILE_SIZE_BYTES'];
 };
