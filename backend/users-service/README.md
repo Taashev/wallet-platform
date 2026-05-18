@@ -207,7 +207,7 @@ CLI подключается к БД через `.env`, используя data 
 
 Базовый сценарий проверки:
 
-1. Открыть Swagger: `http://127.0.0.1:8080/docs/v1`
+1. Открыть Swagger: `http://localhost:8080/docs/v1`
 2. Выполнить `POST /v1/auth/signup`
 3. Скопировать `accessToken`
 4. Авторизоваться через кнопку `Authorize` в Swagger
