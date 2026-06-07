@@ -71,13 +71,15 @@ export class AvatarsTypeOrmRepository implements AvatarsRepository {
 
     queryBuilder.where('avatars.avatar_id = :avatarId', { avatarId });
 
-    if (options?.userId) {
+    queryBuilder.andWhere('avatars.deleted_at IS NULL');
+
+    if (options?.userId !== undefined) {
       queryBuilder.andWhere('avatars.user_id = :userId', {
         userId: options.userId,
       });
     }
 
-    if (options?.status) {
+    if (options?.status !== undefined) {
       queryBuilder.andWhere('avatars.status = :status', {
         status: options.status,
       });
@@ -159,6 +161,15 @@ export class AvatarsTypeOrmRepository implements AvatarsRepository {
     }
 
     const result = await queryBuilder.execute();
+
+    return result.affected === 1;
+  }
+
+  async softDelete(avatarId: string, userId: string) {
+    const repository =
+      this.transactionService.manager.getRepository(AvatarTypeOrmEntity);
+
+    const result = await repository.softDelete({ avatarId, userId });
 
     return result.affected === 1;
   }

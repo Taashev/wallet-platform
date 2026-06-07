@@ -20,4 +20,6 @@ export interface AvatarsRepository {
     criteria: CriteriaUpdateAvatar,
     updatedData: UpdateAvatarData,
   ): Promise<boolean>;
+
+  softDelete(avatarId: string, userId: string): Promise<boolean>;
 }

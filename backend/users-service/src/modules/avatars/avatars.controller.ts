@@ -1,6 +1,10 @@
 import {
   Controller,
+  Delete,
   FileTypeValidator,
+  HttpCode,
+  HttpStatus,
+  Param,
   ParseFilePipe,
   Post,
   UploadedFile,
@@ -17,6 +21,8 @@ import {
   AVATAR_ALLOWED_MIME_TYPES,
   AVATAR_MAX_SIZE_BYTES,
 } from './constants/avatar-constants';
+import { DeleteAvatarParamsDto } from './dto/delete-avatar.dto';
+import { DeleteAvatarUseCase } from './usecases/delete-avatar.usecase';
 import { UploadAvatarUseCase } from './usecases/upload-avatar.usecase';
 
 const avatarUploadInterceptor = FileInterceptor('file', {
@@ -36,7 +42,10 @@ function createAvatarFilePipe() {
 
 @Controller({ path: 'avatars', version: '1' })
 export class AvatarsController {
-  constructor(private readonly uploadAvatarUseCase: UploadAvatarUseCase) {}
+  constructor(
+    private uploadAvatarUseCase: UploadAvatarUseCase,
+    private deleteAvatarUseCase: DeleteAvatarUseCase,
+  ) {}
 
   @UseGuards(JwtAccessGuard)
   @UseInterceptors(avatarUploadInterceptor)
@@ -46,5 +55,18 @@ export class AvatarsController {
     @UploadedFile(createAvatarFilePipe()) file: Express.Multer.File,
   ) {
     return this.uploadAvatarUseCase.execute(user.userId, file);
+  }
+
+  @UseGuards(JwtAccessGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':avatarId')
+  async delete(
+    @CurrentUser() currentUser: CurrentUserType,
+    @Param() params: DeleteAvatarParamsDto,
+  ) {
+    return await this.deleteAvatarUseCase.execute(
+      params.avatarId,
+      currentUser.userId,
+    );
   }
 }

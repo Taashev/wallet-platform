@@ -10,6 +10,7 @@ import { UPLOAD_AVATAR_QUEUE_NAME } from './constants/avatar.keys';
 import { AvatarsRepositoryProvider } from './constants/avatars.provider';
 import { AvatarTypeOrmEntity } from './database/entities/avatar-typeorm.entity';
 import { AvatarProducer } from './producers/avatar.producer';
+import { DeleteAvatarUseCase } from './usecases/delete-avatar.usecase';
 import { UploadAvatarUseCase } from './usecases/upload-avatar.usecase';
 
 @Module({
@@ -22,6 +23,11 @@ import { UploadAvatarUseCase } from './usecases/upload-avatar.usecase';
     UsersModule,
   ],
   controllers: [AvatarsController],
-  providers: [AvatarsRepositoryProvider, AvatarProducer, UploadAvatarUseCase],
+  providers: [
+    AvatarsRepositoryProvider,
+    AvatarProducer,
+    UploadAvatarUseCase,
+    DeleteAvatarUseCase,
+  ],
 })
 export class AvatarsModule {}
