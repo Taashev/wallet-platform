@@ -1,25 +1,50 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  FileTypeValidator,
+  ParseFilePipe,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { CurrentUser } from '../../shared/decorators/current-user';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import type { CurrentUserType } from '../users/types/user.type';
 
-import { CreateAvatarUploadUrlDto } from './dto/upload-url.dto';
-import { GetUploadAvatarUrlUseCase } from './usecases/upload-avatar.usecase';
+import {
+  AVATAR_ALLOWED_MIME_TYPES,
+  AVATAR_MAX_SIZE_BYTES,
+} from './constants/avatar-constants';
+import { UploadAvatarUseCase } from './usecases/upload-avatar.usecase';
+
+const avatarUploadInterceptor = FileInterceptor('file', {
+  limits: { fileSize: AVATAR_MAX_SIZE_BYTES },
+});
+
+function createAvatarFilePipe() {
+  return new ParseFilePipe({
+    fileIsRequired: true,
+    validators: [
+      new FileTypeValidator({
+        fileType: new RegExp(`^(${AVATAR_ALLOWED_MIME_TYPES.join('|')})$`),
+      }),
+    ],
+  });
+}
 
 @Controller({ path: 'avatars', version: '1' })
 export class AvatarsController {
-  constructor(private getUploadAvatarUrlUseCase: GetUploadAvatarUrlUseCase) {}
+  constructor(private readonly uploadAvatarUseCase: UploadAvatarUseCase) {}
 
   @UseGuards(JwtAccessGuard)
-  @Post('/upload-url')
-  async upload(
+  @UseInterceptors(avatarUploadInterceptor)
+  @Post()
+  upload(
     @CurrentUser() user: CurrentUserType,
-    @Body() params: CreateAvatarUploadUrlDto,
+    @UploadedFile(createAvatarFilePipe()) file: Express.Multer.File,
   ) {
-    return await this.getUploadAvatarUrlUseCase.execute(
-      user.userId,
-      params.contentType,
-    );
+    return this.uploadAvatarUseCase.execute(user.userId, file);
   }
 }

@@ -9,11 +9,13 @@ import {
   S3ConfigType,
   SecurityConfigType,
 } from '../../infrastructure/config';
+import { RedisConfigType } from '../../infrastructure/config/redis.config';
 import {
   appConfigMock,
   authConfigMock,
   corsConfigMock,
   databaseConfigMock,
+  redisConfigMock,
   s3ConfigMock,
   securityConfigMock,
 } from '../mocks';
@@ -33,6 +35,7 @@ type CreateConfigMockProps = {
   };
   database?: Partial<DatabaseConfigType>;
   s3?: Partial<S3ConfigType>;
+  redis?: Partial<RedisConfigType>;
 };
 
 export const createConfigMock = (
@@ -71,6 +74,10 @@ export const createConfigMock = (
   s3: {
     ...s3ConfigMock,
     ...props.s3,
+  },
+  redis: {
+    ...redisConfigMock,
+    ...props.redis,
   },
 });
 

@@ -17,6 +17,18 @@ export type UploadFileResult = {
   versionId?: string;
 };
 
+export type DeleteFileResult = {
+  bucket: string;
+  key: string;
+  versionId?: string;
+};
+
+export type GetFileResult = FileMetadata & {
+  bucket: string;
+  key: string;
+  body: Buffer;
+};
+
 export interface PresignedUploadPost {
   url: string;
   fields: Record<string, string>;
@@ -30,6 +42,13 @@ export interface PresignedUploadPostOptions {
   metadata?: Record<string, string>;
 }
 
+export type FileMetadata = {
+  contentLength?: number;
+  contentType?: string;
+  eTag?: string;
+  metadata?: Record<string, string>;
+};
+
 export interface IFileStorageService {
   getPresignedUploadPost(
     key: string,
@@ -38,5 +57,11 @@ export interface IFileStorageService {
 
   checkConnection(bucket?: string): Promise<void>;
 
+  getMetadata(key: string): Promise<FileMetadata>;
+
+  getFile(key: string, bucket?: string): Promise<GetFileResult>;
+
   upload(params: UploadFileParams): Promise<UploadFileResult>;
+
+  delete(key: string, bucket?: string): Promise<DeleteFileResult>;
 }

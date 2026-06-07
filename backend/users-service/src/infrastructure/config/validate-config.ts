@@ -7,6 +7,7 @@ import {
 } from './auth.config';
 import { CorsConfigType, corsEnvSchema } from './cors.config';
 import { DatabaseConfigType, databaseEnvSchema } from './database.config';
+import { RedisConfigType, redisEnvSchema } from './redis.config';
 import { S3ConfigType, s3EnvSchema } from './s3.config';
 import { corsNormalizedConfig } from './utils/cors-utils';
 
@@ -17,6 +18,7 @@ export type ConfigType = {
   auth: AuthConfigType;
   database: DatabaseConfigType;
   s3: S3ConfigType;
+  redis: RedisConfigType;
 };
 
 export function validateConfig(data: Record<string, any>): ConfigType {
@@ -26,6 +28,7 @@ export function validateConfig(data: Record<string, any>): ConfigType {
   const authEnv = authEnvSchema.parse(data);
   const databaseEnv = databaseEnvSchema.parse(data);
   const s3Env = s3EnvSchema.parse(data);
+  const redis = redisEnvSchema.parse(data);
 
   return {
     app: {
@@ -65,8 +68,10 @@ export function validateConfig(data: Record<string, any>): ConfigType {
       secretAccessKey: s3Env.S3_SECRET_KEY,
       bucket: s3Env.S3_BUCKET,
       forcePathStyle: s3Env.S3_FORCE_PATH_STYLE,
-      avatarMaxFileSizeBytes: s3Env.S3_AVATAR_MAX_FILE_SIZE_BYTES,
-      uploadPresignedUrlTtlSeconds: s3Env.S3_UPLOAD_PRESIGNED_URL_TTL_SECONDS,
+    },
+    redis: {
+      host: redis.REDIS_HOST,
+      port: redis.REDIS_PORT,
     },
   };
 }

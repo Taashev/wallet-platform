@@ -22,6 +22,25 @@ import { UserTypeOrmEntity } from './entities/user-typeorm.entity';
 export class UsersTypeOrmRepository implements UsersRepository {
   constructor(private transactionService: TransactionService) {}
 
+  async lockById(userId: UserId, options?: { nowait?: boolean }) {
+    const repository =
+      this.transactionService.manager.getRepository(UserTypeOrmEntity);
+
+    const queryBuilder = repository.createQueryBuilder('users');
+
+    queryBuilder.select('users.userId');
+
+    queryBuilder.setLock('pessimistic_write');
+
+    if (options?.nowait === true) {
+      queryBuilder.setOnLocked('nowait');
+    }
+
+    queryBuilder.where('users.user_id = :userId', { userId });
+
+    await queryBuilder.getOneOrFail();
+  }
+
   async create(createUser: CreateUser) {
     const repository =
       this.transactionService.manager.getRepository(UserTypeOrmEntity);

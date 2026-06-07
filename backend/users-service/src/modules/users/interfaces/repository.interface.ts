@@ -12,6 +12,8 @@ import {
 export interface UsersRepository {
   create(createUserProps: CreateUser): Promise<User>;
 
+  lockById(userId: UserId, options?: { nowait?: boolean }): Promise<void>;
+
   findOneByUsername(username: Username): Promise<User | null>;
 
   findOneByUserId(userId: UserId): Promise<User | null>;

@@ -6,6 +6,7 @@ import {
   S3ConfigType,
   SecurityConfigType,
 } from '../../infrastructure/config';
+import { RedisConfigType } from '../../infrastructure/config/redis.config';
 
 export const appEnvironmentMock: AppConfigType['environment'] = 'test';
 export const appIsDevMock = true;
@@ -96,6 +97,9 @@ export const s3ConfigMock: S3ConfigType = {
   bucket: '',
   accessKeyId: '',
   secretAccessKey: '',
-  uploadPresignedUrlTtlSeconds: 0,
-  avatarMaxFileSizeBytes: 0,
+};
+
+export const redisConfigMock: RedisConfigType = {
+  host: '',
+  port: 6381,
 };

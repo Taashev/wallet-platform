@@ -1,0 +1,23 @@
+import { AvatarEntity } from '../entities/avatar.entity';
+import {
+  AvatarStatus,
+  CreateAvatar,
+  CriteriaUpdateAvatar,
+  UpdateAvatarData,
+} from '../types/avatar.type';
+
+export interface AvatarsRepository {
+  create(createAvatar: CreateAvatar): Promise<AvatarEntity>;
+
+  getCountAvatarsByUserId(userId: string): Promise<number>;
+
+  getByAvatarId(
+    avatarId: string,
+    options?: { status?: AvatarStatus; userId?: string },
+  ): Promise<AvatarEntity | null>;
+
+  update(
+    criteria: CriteriaUpdateAvatar,
+    updatedData: UpdateAvatarData,
+  ): Promise<boolean>;
+}
