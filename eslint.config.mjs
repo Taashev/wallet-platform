@@ -51,7 +51,7 @@ export default defineConfig(
     'eslint.config.mjs',
     'backend/**/dist/**',
     'backend/**/node_modules/**',
-    'frontend/'
+    'frontend/',
   ]),
   baseConfig,
   baseBackendConfig,

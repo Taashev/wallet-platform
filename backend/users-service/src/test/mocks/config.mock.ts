@@ -1,13 +1,15 @@
 import {
   AppConfigType,
   AuthConfigType,
-  ConfigType,
   CorsConfigType,
   DatabaseConfigType,
+  S3ConfigType,
   SecurityConfigType,
 } from '../../infrastructure/config';
+import { RedisConfigType } from '../../infrastructure/config/redis.config';
 
 export const appEnvironmentMock: AppConfigType['environment'] = 'test';
+export const appIsDevMock = true;
 export const appHostMock: AppConfigType['host'] = '127.0.0.1';
 export const appPortMock: AppConfigType['port'] = 8080;
 export const passwordSaltRoundsMock: SecurityConfigType['passwordSaltRounds'] = 10;
@@ -49,6 +51,7 @@ export const appConfigMock: AppConfigType = {
   environment: appEnvironmentMock,
   host: appHostMock,
   port: appPortMock,
+  isDev: appIsDevMock,
 };
 
 export const securityConfigMock: SecurityConfigType = {
@@ -87,10 +90,16 @@ export const databaseConfigMock: DatabaseConfigType = {
   password: postgresPasswordMock,
 };
 
-export const configMock: ConfigType = {
-  app: appConfigMock,
-  cors: corsConfigMock,
-  security: securityConfigMock,
-  auth: authConfigMock,
-  database: databaseConfigMock,
+export const s3ConfigMock: S3ConfigType = {
+  endpoint: '',
+  region: '',
+  forcePathStyle: true,
+  bucket: '',
+  accessKeyId: '',
+  secretAccessKey: '',
+};
+
+export const redisConfigMock: RedisConfigType = {
+  host: '',
+  port: 6381,
 };

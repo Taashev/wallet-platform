@@ -1,14 +1,6 @@
 # users-service
 
-`users-service` — backend-сервис на `NestJS`, который отвечает за регистрацию, аутентификацию, сессии и управление профилем пользователя в проекте `Wallet Platform`.
-
-Сервис использует:
-
-- `NestJS 11`
-- `TypeORM`
-- `PostgreSQL`
-- `Swagger`
-- `JWT access/refresh tokens`
+`users-service` — отвечает за регистрацию, аутентификацию, сессии и управление профилем пользователя в проекте `Wallet Platform`.
 
 ## Что умеет сервис
 
@@ -21,12 +13,6 @@
 - смена пароля;
 - мягкое удаление текущего пользователя;
 - получение списка пользователей с пагинацией и фильтром по `username`.
-
-## Требования
-
-- `Node.js` 24.13.1;
-- `npm` 11.8.0;
-- `Docker` и `Docker Compose` для локального запуска PostgreSQL.
 
 ## Переменные окружения
 
@@ -135,9 +121,10 @@ CORS_ENABLED=true
 
 ### 1. Установить зависимости
 
+Перейти в корень проекта и установиь зависимости
+
 ```bash
-cd backend/users-service
-npm install
+npm i
 ```
 
 ### 2. Создать `.env`
@@ -146,10 +133,11 @@ npm install
 
 ### 3. Поднять PostgreSQL
 
-В каталоге `backend/users-service` есть `docker-compose.yml`, который поднимает только базу данных.
+В каталоге корне проекта есть `docker-compose.yml`, который поднимает необходимые сервисы.
+
+Выполнить команду из корня проекта
 
 ```bash
-cd backend/users-service
 docker compose up -d
 ```
 
@@ -219,7 +207,7 @@ CLI подключается к БД через `.env`, используя data 
 
 Базовый сценарий проверки:
 
-1. Открыть Swagger: `http://127.0.0.1:8080/docs/v1`
+1. Открыть Swagger: `http://localhost:8080/docs/v1`
 2. Выполнить `POST /v1/auth/signup`
 3. Скопировать `accessToken`
 4. Авторизоваться через кнопку `Authorize` в Swagger

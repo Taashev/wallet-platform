@@ -1,6 +1,6 @@
 import z from 'zod';
 
-import type { CorsConfigType, CorsEnv } from '.';
+import type { CorsConfigType, CorsEnv } from '../';
 
 export const envBoolean = z
   .enum(['true', 'false'])

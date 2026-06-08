@@ -18,3 +18,6 @@ export const DEFAULT_PASSWORD_SALT = 10;
 
 export const DEFAULT_POSTGRES_HOST = 'localhost';
 export const DEFAULT_POSTGRES_PORT = 5432;
+
+export const DEFAULT_S3_REGION = 'us-east-1';
+export const DEFAULT_S3_FORCE_PATH_STYLE = true;

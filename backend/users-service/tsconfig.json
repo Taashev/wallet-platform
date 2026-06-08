@@ -5,7 +5,8 @@
     "moduleResolution": "nodenext",
     "types": [
       "node",
-      "jest"
+      "jest",
+      "multer"
     ],
     "resolvePackageJsonExports": true,
     "isolatedModules": true,

@@ -8,13 +8,13 @@
   "editor.codeActionsOnSave": {
     // Автоматически добавлять недостающие импорты в TypeScript-файлах,
     // если TypeScript Language Server может их однозначно определить.
-    "source.addMissingImports.ts": "explicit",
+    "source.addMissingImports.ts": "always",
     // Автоматически удалять неиспользуемые импорты в TypeScript-файлах.
-    "source.removeUnusedImports.ts": "explicit",
+    "source.removeUnusedImports.ts": "always",
     // Запускать автоисправления ESLint при сохранении:
     // например удаление unused imports через eslint-plugin-unused-imports,
     // исправление правил с --fix и т.п.
-    // "source.fixAll.eslint": "explicit"
+    "source.fixAll.eslint": "always"
   },
   // Помогает ESLint extension корректно находить рабочую директорию
   // в монорепах и проектах с несколькими package.json / eslint config.
@@ -23,13 +23,12 @@
       "mode": "auto"
     }
   ],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   // Включает предложения автоимпортов для TypeScript.
   // Например, при вводе имени класса/функции VS Code предложит импорт.
   "typescript.suggest.autoImports": true,
   // То же самое для JavaScript.
   "javascript.suggest.autoImports": true,
   // Разрешает TypeScript учитывать package.json при автоимпортах.
-  // Значение "auto" позволяет VS Code самому решать,
-  // когда искать импорты из зависимостей проекта.
-  "typescript.preferences.includePackageJsonAutoImports": "auto"
+  "typescript.preferences.includePackageJsonAutoImports": "on"
 }
