@@ -29,6 +29,22 @@ type ProfilesCountRow = {
   count: number;
 };
 
+function mapProfileRow(row: ProfileRow): ProfileRecord {
+  return {
+    userId: row.user_id,
+    username: row.username,
+    dateOfBirth: row.date_of_birth,
+    about: row.about,
+    avatar:
+      row.avatar_id !== null && row.storage_key !== null
+        ? {
+            avatarId: row.avatar_id,
+            storageKey: row.storage_key,
+          }
+        : null,
+  };
+}
+
 @Injectable()
 @MapPostgresErrorToAppError()
 export class ProfileQueryTypeOrmRepository implements ProfileQueryRepository {
@@ -67,8 +83,10 @@ export class ProfileQueryTypeOrmRepository implements ProfileQueryRepository {
       return null;
     }
 
+    const profile = mapProfileRow(row);
+
     return {
-      ...this.changeRawToProfileRecord(row),
+      ...profile,
       email: row.email,
     };
   }
@@ -121,7 +139,7 @@ export class ProfileQueryTypeOrmRepository implements ProfileQueryRepository {
     ]);
 
     return {
-      profiles: rows.map((row) => this.changeRawToProfileRecord(row)),
+      profiles: rows.map(mapProfileRow),
       count: countRows[0]?.count ?? 0,
     };
   }
@@ -184,22 +202,6 @@ export class ProfileQueryTypeOrmRepository implements ProfileQueryRepository {
       ],
     );
 
-    return rows.map((row) => this.changeRawToProfileRecord(row));
-  }
-
-  private changeRawToProfileRecord(row: ProfileRow): ProfileRecord {
-    return {
-      userId: row.user_id,
-      username: row.username,
-      dateOfBirth: row.date_of_birth,
-      about: row.about,
-      avatar:
-        row.avatar_id !== null && row.storage_key !== null
-          ? {
-              avatarId: row.avatar_id,
-              storageKey: row.storage_key,
-            }
-          : null,
-    };
+    return rows.map(mapProfileRow);
   }
 }

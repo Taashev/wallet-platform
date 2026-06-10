@@ -44,3 +44,8 @@ export type CurrentProfileView = ProfileView & {
 export type ProfileFilter = {
   username?: Username;
 };
+
+export type ProfilesCacheRecord = {
+  profiles: ProfileRecord[];
+  count: number;
+};

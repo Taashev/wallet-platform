@@ -9,6 +9,7 @@ import { calculateAge } from '../../users/domain/calculate-age';
 import { PROFILE_AVATAR_URL_EXPIRES_IN_SECONDS } from '../constants/profile.constants';
 import { PROFILE_QUERY_REPOSITORY } from '../constants/profile.keys';
 import type { ProfileQueryRepository } from '../interfaces/profile-query-repository.interface';
+import { ProfileCacheService } from '../profile-cache.service';
 import type {
   ProfileFilter,
   ProfileRecord,
@@ -23,6 +24,7 @@ export class GetProfilesUseCase {
     private profileQueryRepository: ProfileQueryRepository,
     @Inject(FILE_STORAGE_SERVICE)
     private fileStorageService: IFileStorageService,
+    private profileCacheService: ProfileCacheService,
   ) {}
 
   async execute(
@@ -33,16 +35,29 @@ export class GetProfilesUseCase {
       pagination ?? { limit: PAGINATION_LIMIT_DEFAULT, offset: 0 },
     );
 
-    const { profiles, count } = await this.profileQueryRepository.findProfiles(
+    let cachedProfiles = await this.profileCacheService.getList(
       filter,
       pagination,
     );
 
+    if (cachedProfiles === null) {
+      cachedProfiles = await this.profileQueryRepository.findProfiles(
+        filter,
+        pagination,
+      );
+
+      await this.profileCacheService.setList(
+        filter,
+        pagination,
+        cachedProfiles,
+      );
+    }
+
     return {
       profiles: await Promise.all(
-        profiles.map((profile) => this.toProfileView(profile)),
+        cachedProfiles.profiles.map((profile) => this.toProfileView(profile)),
       ),
-      count,
+      count: cachedProfiles.count,
     };
   }
 
