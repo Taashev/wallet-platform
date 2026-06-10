@@ -4,8 +4,8 @@ import { Expose } from 'class-transformer';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
 import { Trim } from '../../../shared/decorators/transformers';
+import { USERNAME_MAX_LENGTH } from '../constants/user.rules';
 import type { Username } from '../types/user.type';
-import { USERNAME_MAX_LENGTH } from '../user.rules';
 
 export class UserFilterDto {
   @ApiPropertyOptional({

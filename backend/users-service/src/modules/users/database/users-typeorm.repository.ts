@@ -4,7 +4,7 @@ import { TransactionService } from '../../../infrastructure/transaction/transact
 import { MapPostgresErrorToAppError } from '../../../shared/decorators/map-postgres-error-to-app-error';
 import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
 import { User } from '../entities/user.entity';
-import { UsersRepository } from '../interfaces/repository.interface';
+import { UsersRepository } from '../interfaces/users-repository.interface';
 import type {
   CreateUser,
   FindOneUserCriteria,

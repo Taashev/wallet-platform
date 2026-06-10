@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { ResponseUserDto } from '../../auth/dto/response-user.dto';
+import { ProfileResponseDto } from '../../profiles/dto/profile-response.dto';
 
 export class UsersListResponseDto {
-  @ApiProperty({ type: () => [ResponseUserDto] })
-  users!: ResponseUserDto[];
+  @ApiProperty({ type: () => [ProfileResponseDto] })
+  users!: ProfileResponseDto[];
 
   @ApiProperty({ example: 1 })
   total!: number;

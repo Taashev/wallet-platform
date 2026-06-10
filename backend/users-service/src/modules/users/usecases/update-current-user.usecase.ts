@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { ERROR_MESSAGES } from '../../../shared/constants/messages.error';
 import { NotFoundError, ValidationError } from '../../../shared/errors';
-import type { UsersRepository } from '../interfaces/repository.interface';
+import { USERS_REPOSITORY } from '../constants/users.keys';
+import type { UsersRepository } from '../interfaces/users-repository.interface';
 import { UpdateUser, UserId } from '../types/user.type';
-import { USERS_REPOSITORY } from '../users.keys';
 
 @Injectable()
 export class UpdateCurrentUserUseCase {

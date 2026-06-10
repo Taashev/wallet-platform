@@ -27,8 +27,8 @@ import { plainToInstance } from 'class-transformer';
 import { ERROR_MESSAGES } from '../../shared/constants/messages.error';
 import { CurrentUser } from '../../shared/decorators/current-user';
 import { OffsetPaginationDto } from '../../shared/pagination/offset-pagination.dto';
-import { ResponseUserDto } from '../auth/dto/response-user.dto';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
+import { ProfileResponseDto } from '../profiles/dto/profile-response.dto';
 
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UserFilterDto } from './dto/get-users-query.dto';
@@ -57,14 +57,14 @@ export class UsersController {
   ) {}
 
   @ApiOperation({ summary: 'Получить профиль авторизованного пользователя' })
-  @ApiOkResponse({ type: ResponseUserDto })
+  @ApiOkResponse({ type: ProfileResponseDto })
   @ApiNotFoundResponse({ description: ERROR_MESSAGES.USER_NOT_FOUND })
   @UseGuards(JwtAccessGuard)
   @Get('/me')
   async getCurrentUser(@CurrentUser() currentUser: CurrentUserType) {
     const user = await this.getCurrentUserUseCase.execute(currentUser.userId);
 
-    const sanitazedUser = plainToInstance(ResponseUserDto, user, {
+    const sanitazedUser = plainToInstance(ProfileResponseDto, user, {
       groups: ['private'],
       excludeExtraneousValues: true,
     });
@@ -89,7 +89,7 @@ export class UsersController {
       offsetPaginationDto,
     );
 
-    const sanitaziedUsers = plainToInstance(ResponseUserDto, users, {
+    const sanitaziedUsers = plainToInstance(ProfileResponseDto, users, {
       excludeExtraneousValues: true,
       groups: ['public'],
     });
@@ -107,7 +107,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Обновить текущий профиль пользователя' })
-  @ApiOkResponse({ type: ResponseUserDto })
+  @ApiOkResponse({ type: ProfileResponseDto })
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @UseGuards(JwtAccessGuard)
@@ -121,7 +121,7 @@ export class UsersController {
       updateUserDto,
     );
 
-    const sanitazedUser = plainToInstance(ResponseUserDto, user, {
+    const sanitazedUser = plainToInstance(ProfileResponseDto, user, {
       groups: ['private'],
       excludeExtraneousValues: true,
     });

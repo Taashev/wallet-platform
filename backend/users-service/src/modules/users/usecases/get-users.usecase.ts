@@ -3,9 +3,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PAGINATION_LIMIT_DEFAULT } from '../../../shared/pagination/constants';
 import { normalizeOffsetPagination } from '../../../shared/pagination/notmalize-offset-pagination';
 import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
-import type { UsersRepository } from '../interfaces/repository.interface';
+import { USERS_REPOSITORY } from '../constants/users.keys';
+import type { UsersRepository } from '../interfaces/users-repository.interface';
 import { UserFilter } from '../types/user.type';
-import { USERS_REPOSITORY } from '../users.keys';
 
 @Injectable()
 export class GetUsersUseCase {

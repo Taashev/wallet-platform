@@ -4,8 +4,11 @@ import { Expose } from 'class-transformer';
 import { IsString, MaxLength, MinLength } from 'class-validator';
 
 import { Trim } from '../../../shared/decorators/transformers';
+import {
+  PASSWORD_MAX_LENTH,
+  PASSWORD_MIN_LENTH,
+} from '../constants/user.rules';
 import type { Password } from '../types/user.type';
-import { PASSWORD_MAX_LENTH, PASSWORD_MIN_LENTH } from '../user.rules';
 
 export class ChangePasswordDto {
   @ApiProperty({

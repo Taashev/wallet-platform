@@ -1,7 +1,6 @@
 import { User } from '../../modules/users/entities/user.entity';
-import { UsersRepository } from '../../modules/users/interfaces/repository.interface';
+import { UsersRepository } from '../../modules/users/interfaces/users-repository.interface';
 import {
-  aboutMock,
   dateOfBirthMock,
   emailMock,
   passwordHashMock,
@@ -44,5 +43,5 @@ export const createUserMock = (
     email: props.email ?? emailMock,
     password: props.passwordHash ?? passwordHashMock,
     dateOfBirth: dateOfBirthMock,
-    about: aboutMock,
+    about: null,
   });
