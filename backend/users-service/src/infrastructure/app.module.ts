@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../modules/auth/auth.module';
 import { AvatarsModule } from '../modules/avatars/avatars.module';
+import { ProfilesModule } from '../modules/profiles/profiles.module';
 import { SecurityModule } from '../modules/security/security.module';
 import { SessionsModule } from '../modules/sessions/sessions.module';
 import { UsersModule } from '../modules/users/users.module';
@@ -30,6 +31,7 @@ import { TransactionModule } from './transaction/transaction.module';
     AuthModule,
     TransactionModule,
     AvatarsModule,
+    ProfilesModule,
   ],
   controllers: [],
   providers: [],

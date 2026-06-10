@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 
 import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import { MapPostgresErrorToAppError } from '../../../shared/decorators/map-postgres-error-to-app-error';
-import { ACTIVE_AVATAR_STATUSES } from '../constants/avatar-constants';
+import {
+  ACTIVE_AVATAR_STATUSES,
+  AVATAR_STATUSES,
+} from '../constants/avatar-constants';
 import { AvatarEntity } from '../entities/avatar.entity';
 import { AvatarsRepository } from '../interfaces/avatars-repository.interface';
 import {
@@ -172,5 +175,27 @@ export class AvatarsTypeOrmRepository implements AvatarsRepository {
     const result = await repository.softDelete({ avatarId, userId });
 
     return result.affected === 1;
+  }
+
+  async findCurrentByUserIds(userIds: string[]): Promise<AvatarEntity[]> {
+    const repository = this.transactionService.manager;
+
+    const avatars = await repository.query<AvatarTypeOrmEntity[]>(
+      `
+      SELECT
+        avatar_id,
+        user_id,
+        storage_key
+      FROM avatars
+      WHERE user_id = ANY($1::UUID[])
+        AND status = $2
+        AND current = TRUE
+        AND deleted_at IS NULL
+        ;
+      `,
+      [userIds, AVATAR_STATUSES.ready],
+    );
+
+    return avatars.map((avatar) => AvatarEntity.restore(avatar));
   }
 }

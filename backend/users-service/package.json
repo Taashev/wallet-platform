@@ -30,11 +30,14 @@
     "migrate:create": "npm run typeorm -- migration:create ./src/infrastructure/database/migrations/$npm_config_name",
     "migrate:generate": "npm run typeorm:ds -- migration:generate ./src/infrastructure/database/migrations/$npm_config_name",
     "migrate:up": "npm run typeorm:ds migration:run",
-    "migrate:down": "npm run typeorm:ds migration:revert"
+    "migrate:down": "npm run typeorm:ds migration:revert",
+    "users:generate": "ts-node --project tsconfig.json src/infrastructure/database/scripts/generate-users.ts",
+    "avatars:generate": "ts-node --project tsconfig.json src/infrastructure/database/scripts/generate-avatars.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1043.0",
     "@aws-sdk/s3-presigned-post": "^3.1048.0",
+    "@aws-sdk/s3-request-presigner": "^3.1064.0",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",

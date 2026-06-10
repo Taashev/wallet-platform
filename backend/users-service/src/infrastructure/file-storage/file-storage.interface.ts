@@ -42,6 +42,10 @@ export interface PresignedUploadPostOptions {
   metadata?: Record<string, string>;
 }
 
+export interface PresignedDownloadUrlOptions {
+  expiresInSeconds?: number;
+}
+
 export type FileMetadata = {
   contentLength?: number;
   contentType?: string;
@@ -64,4 +68,9 @@ export interface IFileStorageService {
   upload(params: UploadFileParams): Promise<UploadFileResult>;
 
   delete(key: string, bucket?: string): Promise<DeleteFileResult>;
+
+  getPresignedDownloadUrl(
+    key: string,
+    options?: PresignedDownloadUrlOptions,
+  ): Promise<string>;
 }

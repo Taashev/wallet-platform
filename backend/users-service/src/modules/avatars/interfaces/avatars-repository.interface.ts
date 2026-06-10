@@ -16,6 +16,8 @@ export interface AvatarsRepository {
     options?: { status?: AvatarStatus; userId?: string },
   ): Promise<AvatarEntity | null>;
 
+  findCurrentByUserIds(userIds: string[]): Promise<AvatarEntity[]>;
+
   update(
     criteria: CriteriaUpdateAvatar,
     updatedData: UpdateAvatarData,

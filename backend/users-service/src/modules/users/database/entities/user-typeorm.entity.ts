@@ -13,7 +13,7 @@ import {
   EMAIL_MAX_LENGTH,
   PASSWORD_MAX_LENTH,
   USERNAME_MAX_LENGTH,
-} from '../../user.rules';
+} from '../../constants/user.rules';
 import {
   USERS_CONSTRAINT_EMAIL_UQ,
   USERS_CONSTRAINT_USER_ID_PK,
@@ -68,6 +68,6 @@ export class UserTypeOrmEntity {
   })
   dateOfBirth!: string;
 
-  @Column({ type: 'varchar', length: ABOUT_MAX_LENTH, nullable: false })
-  about!: string;
+  @Column({ type: 'varchar', length: ABOUT_MAX_LENTH, nullable: true })
+  about!: string | null;
 }

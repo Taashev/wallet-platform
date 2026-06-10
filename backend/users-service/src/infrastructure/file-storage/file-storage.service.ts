@@ -14,6 +14,7 @@ import {
   createPresignedPost,
   PresignedPostOptions,
 } from '@aws-sdk/s3-presigned-post';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { ValidationError } from '../../shared/errors';
 import type { ConfigType, S3ConfigType } from '../config';
@@ -23,6 +24,7 @@ import type {
   FileMetadata,
   GetFileResult,
   IFileStorageService,
+  PresignedDownloadUrlOptions,
   PresignedUploadPostOptions,
   UploadFileParams,
   UploadFileResult,
@@ -103,6 +105,26 @@ export class FileStorageService implements IFileStorageService {
     }
 
     return await createPresignedPost(this.s3Client, presignedPostOptions);
+  }
+
+  async getPresignedDownloadUrl(
+    key: string,
+    options: PresignedDownloadUrlOptions = {},
+  ): Promise<string> {
+    if (!key.trim()) {
+      throw new ValidationError({ message: 'Требуется ключ файла' });
+    }
+
+    const { expiresInSeconds } = options;
+
+    const command = new GetObjectCommand({
+      Bucket: this.defaultBucket,
+      Key: key,
+    });
+
+    return await getSignedUrl(this.s3Client, command, {
+      expiresIn: expiresInSeconds,
+    });
   }
 
   async upload(params: UploadFileParams): Promise<UploadFileResult> {

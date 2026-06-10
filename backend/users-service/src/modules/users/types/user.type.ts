@@ -12,7 +12,7 @@ export type CreateUser = {
   email: Email;
   password: Password;
   dateOfBirth?: DateOfBirth;
-  about?: About;
+  about?: About | null;
 };
 
 export type RestoreUser = Required<CreateUser>;
