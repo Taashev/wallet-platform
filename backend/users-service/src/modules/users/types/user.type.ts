@@ -25,8 +25,4 @@ export type FindOneUserCriteria =
   | { userId: UserId; username?: never }
   | { username: Username; userId?: never };
 
-export type UserFilter = {
-  username?: Username;
-};
-
 export type CurrentUserType = { sessionId: string; userId: UserId };

@@ -4,10 +4,10 @@ import { Expose } from 'class-transformer';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
 import { Trim } from '../../../shared/decorators/transformers';
-import { USERNAME_MAX_LENGTH } from '../constants/user.rules';
-import type { Username } from '../types/user.type';
+import { USERNAME_MAX_LENGTH } from '../../users/constants/user.rules';
+import type { Username } from '../../users/types/user.type';
 
-export class UserFilterDto {
+export class ProfileFilterDto {
   @ApiPropertyOptional({
     maxLength: USERNAME_MAX_LENGTH,
     example: 'user',

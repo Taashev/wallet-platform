@@ -1,33 +1,137 @@
 import { Injectable } from '@nestjs/common';
 
 import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
+import { MapPostgresErrorToAppError } from '../../../shared/decorators/map-postgres-error-to-app-error';
 import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
 import { AVATAR_STATUSES } from '../../avatars/constants/avatar-constants';
 import { DateOfBirth } from '../../users/types/user.type';
 import { ProfileQueryRepository } from '../interfaces/profile-query-repository.interface';
-import { ActiveProfileRecord } from '../types/profile.type';
+import {
+  CurrentProfileRecord,
+  ProfileFilter,
+  ProfileRecord,
+} from '../types/profile.type';
 
-type ActiveProfileRow = {
+type ProfileRow = {
   user_id: string;
   username: string;
   date_of_birth: string;
-  about: string;
+  about: string | null;
   avatar_id: string | null;
   storage_key: string | null;
 };
 
+type CurrentProfileRow = ProfileRow & {
+  email: string;
+};
+
+type ProfilesCountRow = {
+  count: number;
+};
+
 @Injectable()
+@MapPostgresErrorToAppError()
 export class ProfileQueryTypeOrmRepository implements ProfileQueryRepository {
   constructor(private transactionService: TransactionService) {}
+
+  async getProfileByUserId(
+    userId: string,
+  ): Promise<CurrentProfileRecord | null> {
+    const rows = await this.transactionService.manager.query<
+      CurrentProfileRow[]
+    >(
+      `
+      SELECT
+        u.user_id,
+        u.username,
+        u.email,
+        u.date_of_birth::text AS date_of_birth,
+        u.about,
+        a.avatar_id,
+        a.storage_key
+      FROM users AS u
+      LEFT JOIN avatars AS a
+        ON a.user_id = u.user_id
+        AND a.deleted_at IS NULL
+        AND a.current = TRUE
+        AND a.status = $2
+      WHERE u.user_id = $1
+        AND u.deleted_at IS NULL
+    `,
+      [userId, AVATAR_STATUSES.ready],
+    );
+
+    const [row] = rows;
+
+    if (row === undefined) {
+      return null;
+    }
+
+    return {
+      ...this.changeRawToProfileRecord(row),
+      email: row.email,
+    };
+  }
+
+  async findProfiles(
+    filter: ProfileFilter,
+    pagination: OffsetPagination,
+  ): Promise<{ profiles: ProfileRecord[]; count: number }> {
+    const usernamePattern = filter.username ? `${filter.username}%` : null;
+    const manager = this.transactionService.manager;
+
+    const [rows, countRows] = await Promise.all([
+      manager.query<ProfileRow[]>(
+        `
+        SELECT
+          u.user_id,
+          u.username,
+          u.date_of_birth::text AS date_of_birth,
+          u.about,
+          a.avatar_id,
+          a.storage_key
+        FROM users AS u
+        LEFT JOIN avatars AS a
+          ON a.user_id = u.user_id
+          AND a.deleted_at IS NULL
+          AND a.current = TRUE
+          AND a.status = $2
+        WHERE u.deleted_at IS NULL
+          AND ($1::text IS NULL OR u.username LIKE $1)
+        ORDER BY u.user_id ASC
+        OFFSET $3
+        LIMIT $4
+        `,
+        [
+          usernamePattern,
+          AVATAR_STATUSES.ready,
+          pagination.offset,
+          pagination.limit,
+        ],
+      ),
+      manager.query<ProfilesCountRow[]>(
+        `
+        SELECT COUNT(*)::int AS count
+        FROM users AS u
+        WHERE u.deleted_at IS NULL
+          AND ($1::text IS NULL OR u.username LIKE $1)
+        `,
+        [usernamePattern],
+      ),
+    ]);
+
+    return {
+      profiles: rows.map((row) => this.changeRawToProfileRecord(row)),
+      count: countRows[0]?.count ?? 0,
+    };
+  }
 
   async findActiveProfiles(
     dateOfBirthFrom: DateOfBirth,
     dateOfBirthTo: DateOfBirth,
     pagination: OffsetPagination,
-  ): Promise<ActiveProfileRecord[]> {
-    const rows = await this.transactionService.manager.query<
-      ActiveProfileRow[]
-    >(
+  ): Promise<ProfileRecord[]> {
+    const rows = await this.transactionService.manager.query<ProfileRow[]>(
       `
       WITH active_users AS (
         SELECT
@@ -80,7 +184,11 @@ export class ProfileQueryTypeOrmRepository implements ProfileQueryRepository {
       ],
     );
 
-    return rows.map((row) => ({
+    return rows.map((row) => this.changeRawToProfileRecord(row));
+  }
+
+  private changeRawToProfileRecord(row: ProfileRow): ProfileRecord {
+    return {
       userId: row.user_id,
       username: row.username,
       dateOfBirth: row.date_of_birth,
@@ -92,6 +200,6 @@ export class ProfileQueryTypeOrmRepository implements ProfileQueryRepository {
               storageKey: row.storage_key,
             }
           : null,
-    }));
+    };
   }
 }

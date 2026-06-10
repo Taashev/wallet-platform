@@ -4,7 +4,7 @@ import { UsersTypeOrmRepository } from '../database/users-typeorm.repository';
 
 import { USERS_REPOSITORY } from './users.keys';
 
-export const usersReposirotyProvider: Provider = {
+export const UsersReposirotyProvider: Provider = {
   provide: USERS_REPOSITORY,
   useClass: UsersTypeOrmRepository,
 };

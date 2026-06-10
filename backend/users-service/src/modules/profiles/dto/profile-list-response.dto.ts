@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { ProfileResponseDto } from '../../profiles/dto/profile-response.dto';
+import { ProfileResponseDto } from './profile-response.dto';
 
-export class UsersListResponseDto {
+export class ProfileListResponseDto {
   @ApiProperty({ type: () => [ProfileResponseDto] })
   users!: ProfileResponseDto[];
 

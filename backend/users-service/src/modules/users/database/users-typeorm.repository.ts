@@ -3,13 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import { MapPostgresErrorToAppError } from '../../../shared/decorators/map-postgres-error-to-app-error';
 import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
+import { ProfileFilter } from '../../profiles/types/profile.type';
 import { User } from '../entities/user.entity';
 import { UsersRepository } from '../interfaces/users-repository.interface';
 import type {
   CreateUser,
   FindOneUserCriteria,
   UpdateUser,
-  UserFilter,
   UserId,
   Username,
 } from '../types/user.type';
@@ -61,7 +61,7 @@ export class UsersTypeOrmRepository implements UsersRepository {
     return user;
   }
 
-  async findManyByFilter(filter: UserFilter, pagination: OffsetPagination) {
+  async findManyByFilter(filter: ProfileFilter, pagination: OffsetPagination) {
     const repository =
       this.transactionService.manager.getRepository(UserTypeOrmEntity);
 

@@ -1,6 +1,7 @@
 import type {
   About,
   DateOfBirth,
+  Email,
   UserId,
   Username,
 } from '../../users/types/user.type';
@@ -10,12 +11,16 @@ export type ProfileAvatarRecord = {
   storageKey: string;
 };
 
-export type ActiveProfileRecord = {
+export type ProfileRecord = {
   userId: UserId;
   username: Username;
   dateOfBirth: DateOfBirth;
-  about: About;
+  about: About | null;
   avatar: ProfileAvatarRecord | null;
+};
+
+export type CurrentProfileRecord = ProfileRecord & {
+  email: Email;
 };
 
 export type ProfileViewAvatar = {
@@ -26,7 +31,16 @@ export type ProfileViewAvatar = {
 export type ProfileView = {
   userId: UserId;
   username: Username;
-  about: About;
+  about: About | null;
   age: number;
   avatar: ProfileViewAvatar;
+};
+
+export type CurrentProfileView = ProfileView & {
+  email: Email;
+  dateOfBirth: DateOfBirth;
+};
+
+export type ProfileFilter = {
+  username?: Username;
 };

@@ -2,22 +2,22 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import type { IFileStorageService } from '../../../infrastructure/file-storage/file-storage.interface';
 import { FILE_STORAGE_SERVICE } from '../../../infrastructure/file-storage/file-storage.keys';
-import { ValidationError } from '../../../shared/errors';
+import { PAGINATION_LIMIT_DEFAULT } from '../../../shared/pagination/constants';
 import { normalizeOffsetPagination } from '../../../shared/pagination/notmalize-offset-pagination';
 import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
 import { calculateAge } from '../../users/domain/calculate-age';
-import { getDateOfBirthRangeForAge } from '../../users/domain/get-date-of-birth-range-for-age';
 import { PROFILE_AVATAR_URL_EXPIRES_IN_SECONDS } from '../constants/profile.constants';
 import { PROFILE_QUERY_REPOSITORY } from '../constants/profile.keys';
 import type { ProfileQueryRepository } from '../interfaces/profile-query-repository.interface';
 import type {
+  ProfileFilter,
   ProfileRecord,
   ProfileView,
   ProfileViewAvatar,
 } from '../types/profile.type';
 
 @Injectable()
-export class FindActiveProfilesUseCase {
+export class GetProfilesUseCase {
   constructor(
     @Inject(PROFILE_QUERY_REPOSITORY)
     private profileQueryRepository: ProfileQueryRepository,
@@ -26,41 +26,27 @@ export class FindActiveProfilesUseCase {
   ) {}
 
   async execute(
-    minAge: number,
-    maxAge: number,
-    pagination: OffsetPagination,
-  ): Promise<ProfileView[]> {
-    if (minAge > maxAge) {
-      throw new ValidationError({
-        message: 'Минимальный возраст не может быть больше максимального',
-        expose: true,
-        details: { field: 'minAge' },
-      });
-    }
-
-    const today = new Date();
-
-    const dateOfBirthRange = getDateOfBirthRangeForAge({
-      minAge,
-      maxAge,
-      referenceDate: today,
-    });
-
-    const profiles = await this.profileQueryRepository.findActiveProfiles(
-      dateOfBirthRange.from,
-      dateOfBirthRange.to,
-      normalizeOffsetPagination(pagination),
+    filter: ProfileFilter,
+    pagination?: OffsetPagination,
+  ): Promise<{ profiles: ProfileView[]; count: number }> {
+    pagination = normalizeOffsetPagination(
+      pagination ?? { limit: PAGINATION_LIMIT_DEFAULT, offset: 0 },
     );
 
-    return await Promise.all(
-      profiles.map((profile) => this.toProfileView(profile, today)),
+    const { profiles, count } = await this.profileQueryRepository.findProfiles(
+      filter,
+      pagination,
     );
+
+    return {
+      profiles: await Promise.all(
+        profiles.map((profile) => this.toProfileView(profile)),
+      ),
+      count,
+    };
   }
 
-  private async toProfileView(
-    profile: ProfileRecord,
-    today: Date,
-  ): Promise<ProfileView> {
+  private async toProfileView(profile: ProfileRecord): Promise<ProfileView> {
     let avatar: ProfileViewAvatar = null;
 
     if (profile.avatar !== null) {
@@ -71,14 +57,17 @@ export class FindActiveProfilesUseCase {
         },
       );
 
-      avatar = { avatarId: profile.avatar.avatarId, url };
+      avatar = {
+        avatarId: profile.avatar.avatarId,
+        url,
+      };
     }
 
     return {
       userId: profile.userId,
       username: profile.username,
       about: profile.about,
-      age: calculateAge(profile.dateOfBirth, today),
+      age: calculateAge(profile.dateOfBirth),
       avatar,
     };
   }
