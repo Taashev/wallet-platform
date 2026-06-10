@@ -1,5 +1,13 @@
 import { ValidationError } from '../../../shared/errors';
 import {
+  DATE_OF_BIRTH_DEFAULT_VALUE,
+  DATE_OF_BIRTH_REGEXP,
+  EMAIL_MIN_LENGTH,
+  PASSWORD_MIN_LENTH,
+  USERNAME_MIN_LENGTH,
+} from '../constants/user.rules';
+import { calculateAge } from '../domain/calculate-age';
+import {
   About,
   CreateUser,
   DateOfBirth,
@@ -10,14 +18,6 @@ import {
   UserId,
   Username,
 } from '../types/user.type';
-import {
-  ABOUT_DEFAULT_VALUE,
-  DATE_OF_BIRTH_DEFAULT_VALUE,
-  DATE_OF_BIRTH_REGEXP,
-  EMAIL_MIN_LENGTH,
-  PASSWORD_MIN_LENTH,
-  USERNAME_MIN_LENGTH,
-} from '../user.rules';
 
 type UserProps = {
   userId: UserId;
@@ -25,7 +25,7 @@ type UserProps = {
   email: Email;
   password: Password;
   dateOfBirth: DateOfBirth;
-  about: About;
+  about: About | null;
 };
 
 export class User {
@@ -33,7 +33,7 @@ export class User {
   private _username: Username;
   private _email: Email;
   private _password: Password;
-  private _about: About;
+  private _about: About | null;
   private _dateOfBirth: DateOfBirth;
 
   get username() {
@@ -152,9 +152,7 @@ export class User {
       email: createProps.email,
       password: createProps.password,
       dateOfBirth: createProps.dateOfBirth,
-      about: createProps.about?.length
-        ? createProps.about
-        : ABOUT_DEFAULT_VALUE,
+      about: createProps.about ?? null,
     });
   }
 
@@ -190,20 +188,6 @@ export class User {
   }
 
   get age() {
-    const currentDate = new Date();
-    const dateOfBirth = new Date(this._dateOfBirth);
-
-    let age = currentDate.getFullYear() - dateOfBirth.getFullYear();
-
-    const hasHadBirthdayThisYear =
-      currentDate.getMonth() > dateOfBirth.getMonth() ||
-      (currentDate.getMonth() === dateOfBirth.getMonth() &&
-        currentDate.getDate() >= dateOfBirth.getDate());
-
-    if (!hasHadBirthdayThisYear) {
-      age--;
-    }
-
-    return age;
+    return calculateAge(this._dateOfBirth);
   }
 }

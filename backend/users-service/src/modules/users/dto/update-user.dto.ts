@@ -8,14 +8,14 @@ import {
   IsISODateString,
   IsOptionalButNotNull,
 } from '../../../shared/decorators/validator';
-import type { About, DateOfBirth, Email, Username } from '../types/user.type';
 import {
   ABOUT_MAX_LENTH,
   EMAIL_MAX_LENGTH,
   EMAIL_MIN_LENGTH,
   USERNAME_MAX_LENGTH,
   USERNAME_MIN_LENGTH,
-} from '../user.rules';
+} from '../constants/user.rules';
+import type { About, DateOfBirth, Email, Username } from '../types/user.type';
 
 export class UpdateUserDto {
   @ApiPropertyOptional({

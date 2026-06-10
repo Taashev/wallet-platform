@@ -6,7 +6,10 @@ import { SecurityModule } from '../security/security.module';
 import { UsersModule } from '../users/users.module';
 
 import { AvatarsController } from './avatars.controller';
-import { UPLOAD_AVATAR_QUEUE_NAME } from './constants/avatar.keys';
+import {
+  AVATARS_REPOSITORY,
+  UPLOAD_AVATAR_QUEUE_NAME,
+} from './constants/avatar.keys';
 import { AvatarsRepositoryProvider } from './constants/avatars.provider';
 import { AvatarTypeOrmEntity } from './database/entities/avatar-typeorm.entity';
 import { AvatarProducer } from './producers/avatar.producer';
@@ -29,5 +32,6 @@ import { UploadAvatarUseCase } from './usecases/upload-avatar.usecase';
     UploadAvatarUseCase,
     DeleteAvatarUseCase,
   ],
+  exports: [AVATARS_REPOSITORY],
 })
 export class AvatarsModule {}

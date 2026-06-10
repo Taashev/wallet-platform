@@ -22,12 +22,16 @@ import {
   AVATARS_CONSTRAINT_AVATAR_ID_PK,
   AVATARS_CONSTRAINT_UNIQUE_CURRENT_USER,
   AVATARS_CONSTRAINT_USER_ID_FK,
+  AVATARS_INDEX_ACTIVE_USER,
 } from '../constants';
 
 @Entity({ name: 'avatars' })
 @Index(AVATARS_CONSTRAINT_UNIQUE_CURRENT_USER, ['userId'], {
   unique: true,
   where: `"current" = true AND "deleted_at" IS NULL`,
+})
+@Index(AVATARS_INDEX_ACTIVE_USER, ['userId'], {
+  where: `"deleted_at" IS NULL`,
 })
 export class AvatarTypeOrmEntity {
   @PrimaryColumn({

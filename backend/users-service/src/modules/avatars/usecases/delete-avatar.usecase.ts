@@ -45,7 +45,5 @@ export class DeleteAvatarUseCase {
         });
       }
     });
-
-    await this.fileService.delete(avatar.storageKey);
   }
 }

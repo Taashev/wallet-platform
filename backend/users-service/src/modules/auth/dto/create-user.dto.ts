@@ -11,13 +11,6 @@ import {
 
 import { Trim } from '../../../shared/decorators/transformers';
 import { IsISODateString } from '../../../shared/decorators/validator';
-import type {
-  About,
-  DateOfBirth,
-  Email,
-  Password,
-  Username,
-} from '../../users/types/user.type';
 import {
   ABOUT_MAX_LENTH,
   EMAIL_MAX_LENGTH,
@@ -25,7 +18,14 @@ import {
   PASSWORD_MIN_LENTH,
   USERNAME_MAX_LENGTH,
   USERNAME_MIN_LENGTH,
-} from '../../users/user.rules';
+} from '../../users/constants/user.rules';
+import type {
+  About,
+  DateOfBirth,
+  Email,
+  Password,
+  Username,
+} from '../../users/types/user.type';
 
 export class CreateUserDto {
   @ApiProperty({

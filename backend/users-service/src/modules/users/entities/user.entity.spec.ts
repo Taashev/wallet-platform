@@ -7,10 +7,7 @@ import {
   userIdMock,
   usernameMock,
 } from '../../../test/mocks';
-import {
-  ABOUT_DEFAULT_VALUE,
-  DATE_OF_BIRTH_DEFAULT_VALUE,
-} from '../user.rules';
+import { DATE_OF_BIRTH_DEFAULT_VALUE } from '../constants/user.rules';
 
 import { User } from './user.entity';
 
@@ -19,15 +16,13 @@ describe('User domain entity', () => {
     jest.useRealTimers();
   });
 
-  it('создает пользователя с дефолтными about и dateOfBirth', () => {
+  it('создает пользователя с дефолтными dateOfBirth', () => {
     const user = User.create({
       userId: userIdMock,
       username: usernameMock,
       email: emailMock,
       password: passwordHashMock,
     });
-
-    expect(user.about).toBe(ABOUT_DEFAULT_VALUE);
 
     expect(user.dateOfBirth).toBe(DATE_OF_BIRTH_DEFAULT_VALUE);
   });

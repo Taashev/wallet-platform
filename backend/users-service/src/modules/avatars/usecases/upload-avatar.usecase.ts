@@ -4,8 +4,8 @@ import type { IFileStorageService } from '../../../infrastructure/file-storage/f
 import { FILE_STORAGE_SERVICE } from '../../../infrastructure/file-storage/file-storage.keys';
 import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import { ValidationError } from '../../../shared/errors';
-import type { UsersRepository } from '../../users/interfaces/repository.interface';
-import { USERS_REPOSITORY } from '../../users/users.keys';
+import { USERS_REPOSITORY } from '../../users/constants/users.keys';
+import type { UsersRepository } from '../../users/interfaces/users-repository.interface';
 import {
   AVATAR_BASE_PATH_STORAGE_TMP,
   AVATAR_MAX_COUNT_PER_USER,
