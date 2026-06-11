@@ -5,11 +5,13 @@ import { NotFoundError, ValidationError } from '../../../shared/errors';
 import { USERS_REPOSITORY } from '../../users/constants/users.keys';
 import type { UsersRepository } from '../../users/interfaces/users-repository.interface';
 import { UpdateUser, UserId } from '../../users/types/user.type';
+import { ProfileCacheService } from '../profile-cache.service';
 
 @Injectable()
 export class UpdateCurrentUserUseCase {
   constructor(
     @Inject(USERS_REPOSITORY) private usersRepository: UsersRepository,
+    private profileCacheService: ProfileCacheService,
   ) {}
 
   async execute(userId: UserId, updateUserDto: UpdateUser) {
@@ -51,6 +53,8 @@ export class UpdateCurrentUserUseCase {
         expose: true,
       });
     }
+
+    await this.profileCacheService.invalidateUser(userId);
 
     return user;
   }

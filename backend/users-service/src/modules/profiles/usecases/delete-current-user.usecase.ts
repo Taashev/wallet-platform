@@ -7,12 +7,14 @@ import { SessionsService } from '../../sessions/sessions.service';
 import { USERS_REPOSITORY } from '../../users/constants/users.keys';
 import type { UsersRepository } from '../../users/interfaces/users-repository.interface';
 import { CurrentUserType } from '../../users/types/user.type';
+import { ProfileCacheService } from '../profile-cache.service';
 
 export class DeleteCurrentUserUseCase {
   constructor(
     private transactionService: TransactionService,
     private sessionsService: SessionsService,
     @Inject(USERS_REPOSITORY) private usersRepository: UsersRepository,
+    private profileCacheService: ProfileCacheService,
   ) {}
 
   async execute(currentUser: CurrentUserType) {
@@ -33,5 +35,7 @@ export class DeleteCurrentUserUseCase {
 
       await this.sessionsService.revokeAllByUserId(currentUser.userId);
     });
+
+    await this.profileCacheService.invalidateUser(currentUser.userId);
   }
 }

@@ -51,7 +51,10 @@ export class ProfileCacheService {
     }
   }
 
-  async deleteCurrent(userId: UserId): Promise<void> {
+  /**
+   * Удаляет кеш конкретного пользователя
+   */
+  async invalidateCurrent(userId: UserId): Promise<void> {
     const key = this.getCurrentProfileKey(userId);
 
     try {
@@ -89,6 +92,9 @@ export class ProfileCacheService {
     }
   }
 
+  /**
+   * Удаляет все кешированные списки
+   */
   async invalidateLists(): Promise<void> {
     try {
       await this.redisService.deleteByPattern(
@@ -99,8 +105,13 @@ export class ProfileCacheService {
     }
   }
 
+  /**
+   * Это составная операция.\
+   * Инвалидирует все кешированные представления указанного пользователя:\
+   * его текущий профиль и все списки профилей
+   */
   async invalidateUser(userId: UserId): Promise<void> {
-    await Promise.all([this.deleteCurrent(userId), this.invalidateLists()]);
+    await Promise.all([this.invalidateCurrent(userId), this.invalidateLists()]);
   }
 
   private getCurrentProfileKey(userId: UserId): string {

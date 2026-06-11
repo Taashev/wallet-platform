@@ -5,18 +5,28 @@ import {
   UsersRepositoryMock,
 } from '../../../test/factory';
 import { emailMock, userIdMock, usernameMock } from '../../../test/mocks';
+import { ProfileCacheService } from '../profile-cache.service';
 
 import { UpdateCurrentUserUseCase } from './update-current-user.usecase';
 
 describe('UpdateCurrentUserUseCase', () => {
   let usersRepository: UsersRepositoryMock;
+  let profileCacheService: jest.Mocked<
+    Pick<ProfileCacheService, 'invalidateUser'>
+  >;
 
   let updateCurrentUserUseCase: UpdateCurrentUserUseCase;
 
   beforeEach(() => {
     usersRepository = createUsersRepositoryMock();
+    profileCacheService = {
+      invalidateUser: jest.fn(),
+    };
 
-    updateCurrentUserUseCase = new UpdateCurrentUserUseCase(usersRepository);
+    updateCurrentUserUseCase = new UpdateCurrentUserUseCase(
+      usersRepository,
+      profileCacheService as unknown as ProfileCacheService,
+    );
   });
 
   it('успешно обновляет профиль пользователя', async () => {
@@ -38,6 +48,8 @@ describe('UpdateCurrentUserUseCase', () => {
       username: newUsername,
     });
 
+    expect(profileCacheService.invalidateUser).toHaveBeenCalledWith(userIdMock);
+
     expect(result).toBe(userMock);
 
     expect(result.username).toBe(newUsername);
@@ -53,6 +65,8 @@ describe('UpdateCurrentUserUseCase', () => {
     expect(usersRepository.findOneByUserId).not.toHaveBeenCalled();
 
     expect(usersRepository.updateUser).not.toHaveBeenCalled();
+
+    expect(profileCacheService.invalidateUser).not.toHaveBeenCalled();
   });
 
   it('выбрасывает NotFoundError, если пользователь не найден', async () => {
@@ -65,6 +79,8 @@ describe('UpdateCurrentUserUseCase', () => {
     ).rejects.toBeInstanceOf(NotFoundError);
 
     expect(usersRepository.updateUser).not.toHaveBeenCalled();
+
+    expect(profileCacheService.invalidateUser).not.toHaveBeenCalled();
   });
 
   it('выбрасывает ValidationError, если репозиторий не обновил пользователя', async () => {
@@ -83,5 +99,7 @@ describe('UpdateCurrentUserUseCase', () => {
     expect(usersRepository.updateUser).toHaveBeenCalledWith(userIdMock, {
       email: emailMock,
     });
+
+    expect(profileCacheService.invalidateUser).not.toHaveBeenCalled();
   });
 });
