@@ -9,9 +9,9 @@ import {
 } from '../../../shared/errors';
 import { PasswordService } from '../../security/password.service';
 import { SessionsService } from '../../sessions/sessions.service';
-import { USERS_REPOSITORY } from '../constants/users.keys';
-import type { UsersRepository } from '../interfaces/users-repository.interface';
-import { CurrentUserType, Password } from '../types/user.type';
+import { USERS_REPOSITORY } from '../../users/constants/users.keys';
+import type { UsersRepository } from '../../users/interfaces/users-repository.interface';
+import { CurrentUserType, Password } from '../../users/types/user.type';
 
 @Injectable()
 export class ChangePasswordUseCase {

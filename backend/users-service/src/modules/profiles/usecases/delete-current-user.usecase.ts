@@ -4,9 +4,9 @@ import { TransactionService } from '../../../infrastructure/transaction/transact
 import { ERROR_MESSAGES } from '../../../shared/constants/messages.error';
 import { UnauthorizedError } from '../../../shared/errors';
 import { SessionsService } from '../../sessions/sessions.service';
-import { USERS_REPOSITORY } from '../constants/users.keys';
-import type { UsersRepository } from '../interfaces/users-repository.interface';
-import { CurrentUserType } from '../types/user.type';
+import { USERS_REPOSITORY } from '../../users/constants/users.keys';
+import type { UsersRepository } from '../../users/interfaces/users-repository.interface';
+import { CurrentUserType } from '../../users/types/user.type';
 
 export class DeleteCurrentUserUseCase {
   constructor(

@@ -1,13 +1,18 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -25,12 +30,17 @@ import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import type { CurrentUserType } from '../users/types/user.type';
 
 import { ActiveProfilesQueryDto } from './dto/active-profiles-query.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { ProfileFilterDto } from './dto/get-profile-query.dto';
 import { ProfileListResponseDto } from './dto/profile-list-response.dto';
 import { ProfileResponseDto } from './dto/profile-response.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordUseCase } from './usecases/change-password.usecase';
+import { DeleteCurrentUserUseCase } from './usecases/delete-current-user.usecase';
 import { FindActiveProfilesUseCase } from './usecases/find-active-profiles.usecase';
 import { GetCurrentProfileUseCase } from './usecases/get-current-profile.usecase';
 import { GetProfilesUseCase } from './usecases/get-profiles.usecase';
+import { UpdateCurrentUserUseCase } from './usecases/update-current-user.usecase';
 
 @ApiTags('Profiles')
 @ApiBearerAuth('bearer')
@@ -43,6 +53,9 @@ export class ProfilesController {
     private findActiveProfilesUseCase: FindActiveProfilesUseCase,
     private getCurrentProfileUseCase: GetCurrentProfileUseCase,
     private getProfilesUseCase: GetProfilesUseCase,
+    private updateCurrentUserUseCase: UpdateCurrentUserUseCase,
+    private changePasswordUseCase: ChangePasswordUseCase,
+    private deleteCurrentUserUseCase: DeleteCurrentUserUseCase,
   ) {}
 
   @ApiOperation({ summary: 'Получить профиль авторизованного пользователя' })
@@ -101,5 +114,55 @@ export class ProfilesController {
       excludeExtraneousValues: true,
       groups: ['public'],
     });
+  }
+
+  @ApiOperation({ summary: 'Обновить текущий профиль пользователя' })
+  @ApiOkResponse({ type: ProfileResponseDto })
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @UseGuards(JwtAccessGuard)
+  @Patch('/me')
+  async changeCurrentUser(
+    @CurrentUser() currentUser: CurrentUserType,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const user = await this.updateCurrentUserUseCase.execute(
+      currentUser.userId,
+      updateUserDto,
+    );
+
+    const sanitazedUser = plainToInstance(ProfileResponseDto, user, {
+      groups: ['private'],
+      excludeExtraneousValues: true,
+    });
+
+    return sanitazedUser;
+  }
+
+  @ApiOperation({ summary: 'Изменить текущий пароль пользователя' })
+  @ApiNoContentResponse({ description: 'Пароль изменен' })
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAccessGuard)
+  @Patch('/me/password')
+  async changePassword(
+    @CurrentUser() currentUser: CurrentUserType,
+    @Body() passwordDto: ChangePasswordDto,
+  ) {
+    await this.changePasswordUseCase.execute(
+      currentUser,
+      passwordDto.oldPassword,
+      passwordDto.newPassword,
+    );
+  }
+
+  @ApiOperation({ summary: 'Мягкое удаление текущего пользователя' })
+  @ApiNoContentResponse({ description: 'Пользователь удален' })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAccessGuard)
+  @Delete('/me')
+  async softDeleteUser(@CurrentUser() currentUser: CurrentUserType) {
+    await this.deleteCurrentUserUseCase.execute(currentUser);
   }
 }

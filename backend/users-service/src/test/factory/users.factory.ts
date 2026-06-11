@@ -12,21 +12,21 @@ export type UsersRepositoryMock = jest.Mocked<
   Pick<
     UsersRepository,
     | 'create'
-    | 'findManyByFilter'
     | 'findOneByUserId'
     | 'findOneByUsername'
     | 'softDelete'
     | 'updateUser'
+    | 'lockById'
   >
 >;
 
 export const createUsersRepositoryMock = (): UsersRepositoryMock => ({
   create: jest.fn(),
-  findManyByFilter: jest.fn(),
   findOneByUserId: jest.fn(),
   findOneByUsername: jest.fn(),
   softDelete: jest.fn(),
   updateUser: jest.fn(),
+  lockById: jest.fn(),
 });
 
 export const createUserMock = (

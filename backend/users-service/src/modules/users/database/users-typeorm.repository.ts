@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 
 import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import { MapPostgresErrorToAppError } from '../../../shared/decorators/map-postgres-error-to-app-error';
-import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
-import { ProfileFilter } from '../../profiles/types/profile.type';
 import { User } from '../entities/user.entity';
 import { UsersRepository } from '../interfaces/users-repository.interface';
 import type {
@@ -59,32 +57,6 @@ export class UsersTypeOrmRepository implements UsersRepository {
     await repository.insert(userTypeOrmEntity);
 
     return user;
-  }
-
-  async findManyByFilter(filter: ProfileFilter, pagination: OffsetPagination) {
-    const repository =
-      this.transactionService.manager.getRepository(UserTypeOrmEntity);
-
-    const queryBuilder = repository.createQueryBuilder('user');
-
-    if (filter.username) {
-      queryBuilder.andWhere('user.username LIKE :username', {
-        username: filter.username + '%',
-      });
-    }
-
-    queryBuilder.orderBy('user_id', 'ASC');
-
-    queryBuilder.skip(pagination.offset);
-    queryBuilder.take(pagination.limit);
-
-    const [userTypeOrmEntities, count] = await queryBuilder.getManyAndCount();
-
-    const users = userTypeOrmEntities.map((userTypeormEntity) =>
-      User.restore(userTypeormEntity),
-    );
-
-    return { users, count };
   }
 
   private async findOneBy(

@@ -14,8 +14,13 @@ import {
   EMAIL_MIN_LENGTH,
   USERNAME_MAX_LENGTH,
   USERNAME_MIN_LENGTH,
-} from '../constants/user.rules';
-import type { About, DateOfBirth, Email, Username } from '../types/user.type';
+} from '../../users/constants/user.rules';
+import type {
+  About,
+  DateOfBirth,
+  Email,
+  Username,
+} from '../../users/types/user.type';
 
 export class UpdateUserDto {
   @ApiPropertyOptional({
