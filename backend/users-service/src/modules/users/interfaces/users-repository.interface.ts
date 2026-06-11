@@ -1,5 +1,3 @@
-import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
-import { ProfileFilter } from '../../profiles/types/profile.type';
 import { User } from '../entities/user.entity';
 import {
   CreateUser,
@@ -17,11 +15,6 @@ export interface UsersRepository {
   findOneByUsername(username: Username): Promise<User | null>;
 
   findOneByUserId(userId: UserId): Promise<User | null>;
-
-  findManyByFilter(
-    filter: ProfileFilter,
-    pagination: OffsetPagination,
-  ): Promise<{ users: User[]; count: number }>;
 
   softDelete(userId: UserId): Promise<boolean>;
 

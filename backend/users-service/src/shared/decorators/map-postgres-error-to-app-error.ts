@@ -5,6 +5,7 @@ import {
 import { InternalError } from '../errors';
 
 type AsyncMethod = (...args: unknown[]) => unknown;
+const ASYNC_FUNCTION_TAG = '[object AsyncFunction]';
 
 type TypedPropertyDescriptor<T> = {
   value?: T;
@@ -76,6 +77,12 @@ function applyClassDecorator<T extends { prototype: Record<string, unknown> }>(
     );
 
     if (!descriptor || typeof descriptor.value !== 'function') {
+      continue;
+    }
+
+    if (
+      Object.prototype.toString.call(descriptor.value) !== ASYNC_FUNCTION_TAG
+    ) {
       continue;
     }
 

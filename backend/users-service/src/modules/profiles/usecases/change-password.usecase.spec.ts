@@ -1,4 +1,3 @@
-import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import {
   NotFoundError,
   UnauthorizedError,
@@ -16,8 +15,6 @@ import {
   UsersRepositoryMock,
 } from '../../../test/factory';
 import { passwordMock, sessionIdMock, userIdMock } from '../../../test/mocks';
-import { PasswordService } from '../../security/password.service';
-import { SessionsService } from '../../sessions/sessions.service';
 
 import { ChangePasswordUseCase } from './change-password.usecase';
 
@@ -37,9 +34,9 @@ describe('ChangePasswordUseCase', () => {
 
     changePasswordUseCase = new ChangePasswordUseCase(
       usersRepository,
-      passwordService as unknown as PasswordService,
-      sessionsService as unknown as SessionsService,
-      transactionService as unknown as TransactionService,
+      passwordService,
+      sessionsService,
+      transactionService,
     );
   });
 

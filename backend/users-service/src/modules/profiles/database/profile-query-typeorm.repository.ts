@@ -4,7 +4,13 @@ import { TransactionService } from '../../../infrastructure/transaction/transact
 import { MapPostgresErrorToAppError } from '../../../shared/decorators/map-postgres-error-to-app-error';
 import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
 import { AVATAR_STATUSES } from '../../avatars/constants/avatar-constants';
-import { DateOfBirth } from '../../users/types/user.type';
+import {
+  About,
+  DateOfBirth,
+  Email,
+  UserId,
+  Username,
+} from '../../users/types/user.type';
 import { ProfileQueryRepository } from '../interfaces/profile-query-repository.interface';
 import {
   CurrentProfileRecord,
@@ -13,21 +19,37 @@ import {
 } from '../types/profile.type';
 
 type ProfileRow = {
-  user_id: string;
-  username: string;
-  date_of_birth: string;
-  about: string | null;
+  user_id: UserId;
+  username: Username;
+  date_of_birth: DateOfBirth;
+  about: About | null;
   avatar_id: string | null;
   storage_key: string | null;
 };
 
 type CurrentProfileRow = ProfileRow & {
-  email: string;
+  email: Email;
 };
 
 type ProfilesCountRow = {
   count: number;
 };
+
+function mapProfileRow(row: ProfileRow): ProfileRecord {
+  return {
+    userId: row.user_id,
+    username: row.username,
+    dateOfBirth: row.date_of_birth,
+    about: row.about,
+    avatar:
+      row.avatar_id !== null && row.storage_key !== null
+        ? {
+            avatarId: row.avatar_id,
+            storageKey: row.storage_key,
+          }
+        : null,
+  };
+}
 
 @Injectable()
 @MapPostgresErrorToAppError()
@@ -35,7 +57,7 @@ export class ProfileQueryTypeOrmRepository implements ProfileQueryRepository {
   constructor(private transactionService: TransactionService) {}
 
   async getProfileByUserId(
-    userId: string,
+    userId: UserId,
   ): Promise<CurrentProfileRecord | null> {
     const rows = await this.transactionService.manager.query<
       CurrentProfileRow[]
@@ -67,8 +89,10 @@ export class ProfileQueryTypeOrmRepository implements ProfileQueryRepository {
       return null;
     }
 
+    const profile = mapProfileRow(row);
+
     return {
-      ...this.changeRawToProfileRecord(row),
+      ...profile,
       email: row.email,
     };
   }
@@ -121,7 +145,7 @@ export class ProfileQueryTypeOrmRepository implements ProfileQueryRepository {
     ]);
 
     return {
-      profiles: rows.map((row) => this.changeRawToProfileRecord(row)),
+      profiles: rows.map(mapProfileRow),
       count: countRows[0]?.count ?? 0,
     };
   }
@@ -184,22 +208,6 @@ export class ProfileQueryTypeOrmRepository implements ProfileQueryRepository {
       ],
     );
 
-    return rows.map((row) => this.changeRawToProfileRecord(row));
-  }
-
-  private changeRawToProfileRecord(row: ProfileRow): ProfileRecord {
-    return {
-      userId: row.user_id,
-      username: row.username,
-      dateOfBirth: row.date_of_birth,
-      about: row.about,
-      avatar:
-        row.avatar_id !== null && row.storage_key !== null
-          ? {
-              avatarId: row.avatar_id,
-              storageKey: row.storage_key,
-            }
-          : null,
-    };
+    return rows.map(mapProfileRow);
   }
 }

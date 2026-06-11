@@ -7,8 +7,8 @@ import { Trim } from '../../../shared/decorators/transformers';
 import {
   PASSWORD_MAX_LENTH,
   PASSWORD_MIN_LENTH,
-} from '../constants/user.rules';
-import type { Password } from '../types/user.type';
+} from '../../users/constants/user.rules';
+import type { Password } from '../../users/types/user.type';
 
 export class ChangePasswordDto {
   @ApiProperty({

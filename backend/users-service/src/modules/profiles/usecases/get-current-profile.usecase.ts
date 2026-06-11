@@ -9,6 +9,7 @@ import { UserId } from '../../users/types/user.type';
 import { PROFILE_AVATAR_URL_EXPIRES_IN_SECONDS } from '../constants/profile.constants';
 import { PROFILE_QUERY_REPOSITORY } from '../constants/profile.keys';
 import type { ProfileQueryRepository } from '../interfaces/profile-query-repository.interface';
+import { ProfileCacheService } from '../profile-cache.service';
 import type {
   CurrentProfileView,
   ProfileViewAvatar,
@@ -21,19 +22,25 @@ export class GetCurrentProfileUseCase {
     private profileQueryRepository: ProfileQueryRepository,
     @Inject(FILE_STORAGE_SERVICE)
     private fileStorageService: IFileStorageService,
+    private profileCacheService: ProfileCacheService,
   ) {}
 
   async execute(userId: UserId): Promise<CurrentProfileView> {
-    const profile =
-      await this.profileQueryRepository.getProfileByUserId(userId);
+    let profile = await this.profileCacheService.getCurrent(userId);
 
-    if (!profile) {
-      throw new NotFoundError({
-        message:
-          'Access token успешно провалидирован, но пользователь не найден',
-        safeMessage: ERROR_MESSAGES.USER_NOT_FOUND,
-        expose: true,
-      });
+    if (profile === null) {
+      profile = await this.profileQueryRepository.getProfileByUserId(userId);
+
+      if (profile === null) {
+        throw new NotFoundError({
+          message:
+            'Access token успешно провалидирован, но пользователь не найден',
+          safeMessage: ERROR_MESSAGES.USER_NOT_FOUND,
+          expose: true,
+        });
+      }
+
+      await this.profileCacheService.setCurrent(profile);
     }
 
     let avatar: ProfileViewAvatar = null;
