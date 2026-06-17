@@ -4,7 +4,7 @@ import {
   ValidationOptions,
 } from 'class-validator';
 
-import { DATE_OF_BIRTH_REGEXP } from '../../modules/users/user.rules';
+import { DATE_OF_BIRTH_REGEXP } from '../../modules/users/constants/user.rules';
 
 export const IsISODateString = (validationOptions?: ValidationOptions) => {
   return (object: object, propertyName: string) => {

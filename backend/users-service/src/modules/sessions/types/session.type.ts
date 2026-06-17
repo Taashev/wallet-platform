@@ -10,10 +10,9 @@ export type CreateSession = {
   expiresAt: SessionExpiresAt;
   refreshTokenHash: SessionRefreshTokenHash;
   userId: string;
-  userAgent: SessionUserAgent | undefined;
+  userAgent?: SessionUserAgent;
 };
 
-export type RestoreSession = Omit<Required<CreateSession>, 'userAgent'> & {
+export type RestoreSession = Required<CreateSession> & {
   revokedAt: SessionRevokedAt;
-  userAgent: SessionUserAgent;
 };

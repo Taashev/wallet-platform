@@ -3,12 +3,29 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
-import { AppConfigType, ConfigType } from './config';
+import { AppConfigType, ConfigType, CorsConfigType } from './config';
 import { AppExceptionFilter } from './http/filters/app-exception.filter';
 import { buildSwagger } from './swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const configService = app.get<ConfigService<ConfigType>>(ConfigService);
+
+  const appConfig = configService.getOrThrow<AppConfigType>('app');
+
+  const corsConfig = configService.getOrThrow<CorsConfigType>('cors');
+
+  if (corsConfig.enabled) {
+    app.enableCors({
+      origin: corsConfig.origin,
+      methods: corsConfig.methods,
+      allowedHeaders: corsConfig.allowedHeaders,
+      exposedHeaders: corsConfig.exposedHeaders,
+      credentials: corsConfig.credentials,
+      maxAge: corsConfig.maxAge,
+    });
+  }
 
   app.enableVersioning({
     type: VersioningType.URI,
@@ -20,25 +37,25 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       transform: true,
-      transformOptions: { exposeDefaultValues: true },
+      transformOptions: {
+        exposeDefaultValues: true,
+        excludeExtraneousValues: true,
+      },
     }),
   );
-
-  const configService = app.get<ConfigService<ConfigType>>(ConfigService);
-
-  const appConfig = configService.getOrThrow<AppConfigType>('app');
 
   const baseUrl = `http://${appConfig.host}:${appConfig.port}`;
 
   const urlSwaggerV1 = buildSwagger(baseUrl, 'v1', app);
 
   await app.listen(appConfig.port, appConfig.host, () => {
-    console.table({
-      host: appConfig.host,
-      port: appConfig.port,
-      docsV1: urlSwaggerV1,
-      pid: process.pid,
-    });
+    if (appConfig.isDev) {
+      console.table({
+        baseUrl,
+        docsV1: urlSwaggerV1,
+        pid: process.pid,
+      });
+    }
   });
 }
 void bootstrap();

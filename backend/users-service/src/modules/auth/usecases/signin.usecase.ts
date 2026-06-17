@@ -5,8 +5,8 @@ import { UnauthorizedError } from '../../../shared/errors';
 import { PasswordService } from '../../security/password.service';
 import { TokenService } from '../../security/token.service';
 import { SessionsService } from '../../sessions/sessions.service';
-import type { UsersRepository } from '../../users/interfaces/repository.interface';
-import { USERS_REPOSITORY } from '../../users/users.keys';
+import { USERS_REPOSITORY } from '../../users/constants/users.keys';
+import type { UsersRepository } from '../../users/interfaces/users-repository.interface';
 import { AuthLocalDto } from '../dto/auth-local.dto';
 
 @Injectable()

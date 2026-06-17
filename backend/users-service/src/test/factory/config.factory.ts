@@ -4,14 +4,19 @@ import {
   AppConfigType,
   AuthConfigType,
   ConfigType,
+  CorsConfigType,
   DatabaseConfigType,
+  S3ConfigType,
   SecurityConfigType,
 } from '../../infrastructure/config';
+import { RedisConfigType } from '../../infrastructure/config/redis.config';
 import {
   appConfigMock,
   authConfigMock,
-  configMock,
+  corsConfigMock,
   databaseConfigMock,
+  redisConfigMock,
+  s3ConfigMock,
   securityConfigMock,
 } from '../mocks';
 
@@ -21,6 +26,7 @@ export type ConfigServiceMock = jest.Mocked<
 
 type CreateConfigMockProps = {
   app?: Partial<AppConfigType>;
+  cors?: Partial<CorsConfigType>;
   security?: Partial<SecurityConfigType>;
   auth?: {
     accessToken?: Partial<AuthConfigType['accessToken']>;
@@ -28,6 +34,8 @@ type CreateConfigMockProps = {
     session?: Partial<AuthConfigType['session']>;
   };
   database?: Partial<DatabaseConfigType>;
+  s3?: Partial<S3ConfigType>;
+  redis?: Partial<RedisConfigType>;
 };
 
 export const createConfigMock = (
@@ -36,6 +44,10 @@ export const createConfigMock = (
   app: {
     ...appConfigMock,
     ...props.app,
+  },
+  cors: {
+    ...corsConfigMock,
+    ...props.cors,
   },
   security: {
     ...securityConfigMock,
@@ -59,7 +71,17 @@ export const createConfigMock = (
     ...databaseConfigMock,
     ...props.database,
   },
+  s3: {
+    ...s3ConfigMock,
+    ...props.s3,
+  },
+  redis: {
+    ...redisConfigMock,
+    ...props.redis,
+  },
 });
+
+export const configMock: ConfigType = createConfigMock();
 
 export const createConfigServiceMock = (
   config: ConfigType = configMock,

@@ -2,14 +2,12 @@ import { Injectable } from '@nestjs/common';
 
 import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import { MapPostgresErrorToAppError } from '../../../shared/decorators/map-postgres-error-to-app-error';
-import { OffsetPagination } from '../../../shared/pagination/offset-pagination.type';
 import { User } from '../entities/user.entity';
-import { UsersRepository } from '../interfaces/repository.interface';
+import { UsersRepository } from '../interfaces/users-repository.interface';
 import type {
   CreateUser,
   FindOneUserCriteria,
   UpdateUser,
-  UserFilter,
   UserId,
   Username,
 } from '../types/user.type';
@@ -21,6 +19,25 @@ import { UserTypeOrmEntity } from './entities/user-typeorm.entity';
 @MapPostgresErrorToAppError(userPostgresErrorMap)
 export class UsersTypeOrmRepository implements UsersRepository {
   constructor(private transactionService: TransactionService) {}
+
+  async lockById(userId: UserId, options?: { nowait?: boolean }) {
+    const repository =
+      this.transactionService.manager.getRepository(UserTypeOrmEntity);
+
+    const queryBuilder = repository.createQueryBuilder('users');
+
+    queryBuilder.select('users.userId');
+
+    queryBuilder.setLock('pessimistic_write');
+
+    if (options?.nowait === true) {
+      queryBuilder.setOnLocked('nowait');
+    }
+
+    queryBuilder.where('users.user_id = :userId', { userId });
+
+    await queryBuilder.getOneOrFail();
+  }
 
   async create(createUser: CreateUser) {
     const repository =
@@ -40,32 +57,6 @@ export class UsersTypeOrmRepository implements UsersRepository {
     await repository.insert(userTypeOrmEntity);
 
     return user;
-  }
-
-  async findManyByFilter(filter: UserFilter, pagination: OffsetPagination) {
-    const repository =
-      this.transactionService.manager.getRepository(UserTypeOrmEntity);
-
-    const queryBuilder = repository.createQueryBuilder('user');
-
-    if (filter.username) {
-      queryBuilder.andWhere('user.username LIKE :username', {
-        username: filter.username + '%',
-      });
-    }
-
-    queryBuilder.orderBy('user_id', 'ASC');
-
-    queryBuilder.skip(pagination.offset);
-    queryBuilder.take(pagination.limit);
-
-    const [userTypeOrmEntities, count] = await queryBuilder.getManyAndCount();
-
-    const users = userTypeOrmEntities.map((userTypeormEntity) =>
-      User.restore(userTypeormEntity),
-    );
-
-    return { users, count };
   }
 
   private async findOneBy(

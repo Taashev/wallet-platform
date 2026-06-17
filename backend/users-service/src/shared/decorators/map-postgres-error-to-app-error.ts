@@ -5,6 +5,7 @@ import {
 import { InternalError } from '../errors';
 
 type AsyncMethod = (...args: unknown[]) => unknown;
+const ASYNC_FUNCTION_TAG = '[object AsyncFunction]';
 
 type TypedPropertyDescriptor<T> = {
   value?: T;
@@ -30,7 +31,10 @@ function wrapMethod(
       const appError = mapPostgresErrorToAppError(error as Error, errorMap);
 
       if (!appError) {
-        throw new InternalError();
+        throw new InternalError({
+          expose: false,
+          details: error as Record<string, string>,
+        });
       }
 
       throw appError;
@@ -79,10 +83,13 @@ function applyClassDecorator<T extends { prototype: Record<string, unknown> }>(
       continue;
     }
 
-    const updatedDescriptor = applyMethodDecorator(
-      descriptor as TypedPropertyDescriptor<AsyncMethod>,
-      errorMap,
-    );
+    if (
+      Object.prototype.toString.call(descriptor.value) !== ASYNC_FUNCTION_TAG
+    ) {
+      continue;
+    }
+
+    const updatedDescriptor = applyMethodDecorator(descriptor, errorMap);
 
     Object.defineProperty(target.prototype, propertyName, updatedDescriptor);
   }

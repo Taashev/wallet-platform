@@ -1,14 +1,6 @@
 # users-service
 
-`users-service` — backend-сервис на `NestJS`, который отвечает за регистрацию, аутентификацию, сессии и управление профилем пользователя в проекте `Wallet Platform`.
-
-Сервис использует:
-
-- `NestJS 11`
-- `TypeORM`
-- `PostgreSQL`
-- `Swagger`
-- `JWT access/refresh tokens`
+`users-service` — отвечает за регистрацию, аутентификацию, сессии и управление профилем пользователя в проекте `Wallet Platform`.
 
 ## Что умеет сервис
 
@@ -22,22 +14,19 @@
 - мягкое удаление текущего пользователя;
 - получение списка пользователей с пагинацией и фильтром по `username`.
 
-## Требования
-
-- `Node.js` 24.13.1;
-- `npm` 11.8.0;
-- `Docker` и `Docker Compose` для локального запуска PostgreSQL.
-
 ## Переменные окружения
 
 Сервис читает конфигурацию из файла `.env` в корне `users-service`.
 
-Обязательные переменные:
+Минимальный рабочий пример:
 
 ```env
 NODE_ENV=development
-APP_HOST=127.0.0.1
+APP_HOST=localhost
 APP_PORT=8080
+
+CORS_ORIGINS=*
+CORS_ENABLED=true
 
 PASSWORD_SALT=10
 
@@ -54,10 +43,44 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 ```
 
+Обязательные переменные:
+
+- `NODE_ENV`
+- `CORS_ORIGINS`
+- `ACCESS_TOKEN_SECRET`
+- `REFRESH_TOKEN_SECRET`
+- `ACCESS_TOKEN_TTL_SECONDS`
+- `REFRESH_TOKEN_TTL_SECONDS`
+- `SESSION_TTL_SECONDS`
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+
+Опциональные переменные и значения по умолчанию:
+
+- `APP_HOST=localhost`
+- `APP_PORT=8080`
+- `CORS_METHODS=GET,POST,PUT,PATCH,DELETE,OPTIONS`
+- `CORS_ALLOWED_HEADERS=Content-Type,Authorization`
+- `CORS_EXPOSED_HEADERS=`
+- `CORS_CREDENTIALS=false`
+- `CORS_MAX_AGE_SECONDS=3600`
+- `CORS_ENABLED=false`
+- `PASSWORD_SALT=10`
+- `POSTGRES_HOST=localhost`
+- `POSTGRES_PORT=5432`
+
 Назначение переменных:
 
 - `NODE_ENV` — окружение приложения: `development`, `test` или `production`;
 - `APP_HOST` / `APP_PORT` — адрес и порт HTTP-сервера;
+- `CORS_ORIGINS` — список разрешённых origin через запятую или `*`;
+- `CORS_METHODS` — список разрешённых HTTP-методов для CORS;
+- `CORS_ALLOWED_HEADERS` — список request headers, разрешённых в CORS-запросах;
+- `CORS_EXPOSED_HEADERS` — список response headers, доступных в браузере;
+- `CORS_CREDENTIALS` — разрешены ли cookies и auth headers в CORS-запросах;
+- `CORS_MAX_AGE_SECONDS` — время кеширования `preflight`-ответа браузером;
+- `CORS_ENABLED` — включает или отключает `CORS` при старте;
 - `PASSWORD_SALT` — количество salt rounds для `bcrypt`;
 - `ACCESS_TOKEN_SECRET` — секрет для access token;
 - `REFRESH_TOKEN_SECRET` — секрет для refresh token;
@@ -66,13 +89,42 @@ POSTGRES_PASSWORD=postgres
 - `SESSION_TTL_SECONDS` — срок жизни записи сессии в БД;
 - `POSTGRES_HOST` / `POSTGRES_PORT` / `POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD` — параметры подключения к PostgreSQL.
 
+## CORS
+
+Конфигурация `CORS` читается из `.env`, валидируется на старте и приводится к runtime-конфигу до инициализации Nest-приложения.
+
+Поддерживаемое поведение:
+
+- если `CORS_ENABLED=false`, `CORS` не включается вообще;
+- `CORS_ORIGINS` может быть `*` или списком origin через запятую;
+- строковые значения `true` / `false` для `CORS_ENABLED` и `CORS_CREDENTIALS` явно валидируются;
+- если опциональные `CORS_*` переменные не заданы, сервис использует дефолтные значения из конфига.
+
+Пример строгого allowlist для локальной разработки:
+
+```env
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+CORS_ENABLED=true
+CORS_CREDENTIALS=false
+```
+
+Пример для сценария с wildcard:
+
+```env
+CORS_ORIGINS=*
+CORS_ENABLED=true
+```
+
+Для production лучше использовать явный allowlist, а не `*`.
+
 ## Быстрый старт
 
 ### 1. Установить зависимости
 
+Перейти в корень проекта и установиь зависимости
+
 ```bash
-cd backend/users-service
-npm install
+npm i
 ```
 
 ### 2. Создать `.env`
@@ -81,10 +133,11 @@ npm install
 
 ### 3. Поднять PostgreSQL
 
-В каталоге `backend/users-service` есть `docker-compose.yml`, который поднимает только базу данных.
+В каталоге корне проекта есть `docker-compose.yml`, который поднимает необходимые сервисы.
+
+Выполнить команду из корня проекта
 
 ```bash
-cd backend/users-service
 docker compose up -d
 ```
 
@@ -132,7 +185,34 @@ npm run test          # unit tests
 
 npm run migrate:up    # применить миграции
 npm run migrate:down  # откатить последнюю миграцию
+
+npm run users:generate -- 100                    # создать 100 пользователей
+npm run users:generate -- 100 MyStrongPassword   # задать общий пароль
+
+npm run avatars:generate                         # для всех пользователей по 1–5 аватаров
+npm run avatars:generate -- 100                  # для первых 100 пользователей по 1–5 аватаров
+npm run avatars:generate -- 100 3                # довести первых 100 пользователей до 3 аватаров
+npm run avatars:generate -- all 3                # довести всех пользователей до 3 аватаров
 ```
+
+Генератор использует подключение к PostgreSQL и `PASSWORD_SALT` из `.env`.
+Для каждого пользователя создаётся USD-кошелёк со стартовым балансом приложения.
+По умолчанию пароль всех созданных пользователей — `123123123`.
+
+Генератор аватаров использует PostgreSQL и S3 из `.env`. Второй аргумент
+задаёт целевое общее количество активных аватаров, поэтому существующие
+аватары учитываются, а повторный запуск не превышает лимит пользователя.
+Сгенерированные WebP-файлы сразу получают статус `ready`, последний созданный
+аватар становится текущим.
+
+Для массовой генерации скрипт создаёт фиксированный пул из пяти общих WebP-файлов
+с префиксом `avatars/generated/`. Каждый пользователь получает от 1 до 5
+отдельных записей в таблице `avatars`, которые ссылаются на разные файлы этого
+пула. Поэтому количество объектов в S3 не зависит от количества пользователей.
+Размер пользовательского батча настраивается константой `USERS_BATCH_SIZE`.
+
+Перед массовой генерацией примените миграции: индекс активных аватаров по
+`user_id` необходим для быстрого повторного запуска на большой таблице.
 
 ## HTTP API
 
@@ -154,7 +234,7 @@ CLI подключается к БД через `.env`, используя data 
 
 Базовый сценарий проверки:
 
-1. Открыть Swagger: `http://127.0.0.1:8080/docs/v1`
+1. Открыть Swagger: `http://localhost:8080/docs/v1`
 2. Выполнить `POST /v1/auth/signup`
 3. Скопировать `accessToken`
 4. Авторизоваться через кнопку `Authorize` в Swagger

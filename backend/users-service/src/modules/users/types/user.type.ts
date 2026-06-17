@@ -12,7 +12,7 @@ export type CreateUser = {
   email: Email;
   password: Password;
   dateOfBirth?: DateOfBirth;
-  about?: About;
+  about?: About | null;
 };
 
 export type RestoreUser = Required<CreateUser>;
@@ -24,9 +24,5 @@ export type UpdateUser = Partial<
 export type FindOneUserCriteria =
   | { userId: UserId; username?: never }
   | { username: Username; userId?: never };
-
-export type UserFilter = {
-  username?: Username;
-};
 
 export type CurrentUserType = { sessionId: string; userId: UserId };
