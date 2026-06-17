@@ -37,7 +37,10 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       transform: true,
-      transformOptions: { exposeDefaultValues: true },
+      transformOptions: {
+        exposeDefaultValues: true,
+        excludeExtraneousValues: true,
+      },
     }),
   );
 

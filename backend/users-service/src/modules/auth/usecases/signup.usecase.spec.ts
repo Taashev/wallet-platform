@@ -7,11 +7,14 @@ import {
   createTransactionServiceMock,
   createUserMock,
   createUsersRepositoryMock,
+  createWalletMock,
+  createWalletRepositoryMock,
   PasswordServiceMock,
   SessionsServiceMock,
   TokenServiceMock,
   TransactionServiceMock,
   UsersRepositoryMock,
+  WalletRepositoryMock,
 } from '../../../test/factory';
 import {
   aboutMock,
@@ -28,6 +31,7 @@ import {
 import { PasswordService } from '../../security/password.service';
 import { TokenService } from '../../security/token.service';
 import { SessionsService } from '../../sessions/sessions.service';
+import { WalletRepository } from '../../wallet/interfaces/wallet-repository.intreface';
 
 import { SignupUseCase } from './signup.usecase';
 
@@ -37,6 +41,7 @@ describe('SignUpUseCase', () => {
   let tokenService: TokenServiceMock;
   let passwordService: PasswordServiceMock;
   let transactionServie: TransactionServiceMock;
+  let walletRepository: WalletRepositoryMock;
 
   let signUpUseCase: SignupUseCase;
 
@@ -46,9 +51,11 @@ describe('SignUpUseCase', () => {
     tokenService = createTokenServiceMock();
     passwordService = createPasswordServiceMock();
     transactionServie = createTransactionServiceMock();
+    walletRepository = createWalletRepositoryMock();
 
     signUpUseCase = new SignupUseCase(
       usersRepository,
+      walletRepository as unknown as WalletRepository,
       sessionsService as unknown as SessionsService,
       tokenService as unknown as TokenService,
       passwordService as unknown as PasswordService,
@@ -56,15 +63,18 @@ describe('SignUpUseCase', () => {
     );
   });
 
-  it('создает пользователя, сессию и возвращает auth tokens', async () => {
+  it('создает пользователя, кошелек, сессию и возвращает auth tokens', async () => {
     const userMock = createUserMock();
     const sessionMock = createSessionMock();
+    const walletMock = createWalletMock();
 
     passwordService.hash.mockResolvedValue(passwordHashMock);
 
     jest.spyOn(crypto, 'randomUUID').mockReturnValue(userIdMock);
 
     sessionsService.generateSessionId.mockReturnValue(sessionIdMock);
+
+    walletRepository.create.mockResolvedValue(walletMock);
 
     tokenService.createAuthTokens.mockReturnValue(authTokensMock);
 
@@ -88,6 +98,8 @@ describe('SignUpUseCase', () => {
     );
 
     expect(passwordService.hash).toHaveBeenCalledWith(passwordMock);
+
+    expect(walletRepository.create).toHaveBeenCalledWith(userIdMock);
 
     expect(sessionsService.generateSessionId).toHaveBeenCalledTimes(1);
 

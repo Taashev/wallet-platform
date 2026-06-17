@@ -11,6 +11,15 @@
     "backend/*"
   ],
   "scripts": {
+    "us:start:debug": "npm run start:debug -w @backend/users-service",
+    "us:start:worker:dev": "npm run start:worker:dev -w @backend/users-service",
+    "us:migrate:up": "npm run migrate:up -w @backend/users-service",
+    "us:migrate:down": "npm run migrate:down -w @backend/users-service",
+    "us:migrate:generate": "npm run migrate:generate -w @backend/users-service",
+    "us:migrate:create": "npm run migrate:create -w @backend/users-service",
+    "us:test": "npm run test -w @backend/users-service",
+    "us:users:generate": "npm run users:generate -w @backend/users-service",
+    "us:avatars:generate": "npm run avatars:generate -w @backend/users-service",
     "prepare": "husky",
     "lint-staged": "lint-staged",
     "lint:fix": "eslint --fix",

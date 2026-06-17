@@ -5,6 +5,11 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 
 import { UserTypeOrmEntity } from '../../../modules/users/database/entities/user-typeorm.entity';
+import {
+  WALLET_DEFAULT_BALANCE_CENTS,
+  WALLET_DEFAULT_CURRENCY,
+} from '../../../modules/wallet/constants/wallet.constant';
+import { WalletTypeOrmEntity } from '../../../modules/wallet/database/entities/wallet-typeorm.entity';
 import { SecurityEnv, securityEnvSchema } from '../../config/auth.config';
 import { DatabaseEnv, databaseEnvSchema } from '../../config/database.config';
 import { getDataSourceOptions } from '../data-source';
@@ -64,12 +69,20 @@ function createUser(
   };
 }
 
+function createWallet(userId: string) {
+  return {
+    walletId: randomUUID(),
+    currency: WALLET_DEFAULT_CURRENCY,
+    balance: String(WALLET_DEFAULT_BALANCE_CENTS),
+    userId,
+  };
+}
+
 async function generateUsers(
   dataSource: DataSource,
   count: number,
   passwordHash: string,
 ): Promise<void> {
-  const repository = dataSource.getRepository(UserTypeOrmEntity);
   const runId = `${Date.now().toString(36)}_${randomUUID().slice(0, 8)}`;
 
   for (let offset = 0; offset < count; offset += INSERT_BATCH_SIZE) {
@@ -77,9 +90,16 @@ async function generateUsers(
     const users = Array.from({ length: batchSize }, (_, index) =>
       createUser(offset + index, runId, passwordHash),
     );
+    const wallets = users.map((user) => createWallet(user.userId));
 
-    await repository.insert(users);
-    console.log(`Создано пользователей: ${offset + batchSize}/${count}`);
+    await dataSource.transaction(async (manager) => {
+      await manager.getRepository(UserTypeOrmEntity).insert(users);
+      await manager.getRepository(WalletTypeOrmEntity).insert(wallets);
+    });
+
+    console.log(
+      `Создано пользователей и кошельков: ${offset + batchSize}/${count}`,
+    );
   }
 }
 
