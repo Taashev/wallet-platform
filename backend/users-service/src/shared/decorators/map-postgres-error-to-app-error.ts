@@ -31,7 +31,10 @@ function wrapMethod(
       const appError = mapPostgresErrorToAppError(error as Error, errorMap);
 
       if (!appError) {
-        throw new InternalError();
+        throw new InternalError({
+          expose: false,
+          details: error as Record<string, string>,
+        });
       }
 
       throw appError;

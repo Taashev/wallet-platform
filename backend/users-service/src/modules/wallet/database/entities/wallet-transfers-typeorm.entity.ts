@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -13,6 +14,7 @@ import type { WalletCurrency } from '../../types/wallet.type';
 import {
   WALLET_TRANSFERS_CONSTAINT_FROM_WALLET_ID_FK,
   WALLET_TRANSFERS_CONSTAINT_TO_WALLET_ID_FK,
+  WALLET_TRANSFERS_CONSTRAINT_CHECK_AMOUNT,
   WALLET_TRANSFERS_CONSTRAINT_UNIQUE_IDEMPOTENCY_KEY,
   WALLET_TRANSFERS_CONSTRAINT_WALLET_TRANSFER_ID_PK,
 } from '../cosntant/wallet.constant';
@@ -23,6 +25,7 @@ import { WalletTypeOrmEntity } from './wallet-typeorm.entity';
   'fromWalletId',
   'idempotencyKey',
 ])
+@Check(WALLET_TRANSFERS_CONSTRAINT_CHECK_AMOUNT, 'amount > 0')
 @Entity({ name: 'wallet_transfers' })
 export class WalletTransferTypeOrmEntity {
   @PrimaryColumn({
@@ -55,7 +58,7 @@ export class WalletTransferTypeOrmEntity {
 
   @ManyToOne(() => WalletTypeOrmEntity, {
     nullable: false,
-    onDelete: 'RESTRICT',
+    onDelete: 'CASCADE',
   })
   @JoinColumn({
     name: 'from_wallet_id',
@@ -65,7 +68,7 @@ export class WalletTransferTypeOrmEntity {
 
   @ManyToOne(() => WalletTypeOrmEntity, {
     nullable: false,
-    onDelete: 'RESTRICT',
+    onDelete: 'CASCADE',
   })
   @JoinColumn({
     name: 'to_wallet_id',

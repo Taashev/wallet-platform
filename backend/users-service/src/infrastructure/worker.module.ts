@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AvatarsWorkerModule } from '../modules/avatars/avatars-worker.module';
+import { WalletWorkerModule } from '../modules/wallet/wallet-worker.module';
 
 import { bullmqModuleOptions } from './bullmq/bullmq-options';
 import { configModuleOptions } from './config/config-options';
@@ -19,6 +20,7 @@ import { TransactionModule } from './transaction/transaction.module';
     FileStorageModule.forRoot(),
     TransactionModule,
     AvatarsWorkerModule,
+    WalletWorkerModule,
   ],
 })
 export class WorkerModule {}

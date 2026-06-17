@@ -2,10 +2,10 @@ import {
   Body,
   Controller,
   Get,
-  Headers,
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +16,7 @@ import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import type { CurrentUserType } from '../users/types/user.type';
 
 import { CreateTransferDto } from './dto/create-transfer.dto';
+import { WalletProducer } from './producers/wallet.producer';
 import { CreateWalletTransferUseCase } from './usecases/create-transfer.usecase';
 import { GetWalletUseCase } from './usecases/get-wallet.usecase';
 
@@ -24,6 +25,7 @@ export class WalletController {
   constructor(
     private getWalletUseCase: GetWalletUseCase,
     private createWalletTransferUseCase: CreateWalletTransferUseCase,
+    private walletProducer: WalletProducer,
   ) {}
 
   @UseGuards(JwtAccessGuard)
@@ -48,5 +50,12 @@ export class WalletController {
       transferDto.currency,
       idempotencyKey,
     );
+  }
+
+  @UseGuards(JwtAccessGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch('reset')
+  async reset() {
+    await this.walletProducer.sendResetWallet();
   }
 }

@@ -19,7 +19,7 @@ export type CreateWalletOperation = {
   operationId: string;
   amount: number;
   type: WalletOperationType;
-  transferId: string;
+  transferId?: string | null;
   walletId: string;
 };
 
@@ -28,7 +28,7 @@ export type WalletOperationType =
 
 // wallet transfers
 
-export type CreateWaleltTransfer = {
+export type CreateWalletTransfer = {
   transferId: string;
   fromWalletId: string;
   toWalletId: string;

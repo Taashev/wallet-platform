@@ -21,12 +21,17 @@ import {
 export type WalletRepositoryMock = jest.Mocked<
   Pick<
     WalletRepository,
-    'create' | 'getByUserId' | 'getByUserIds' | 'updateBalance'
+    | 'create'
+    | 'getByUserId'
+    | 'getByUserIds'
+    | 'findByCurrencyWithCursor'
+    | 'updateBalance'
+    | 'updateManyBalance'
   >
 >;
 
 export type WalletOperationsRepositoryMock = jest.Mocked<
-  Pick<WalletOperationsRepository, 'create'>
+  Pick<WalletOperationsRepository, 'create' | 'createMany'>
 >;
 
 export type WalletTransfersRepositoryMock = jest.Mocked<
@@ -37,12 +42,15 @@ export const createWalletRepositoryMock = (): WalletRepositoryMock => ({
   create: jest.fn(),
   getByUserId: jest.fn(),
   getByUserIds: jest.fn(),
+  findByCurrencyWithCursor: jest.fn(),
   updateBalance: jest.fn(),
+  updateManyBalance: jest.fn(),
 });
 
 export const createWalletOperationsRepositoryMock =
   (): WalletOperationsRepositoryMock => ({
     create: jest.fn(),
+    createMany: jest.fn(),
   });
 
 export const createWalletTransfersRepositoryMock =

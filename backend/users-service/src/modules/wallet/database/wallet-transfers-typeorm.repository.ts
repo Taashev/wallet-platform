@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { TransactionService } from '../../../infrastructure/transaction/transaction.service';
 import { WalletTransfersRepository } from '../interfaces/wallet-transfers-repository.interface';
 import { WalletTransfer } from '../interfaces/wallet.interface';
-import { CreateWaleltTransfer, WalletCurrency } from '../types/wallet.type';
+import { CreateWalletTransfer, WalletCurrency } from '../types/wallet.type';
 
 import { WalletTransferTypeOrmEntity } from './entities/wallet-transfers-typeorm.entity';
 
@@ -20,12 +20,12 @@ type WalletTransferRow = {
 export class WalletTransfersTypeOrmRepository implements WalletTransfersRepository {
   constructor(private transactionService: TransactionService) {}
 
-  async create(createTransfer: CreateWaleltTransfer): Promise<WalletTransfer> {
+  async create(createTransfer: CreateWalletTransfer): Promise<WalletTransfer> {
     const repository = this.transactionService.manager.getRepository(
       WalletTransferTypeOrmEntity,
     );
 
-    const transferTypeOrmEntity = await repository.save({
+    const transferTypeOrmEntity = repository.create({
       walletTransferId: createTransfer.transferId,
       fromWalletId: createTransfer.fromWalletId,
       toWalletId: createTransfer.toWalletId,
@@ -33,6 +33,8 @@ export class WalletTransfersTypeOrmRepository implements WalletTransfersReposito
       currency: createTransfer.currency,
       idempotencyKey: createTransfer.idempotencyKey,
     });
+
+    await repository.insert(transferTypeOrmEntity);
 
     return {
       walletTransferId: transferTypeOrmEntity.walletTransferId,
