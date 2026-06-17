@@ -3,18 +3,22 @@ import {
   CURRENCY,
   WALLET_DEFAULT_BALANCE_CENTS,
 } from '../constants/wallet.constant';
-import { CreateWallet, RestoreWallet } from '../types/wallet.type';
+import {
+  CreateWallet,
+  RestoreWallet,
+  WalletCurrency,
+} from '../types/wallet.type';
 
 export interface WalletProps {
   walletId: string;
-  currency: keyof typeof CURRENCY;
+  currency: WalletCurrency;
   balance: number;
   userId: string;
 }
 
 export class WalletEntity {
   private readonly _walletId: string;
-  private readonly _currency: keyof typeof CURRENCY;
+  private readonly _currency: WalletCurrency;
   private _balance: number;
   private readonly _userId: string;
 
@@ -68,7 +72,7 @@ export class WalletEntity {
 
     return new WalletEntity({
       walletId: props.walletId,
-      currency: props.currency ?? CURRENCY.USD,
+      currency: props.currency,
       balance: props.balance ?? WALLET_DEFAULT_BALANCE_CENTS,
       userId: props.userId,
     });
@@ -76,5 +80,34 @@ export class WalletEntity {
 
   static restore(props: RestoreWallet) {
     return new WalletEntity(props);
+  }
+
+  withdraw(amount: number) {
+    if (amount <= 0) {
+      throw new ValidationError({
+        message: 'Сумма должна быть положительной',
+        expose: true,
+      });
+    }
+
+    if (this.balance < amount) {
+      throw new ValidationError({
+        message: `Недостаточно средств. Кошелек ${this.walletId}, баланс ${this.balance}, сумма операции ${amount}`,
+        expose: true,
+      });
+    }
+
+    this._balance -= amount;
+  }
+
+  deposit(amount: number) {
+    if (amount <= 0) {
+      throw new ValidationError({
+        message: 'Сумма должна быть положительной',
+        expose: true,
+      });
+    }
+
+    this._balance += amount;
   }
 }

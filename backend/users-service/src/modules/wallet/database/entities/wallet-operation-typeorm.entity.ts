@@ -8,12 +8,15 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 
+import type { WalletOperationType } from '../../types/wallet.type';
 import {
   WALLET_OPERATIONS_CONSTRAINT_CHECK_AMOUNT,
   WALLET_OPERATIONS_CONSTRAINT_WALLET_ID_FK,
   WALLET_OPERATIONS_CONSTRAINT_WALLET_OPERATION_ID_PK,
+  WALLET_OPERATIONS_CONSTRAINT_WALLET_TRANSFER_ID_FK,
 } from '../cosntant/wallet.constant';
 
+import { WalletTransferTypeOrmEntity } from './wallet-transfers-typeorm.entity';
 import { WalletTypeOrmEntity } from './wallet-typeorm.entity';
 
 @Check(WALLET_OPERATIONS_CONSTRAINT_CHECK_AMOUNT, 'amount != 0')
@@ -39,7 +42,10 @@ export class WalletOperationTypeOrmEntity {
     name: 'operation_type',
     nullable: false,
   })
-  operationType!: string;
+  operationType!: WalletOperationType;
+
+  @Column({ type: 'uuid', name: 'wallet_transfer_id', nullable: false })
+  walletTransferId!: string;
 
   @Column({ type: 'uuid', name: 'wallet_id', nullable: false })
   walletId!: string;
@@ -53,4 +59,15 @@ export class WalletOperationTypeOrmEntity {
     foreignKeyConstraintName: WALLET_OPERATIONS_CONSTRAINT_WALLET_ID_FK,
   })
   wallet!: WalletTypeOrmEntity;
+
+  @ManyToOne(() => WalletTransferTypeOrmEntity, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+  })
+  @JoinColumn({
+    name: 'wallet_transfer_id',
+    foreignKeyConstraintName:
+      WALLET_OPERATIONS_CONSTRAINT_WALLET_TRANSFER_ID_FK,
+  })
+  walletTransfer!: WalletTransferTypeOrmEntity;
 }

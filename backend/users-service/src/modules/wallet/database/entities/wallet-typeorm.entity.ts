@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 
 import { UserTypeOrmEntity } from '../../../users/database/entities/user-typeorm.entity';
-import { CURRENCY } from '../../constants/wallet.constant';
+import type { WalletCurrency } from '../../types/wallet.type';
 import {
   WALLET_CONSTRAINT_CHECK_BALANCE,
   WALLET_CONSTRAINT_UNIQUE_USERID_CURRENCY,
@@ -37,7 +37,7 @@ export class WalletTypeOrmEntity {
   updatedAt!: Date;
 
   @Column({ type: 'varchar', length: 3, nullable: false })
-  currency!: keyof typeof CURRENCY;
+  currency!: WalletCurrency;
 
   @Column({ type: 'bigint', nullable: false })
   balance!: string;

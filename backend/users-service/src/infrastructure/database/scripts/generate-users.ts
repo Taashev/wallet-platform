@@ -6,8 +6,8 @@ import { DataSource } from 'typeorm';
 
 import { UserTypeOrmEntity } from '../../../modules/users/database/entities/user-typeorm.entity';
 import {
-  CURRENCY,
   WALLET_DEFAULT_BALANCE_CENTS,
+  WALLET_DEFAULT_CURRENCY,
 } from '../../../modules/wallet/constants/wallet.constant';
 import { WalletTypeOrmEntity } from '../../../modules/wallet/database/entities/wallet-typeorm.entity';
 import { SecurityEnv, securityEnvSchema } from '../../config/auth.config';
@@ -72,7 +72,7 @@ function createUser(
 function createWallet(userId: string) {
   return {
     walletId: randomUUID(),
-    currency: CURRENCY.USD,
+    currency: WALLET_DEFAULT_CURRENCY,
     balance: String(WALLET_DEFAULT_BALANCE_CENTS),
     userId,
   };
