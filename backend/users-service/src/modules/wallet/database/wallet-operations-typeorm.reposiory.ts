@@ -14,24 +14,35 @@ export class WalletOperationsTypeOrmRepository implements WalletOperationsReposi
   async create(
     createOperation: CreateWalletOperation,
   ): Promise<WalletOperation> {
+    const [operation] = await this.createMany([createOperation]);
+    return operation;
+  }
+
+  async createMany(
+    createOperations: CreateWalletOperation[],
+  ): Promise<WalletOperation[]> {
     const repository = this.transactionService.manager.getRepository(
       WalletOperationTypeOrmEntity,
     );
 
-    const walletOperationTypeOrmEntity = await repository.save({
-      walletOperationId: createOperation.operationId,
-      amount: String(createOperation.amount),
-      operationType: createOperation.type,
-      walletTransferId: createOperation.transferId,
-      walletId: createOperation.walletId,
-    });
+    const operations = repository.create(
+      createOperations.map((t) => ({
+        walletOperationId: t.operationId,
+        amount: String(t.amount),
+        operationType: t.type,
+        walletTransferId: t.transferId ?? null,
+        walletId: t.walletId,
+      })),
+    );
 
-    return {
-      walletOperationId: walletOperationTypeOrmEntity.walletOperationId,
-      amount: Number(walletOperationTypeOrmEntity.amount),
-      operationType: walletOperationTypeOrmEntity.operationType,
-      walletTransferId: walletOperationTypeOrmEntity.walletTransferId,
-      walletId: walletOperationTypeOrmEntity.walletId,
-    };
+    await repository.insert(operations);
+
+    return operations.map((t) => ({
+      walletOperationId: t.walletOperationId,
+      amount: Number(t.amount),
+      operationType: t.operationType,
+      walletTransferId: t.walletTransferId,
+      walletId: t.walletId,
+    }));
   }
 }

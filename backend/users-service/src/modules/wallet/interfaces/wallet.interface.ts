@@ -4,7 +4,7 @@ export interface WalletOperation {
   walletOperationId: string;
   amount: number;
   operationType: WalletOperationType;
-  walletTransferId: string;
+  walletTransferId: string | null;
   walletId: string;
 }
 

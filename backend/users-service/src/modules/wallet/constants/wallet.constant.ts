@@ -10,3 +10,7 @@ export const WALLET_OPERATION_TYPE = {
   TRANSFER_IN: 'transfer_in',
   TRANSFER_OUT: 'transfer_out',
 } as const;
+
+export const WALLET_QUEUE = 'wallet-queue';
+
+export const WALLET_JOBS = { RESET_WALLET: 'reset-wallet' };

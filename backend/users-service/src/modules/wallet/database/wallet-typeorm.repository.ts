@@ -8,6 +8,7 @@ import {
 } from '../constants/wallet.constant';
 import { WalletEntity } from '../entities/wallet.entity';
 import { WalletRepository } from '../interfaces/wallet-repository.intreface';
+import { WalletCurrency } from '../types/wallet.type';
 
 import { WalletTypeOrmEntity } from './entities/wallet-typeorm.entity';
 
@@ -48,6 +49,19 @@ export class WalletTypeOrmRepository implements WalletRepository {
   }
 
   async updateBalance(walletId: string, newBalance: number): Promise<boolean> {
+    const count = await this.updateManyBalance([walletId], newBalance);
+
+    return count === 1;
+  }
+
+  async updateManyBalance(
+    walletIds: string[],
+    newBalance: number,
+  ): Promise<number> {
+    if (walletIds.length === 0) {
+      return 0;
+    }
+
     const repository =
       this.transactionService.manager.getRepository(WalletTypeOrmEntity);
 
@@ -55,12 +69,12 @@ export class WalletTypeOrmRepository implements WalletRepository {
       `
       UPDATE wallets AS w
       SET balance = $2
-      WHERE w.wallet_id = $1
+      WHERE w.wallet_id = ANY($1::uuid[])
       RETURNING w.balance`,
-      [walletId, newBalance],
+      [walletIds, newBalance],
     );
 
-    return rows.length === 1;
+    return rows.length;
   }
 
   async getByUserId(
@@ -132,5 +146,34 @@ export class WalletTypeOrmRepository implements WalletRepository {
         userId: row.userId,
       }),
     );
+  }
+
+  async findByCurrencyWithCursor(
+    lastWalletId: string | undefined,
+    currency: WalletCurrency,
+    limit: number = 2000,
+  ): Promise<Pick<WalletEntity, 'walletId' | 'balance'>[]> {
+    const repository =
+      this.transactionService.manager.getRepository(WalletTypeOrmEntity);
+
+    const rows = await repository.query<WalletRow[]>(
+      `
+      SELECT
+        w.wallet_id AS "walletId",
+        w.balance AS "balance"
+      FROM wallets AS w
+      WHERE ($1::uuid IS NULL OR w.wallet_id > $1::uuid)
+        AND w.currency = $2
+      ORDER BY w.wallet_id ASC
+      LIMIT $3
+      FOR UPDATE SKIP LOCKED
+      `,
+      [lastWalletId ?? null, currency, limit],
+    );
+
+    return rows.map((row) => ({
+      walletId: row.walletId,
+      balance: Number(row.balance),
+    }));
   }
 }

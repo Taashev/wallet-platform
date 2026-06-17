@@ -44,8 +44,8 @@ export class WalletOperationTypeOrmEntity {
   })
   operationType!: WalletOperationType;
 
-  @Column({ type: 'uuid', name: 'wallet_transfer_id', nullable: false })
-  walletTransferId!: string;
+  @Column({ type: 'uuid', name: 'wallet_transfer_id', nullable: true })
+  walletTransferId!: string | null;
 
   @Column({ type: 'uuid', name: 'wallet_id', nullable: false })
   walletId!: string;
@@ -61,13 +61,13 @@ export class WalletOperationTypeOrmEntity {
   wallet!: WalletTypeOrmEntity;
 
   @ManyToOne(() => WalletTransferTypeOrmEntity, {
-    nullable: false,
-    onDelete: 'RESTRICT',
+    nullable: true,
+    onDelete: 'SET NULL',
   })
   @JoinColumn({
     name: 'wallet_transfer_id',
     foreignKeyConstraintName:
       WALLET_OPERATIONS_CONSTRAINT_WALLET_TRANSFER_ID_FK,
   })
-  walletTransfer!: WalletTransferTypeOrmEntity;
+  walletTransfer!: WalletTransferTypeOrmEntity | null;
 }
