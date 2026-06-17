@@ -1,3 +1,9 @@
 export const walletIdMock = 'ff6d704f-7af0-4daf-83cb-7dfa4e8233ef';
+export const recipientWalletIdMock = '3db21bd6-5be3-470b-9a65-9c8ccbbfcba1';
+export const walletTransferIdMock = '5ad4f548-f819-4d3d-a11e-0ac82853649a';
+export const walletOperationOutIdMock = '6e20a797-0f46-4109-a72c-078de681cd2d';
+export const walletOperationInIdMock = '7d4a4b3f-dc35-4a3b-bdfd-91d24320ca76';
+export const idempotencyKeyMock = 'a53e3e38-869a-49c2-b776-f46806bc6f99';
 export const currencyMock = 'USD';
 export const balanceMock = 5000;
+export const transferAmountMock = 1000;

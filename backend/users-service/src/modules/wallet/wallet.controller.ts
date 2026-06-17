@@ -16,7 +16,7 @@ import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import type { CurrentUserType } from '../users/types/user.type';
 
 import { CreateTransferDto } from './dto/create-transfer.dto';
-import { CreateWalletTransferUseCase } from './usecases/create-transaction.usecase';
+import { CreateWalletTransferUseCase } from './usecases/create-transfer.usecase';
 import { GetWalletUseCase } from './usecases/get-wallet.usecase';
 
 @Controller({ path: 'wallets', version: '1' })

@@ -12,7 +12,7 @@ import {
 import { WalletOperationTypeOrmEntity } from './database/entities/wallet-operation-typeorm.entity';
 import { WalletTransferTypeOrmEntity } from './database/entities/wallet-transfers-typeorm.entity';
 import { WalletTypeOrmEntity } from './database/entities/wallet-typeorm.entity';
-import { CreateWalletTransferUseCase } from './usecases/create-transaction.usecase';
+import { CreateWalletTransferUseCase } from './usecases/create-transfer.usecase';
 import { GetWalletUseCase } from './usecases/get-wallet.usecase';
 import { WalletController } from './wallet.controller';
 
